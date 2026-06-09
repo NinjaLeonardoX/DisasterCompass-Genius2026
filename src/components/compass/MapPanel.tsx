@@ -51,7 +51,7 @@ export function MapPanel({ disaster }: Props) {
           className="absolute inset-0 opacity-40"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(15,23,42,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.06) 1px, transparent 1px)",
+              "linear-gradient(rgba(30,41,59,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(30,41,59,0.06) 1px, transparent 1px)",
             backgroundSize: "32px 32px",
           }}
         />

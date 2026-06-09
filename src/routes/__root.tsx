@@ -123,7 +123,7 @@ function AppChrome() {
       <div className="flex min-h-screen w-full">
         <AppSidebar activeScenario={activeScenario} onSelectScenario={setActiveScenario} />
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-white/10 bg-[color:var(--surface)] px-4 text-surface-foreground shadow-[0_8px_30px_-12px_rgba(15,23,42,0.45)] sm:px-6">
+          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-white/10 bg-[color:var(--surface)] px-4 text-surface-foreground shadow-[0_8px_30px_-12px_rgba(30,41,59,0.45)] sm:px-6">
             <SidebarTrigger className="text-white hover:bg-white/10" />
             <div className="flex items-center gap-2">
               <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-white/10 ring-1 ring-white/15">
