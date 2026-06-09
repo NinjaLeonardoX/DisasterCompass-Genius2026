@@ -64,33 +64,57 @@ function CompassPage() {
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="space-y-6 lg:col-span-2">
+        {/* HERO: Action + Map side-by-side, above the fold */}
+        <div id="map" className="grid gap-6 lg:grid-cols-5 lg:items-stretch">
+          <div className="lg:col-span-3">
             <ActionCard
               ref={actionRef}
               disaster={selectedDisaster}
               volunteerApproved={volunteerApproved}
               highlight={planGenerated}
             />
+          </div>
+          <div className="lg:col-span-2">
             <MapPanel disaster={selectedDisaster} />
-            {selectedDisaster === "Flood" && <RouteScorePanel />}
+          </div>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-2">
+            {selectedDisaster === "Flood" && (
+              <div id="scores">
+                <RouteScorePanel />
+              </div>
+            )}
             <AiSummaryPanel
               simplified={simplifiedSummary}
               onToggle={setSimplifiedSummary}
             />
+            {showCoordinator && (
+              <div id="coordinator">
+                <CoordinatorPanel volunteerApproved={volunteerApproved} />
+              </div>
+            )}
+            {showRecovery && (
+              <div id="recovery">
+                <RecoveryPanel />
+              </div>
+            )}
           </div>
 
           <div className="space-y-6">
             <HouseholdCard onGeneratePlan={handleGenerate} />
             {selectedDisaster === "Flood" && (
-              <VolunteerMatchCard
-                volunteerApproved={volunteerApproved}
-                onApprove={() => setVolunteerApproved(true)}
-              />
+              <div id="volunteer">
+                <VolunteerMatchCard
+                  volunteerApproved={volunteerApproved}
+                  onApprove={() => setVolunteerApproved(true)}
+                />
+              </div>
             )}
 
-            <div className="rounded-2xl border border-border bg-surface p-4">
-              <p className="text-xs font-medium uppercase tracking-wide text-foreground/60">
+            <div className="dc-card p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-card-foreground/55">
                 Panels
               </p>
               <div className="mt-3 space-y-2">
@@ -100,7 +124,7 @@ function CompassPage() {
                     type="checkbox"
                     checked={showCoordinator}
                     onChange={(e) => setShowCoordinator(e.target.checked)}
-                    className="h-4 w-4 rounded text-primary focus:ring-primary"
+                    className="h-4 w-4 rounded text-[color:var(--severity-low)] focus:ring-[color:var(--severity-low)]"
                   />
                 </label>
                 <label className="flex items-center justify-between gap-3 text-sm">
@@ -109,16 +133,11 @@ function CompassPage() {
                     type="checkbox"
                     checked={showRecovery}
                     onChange={(e) => setShowRecovery(e.target.checked)}
-                    className="h-4 w-4 rounded text-primary focus:ring-primary"
+                    className="h-4 w-4 rounded text-[color:var(--severity-low)] focus:ring-[color:var(--severity-low)]"
                   />
                 </label>
               </div>
             </div>
-
-            {showCoordinator && (
-              <CoordinatorPanel volunteerApproved={volunteerApproved} />
-            )}
-            {showRecovery && <RecoveryPanel />}
           </div>
         </div>
 
