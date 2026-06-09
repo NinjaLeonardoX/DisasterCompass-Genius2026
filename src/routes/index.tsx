@@ -46,15 +46,13 @@ function LandingPage() {
       <div className="relative">
         {/* NAV */}
         <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
-          <div className="flex items-center gap-2.5">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15 backdrop-blur">
-              <Compass className="h-5 w-5 text-[#16A34A]" />
-            </span>
-            <span className="text-base font-bold tracking-tight">
-              <span className="text-white">Disaster</span>
-              <span className="text-[#16A34A]">Compass</span>
-            </span>
-          </div>
+          <Link to="/" className="flex items-center">
+            <img
+              src={dcLogo.url}
+              alt="DisasterCompass — Community Disaster Action Planner"
+              className="h-10 w-auto rounded-md bg-white/95 px-2 py-1 ring-1 ring-white/15"
+            />
+          </Link>
           <nav className="hidden items-center gap-8 text-sm text-white/70 md:flex">
             <a href="#how" className="hover:text-white">How it works</a>
             <a href="#features" className="hover:text-white">Features</a>
