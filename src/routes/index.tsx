@@ -239,7 +239,7 @@ function LandingPage() {
           <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-8 text-xs text-white/40 sm:flex-row">
             <div className="flex items-center gap-2">
               <Compass className="h-4 w-4 text-[#16A34A]" />
-              <span>DisasterCompass · North Creek Demo · 2026</span>
+              <span>DisasterCompass · 2026</span>
             </div>
             <span>For demonstration only. Not an official emergency service.</span>
           </div>

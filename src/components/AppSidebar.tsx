@@ -58,14 +58,6 @@ export function AppSidebar({ activeScenario, onSelectScenario }: AppSidebarProps
             className={`${collapsed ? "h-8 w-8 object-cover object-left" : "h-9 w-auto"}`}
           />
         </Link>
-        {!collapsed && (
-          <div className="px-1 pb-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/8 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-200 ring-1 ring-white/10">
-              <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--severity-low)]" aria-hidden="true" />
-              North Creek Demo
-            </span>
-          </div>
-        )}
       </SidebarHeader>
 
 
