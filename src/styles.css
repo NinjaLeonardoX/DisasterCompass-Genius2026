@@ -42,29 +42,29 @@
   --radius: 0.875rem;
   /* DisasterCompass civic palette — light base, navy surfaces */
   --background: #F8FAFC;          /* dc-bg */
-  --foreground: #1e293b;          /* dc-navy */
+  --foreground: #2a3b55;          /* dc-navy */
 
-  --surface: #1e293b;             /* dark navy header */
+  --surface: #2a3b55;             /* dark navy header */
   --surface-foreground: #F8FAFC;
 
   --card: #FFFFFF;
-  --card-foreground: #1e293b;
+  --card-foreground: #2a3b55;
 
   --popover: #FFFFFF;
-  --popover-foreground: #1e293b;
+  --popover-foreground: #2a3b55;
 
   /* Primary = navy (official/trust) */
-  --primary: #1e293b;
+  --primary: #2a3b55;
   --primary-foreground: #FFFFFF;
 
   --secondary: #F1F5F9;
-  --secondary-foreground: #1e293b;
+  --secondary-foreground: #2a3b55;
 
   --muted: #F1F5F9;
   --muted-foreground: #64748B;    /* dc-muted */
 
   --accent: #E2E8F0;
-  --accent-foreground: #1e293b;
+  --accent-foreground: #2a3b55;
 
   --destructive: #DC2626;
   --destructive-foreground: #FFFFFF;
@@ -95,7 +95,7 @@
     background-image:
       radial-gradient(circle at 8% 6%, rgba(56, 189, 248, 0.18), transparent 32%),
       radial-gradient(circle at 92% 4%, rgba(22, 163, 74, 0.16), transparent 30%),
-      radial-gradient(circle at 50% 100%, rgba(30, 41, 59, 0.05), transparent 45%),
+      radial-gradient(circle at 50% 100%, rgba(42, 59, 85, 0.05), transparent 45%),
       linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 50%, #EEF7F1 100%);
     background-attachment: fixed;
   }
@@ -108,43 +108,43 @@
 
 /* --- DisasterCompass depth + accent utilities (2.5D civic-tech) --- */
 @utility dc-elev-1 {
-  box-shadow: 0 8px 30px rgba(30, 41, 59, 0.06);
+  box-shadow: 0 8px 30px rgba(42, 59, 85, 0.06);
 }
 @utility dc-elev-2 {
-  box-shadow: 0 18px 55px rgba(30, 41, 59, 0.12);
+  box-shadow: 0 18px 55px rgba(42, 59, 85, 0.12);
 }
 @utility dc-elev-hero {
   box-shadow:
-    0 24px 80px -30px rgba(30, 41, 59, 0.35),
-    0 4px 14px rgba(30, 41, 59, 0.06);
+    0 24px 80px -30px rgba(42, 59, 85, 0.35),
+    0 4px 14px rgba(42, 59, 85, 0.06);
 }
 @utility dc-glow-green {
   box-shadow:
     0 20px 60px -30px rgba(22, 163, 74, 0.65),
-    0 2px 8px rgba(30, 41, 59, 0.05);
+    0 2px 8px rgba(42, 59, 85, 0.05);
 }
 @utility dc-glow-red {
   box-shadow:
     0 16px 50px -28px rgba(220, 38, 38, 0.7),
-    0 2px 8px rgba(30, 41, 59, 0.05);
+    0 2px 8px rgba(42, 59, 85, 0.05);
 }
 @utility dc-glow-amber {
   box-shadow:
     0 16px 50px -28px rgba(245, 158, 11, 0.55),
-    0 2px 8px rgba(30, 41, 59, 0.05);
+    0 2px 8px rgba(42, 59, 85, 0.05);
 }
 @utility dc-hover-lift {
   transition: transform 200ms ease, box-shadow 200ms ease;
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 22px 60px -28px rgba(30, 41, 59, 0.25);
+    box-shadow: 0 22px 60px -28px rgba(42, 59, 85, 0.25);
   }
 }
 @utility dc-card {
   background: #FFFFFF;
   border: 1px solid rgba(226, 232, 240, 0.85);
   border-radius: 1.25rem;
-  box-shadow: 0 8px 30px rgba(30, 41, 59, 0.06);
+  box-shadow: 0 8px 30px rgba(42, 59, 85, 0.06);
 }
 @utility dc-glass {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.78));

@@ -47,7 +47,7 @@ export function HouseholdCard({ onGeneratePlan }: Props) {
       <button
         type="button"
         onClick={onGeneratePlan}
-        className="dc-hover-lift mt-5 inline-flex w-full items-center justify-center rounded-xl bg-[color:var(--foreground)] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_-12px_rgba(30,41,59,0.6)] ring-1 ring-white/10 hover:bg-[color:var(--foreground)]/95 hover:shadow-[0_14px_30px_-12px_rgba(22,163,74,0.55)]"
+        className="dc-hover-lift mt-5 inline-flex w-full items-center justify-center rounded-xl bg-[color:var(--foreground)] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_-12px_rgba(42,59,85,0.6)] ring-1 ring-white/10 hover:bg-[color:var(--foreground)]/95 hover:shadow-[0_14px_30px_-12px_rgba(22,163,74,0.55)]"
       >
         Generate My Compass Plan
       </button>
