@@ -46,7 +46,7 @@ function LandingPage() {
 
       <div className="relative">
         {/* NAV */}
-        <header className="mx-auto flex max-w-7xl items-center justify-between rounded-b-xl bg-white/95 px-6 py-4 shadow-lg shadow-black/10 ring-1 ring-white/20 backdrop-blur">
+        <header className="flex w-full items-center justify-between bg-white px-6 py-4">
           <Link to="/" className="flex items-center">
             <img
               src={dcLogo.url}
