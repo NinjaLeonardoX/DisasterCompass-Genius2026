@@ -51,7 +51,7 @@ function LandingPage() {
             <img
               src={dcLogo}
               alt="DisasterCompass — Community Disaster Action Planner"
-              className="h-10 w-auto rounded-md bg-white/95 px-2 py-1 ring-1 ring-white/15"
+              className="h-10 w-auto rounded-md px-2 py-1"
             />
           </Link>
           <nav className="hidden items-center gap-8 text-sm text-white/70 md:flex">

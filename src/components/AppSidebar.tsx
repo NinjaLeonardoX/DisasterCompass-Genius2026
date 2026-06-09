@@ -53,7 +53,7 @@ export function AppSidebar({ activeScenario, onSelectScenario }: AppSidebarProps
           <img
             src={dcLogo}
             alt="DisasterCompass"
-            className={`${collapsed ? "h-8 w-8 object-cover object-left" : "h-9 w-auto"} rounded-md bg-white px-1.5 py-0.5 ring-1 ring-white/15`}
+            className={`${collapsed ? "h-8 w-8 object-cover object-left" : "h-9 w-auto"} rounded-md px-1.5 py-0.5`}
           />
         </Link>
         {!collapsed && (
