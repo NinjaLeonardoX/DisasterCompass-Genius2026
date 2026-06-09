@@ -21,7 +21,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { DemoScenarioDropdown, type DemoScenario } from "./DemoScenarioDropdown";
-import dcLogo from "@/assets/disaster-compass-logo.png.asset.json";
+
 
 interface AppSidebarProps {
   activeScenario: string | null;
@@ -49,15 +49,8 @@ export function AppSidebar({ activeScenario, onSelectScenario }: AppSidebarProps
       className="border-r border-white/5 [&_[data-sidebar=sidebar]]:bg-[color:var(--surface)] [&_[data-sidebar=sidebar]]:text-surface-foreground"
     >
       <SidebarHeader className="border-b border-slate-200 bg-white">
-        <Link to="/compass" className="flex items-center px-1 py-2">
-          <img
-            src={dcLogo.url}
-            alt="DisasterCompass"
-            className={`${collapsed ? "h-8 w-8 object-cover object-left" : "h-9 w-auto"}`}
-          />
-        </Link>
         {!collapsed && (
-          <div className="px-1 pb-2">
+          <div className="px-1 py-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/8 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-200 ring-1 ring-white/10">
               <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--severity-low)]" aria-hidden="true" />
               North Creek Demo
@@ -65,6 +58,7 @@ export function AppSidebar({ activeScenario, onSelectScenario }: AppSidebarProps
           </div>
         )}
       </SidebarHeader>
+
 
       <SidebarContent className="bg-[color:var(--surface)]">
         <SidebarGroup>
