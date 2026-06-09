@@ -326,24 +326,3 @@ const features = [
   },
 ];
 
-const steps = [
-  {
-    title: "Signals come in.",
-    desc: "Weather APIs, sensors, and community reports flow into one normalized stream — verified, deduped, geolocated.",
-  },
-  {
-    title: "The Compass decides.",
-    desc: "We weigh hazard severity, route safety, household needs, and shelter capacity into a single recommended action.",
-  },
-  {
-    title: "Your family moves.",
-    desc: "One clear instruction, one mapped route, one tap to coordinate with neighbors. No dashboard hunting.",
-  },
-];
-
-const disclosures = [
-  "Source feeds shown for every alert",
-  "Route scoring formula open and inspectable",
-  "Human-in-the-loop coordinator override",
-  "Model version + confidence on every call",
-];
