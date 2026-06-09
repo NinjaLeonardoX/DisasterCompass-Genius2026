@@ -9,8 +9,44 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ReportRouteImport } from './routes/report'
+import { Route as MethodologyRouteImport } from './routes/methodology'
+import { Route as MapRouteImport } from './routes/map'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as AiDisclosureRouteImport } from './routes/ai-disclosure'
+import { Route as ActionPlanRouteImport } from './routes/action-plan'
 import { Route as IndexRouteImport } from './routes/index'
 
+const ReportRoute = ReportRouteImport.update({
+  id: '/report',
+  path: '/report',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MethodologyRoute = MethodologyRouteImport.update({
+  id: '/methodology',
+  path: '/methodology',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapRoute = MapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiDisclosureRoute = AiDisclosureRouteImport.update({
+  id: '/ai-disclosure',
+  path: '/ai-disclosure',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ActionPlanRoute = ActionPlanRouteImport.update({
+  id: '/action-plan',
+  path: '/action-plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +55,116 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/action-plan': typeof ActionPlanRoute
+  '/ai-disclosure': typeof AiDisclosureRoute
+  '/dashboard': typeof DashboardRoute
+  '/map': typeof MapRoute
+  '/methodology': typeof MethodologyRoute
+  '/report': typeof ReportRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/action-plan': typeof ActionPlanRoute
+  '/ai-disclosure': typeof AiDisclosureRoute
+  '/dashboard': typeof DashboardRoute
+  '/map': typeof MapRoute
+  '/methodology': typeof MethodologyRoute
+  '/report': typeof ReportRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/action-plan': typeof ActionPlanRoute
+  '/ai-disclosure': typeof AiDisclosureRoute
+  '/dashboard': typeof DashboardRoute
+  '/map': typeof MapRoute
+  '/methodology': typeof MethodologyRoute
+  '/report': typeof ReportRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/action-plan'
+    | '/ai-disclosure'
+    | '/dashboard'
+    | '/map'
+    | '/methodology'
+    | '/report'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/action-plan'
+    | '/ai-disclosure'
+    | '/dashboard'
+    | '/map'
+    | '/methodology'
+    | '/report'
+  id:
+    | '__root__'
+    | '/'
+    | '/action-plan'
+    | '/ai-disclosure'
+    | '/dashboard'
+    | '/map'
+    | '/methodology'
+    | '/report'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ActionPlanRoute: typeof ActionPlanRoute
+  AiDisclosureRoute: typeof AiDisclosureRoute
+  DashboardRoute: typeof DashboardRoute
+  MapRoute: typeof MapRoute
+  MethodologyRoute: typeof MethodologyRoute
+  ReportRoute: typeof ReportRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/report': {
+      id: '/report'
+      path: '/report'
+      fullPath: '/report'
+      preLoaderRoute: typeof ReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/methodology': {
+      id: '/methodology'
+      path: '/methodology'
+      fullPath: '/methodology'
+      preLoaderRoute: typeof MethodologyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/map': {
+      id: '/map'
+      path: '/map'
+      fullPath: '/map'
+      preLoaderRoute: typeof MapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-disclosure': {
+      id: '/ai-disclosure'
+      path: '/ai-disclosure'
+      fullPath: '/ai-disclosure'
+      preLoaderRoute: typeof AiDisclosureRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/action-plan': {
+      id: '/action-plan'
+      path: '/action-plan'
+      fullPath: '/action-plan'
+      preLoaderRoute: typeof ActionPlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,7 +177,23 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ActionPlanRoute: ActionPlanRoute,
+  AiDisclosureRoute: AiDisclosureRoute,
+  DashboardRoute: DashboardRoute,
+  MapRoute: MapRoute,
+  MethodologyRoute: MethodologyRoute,
+  ReportRoute: ReportRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
