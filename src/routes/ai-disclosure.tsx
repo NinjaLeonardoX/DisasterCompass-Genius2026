@@ -4,8 +4,8 @@ import { PageShell } from "../components/PageShell";
 export const Route = createFileRoute("/ai-disclosure")({
   head: () => ({
     meta: [
-      { title: "AI Disclosure — Relief Radar" },
-      { name: "description", content: "How AI was used to build Relief Radar." },
+      { title: "AI Disclosure — DisasterCompass" },
+      { name: "description", content: "How AI was used to build DisasterCompass." },
     ],
   }),
   component: AIDisclosurePage,

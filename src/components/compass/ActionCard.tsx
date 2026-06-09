@@ -27,27 +27,54 @@ function Hero({
 }) {
   const toneClass =
     tone === "go"
-      ? "text-[color:var(--severity-critical)]"
+      ? "text-[color:var(--foreground)]"
       : tone === "stay"
         ? "text-[color:var(--severity-low)]"
         : "text-[color:var(--severity-moderate)]";
   const pillClass =
     tone === "go"
-      ? "bg-[color:var(--severity-critical)]/10 text-[color:var(--severity-critical)] ring-[color:var(--severity-critical)]/25"
+      ? "bg-[color:var(--severity-low)] text-white ring-[color:var(--severity-low)]/40 shadow-[0_8px_22px_-10px_rgba(22,163,74,0.7)]"
       : tone === "stay"
-        ? "bg-[color:var(--severity-low)]/10 text-[color:var(--severity-low)] ring-[color:var(--severity-low)]/25"
-        : "bg-[color:var(--severity-moderate)]/10 text-[color:var(--severity-moderate)] ring-[color:var(--severity-moderate)]/25";
+        ? "bg-[color:var(--severity-low)]/12 text-[color:var(--severity-low)] ring-[color:var(--severity-low)]/30"
+        : "bg-[color:var(--severity-moderate)]/15 text-[color:var(--severity-moderate)] ring-[color:var(--severity-moderate)]/30";
   const label = tone === "go" ? "GO" : tone === "stay" ? "STAY" : "WAIT";
   return (
     <div className="mt-3 flex flex-wrap items-center gap-3">
-      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold tracking-wider ring-1 ${pillClass}`}>
+      <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold tracking-[0.15em] ring-1 ${pillClass}`}>
         {label}
       </span>
       <p
-        className={`text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl ${toneClass}`}
+        className={`text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-[3.4rem] ${toneClass}`}
       >
         {verb}
       </p>
+    </div>
+  );
+}
+
+function StatusBadges({ volunteerApproved }: { volunteerApproved: boolean }) {
+  return (
+    <div className="mt-4 flex flex-wrap gap-2">
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--severity-low)]/12 px-2.5 py-1 text-[11px] font-semibold text-[color:var(--severity-low)] ring-1 ring-[color:var(--severity-low)]/25">
+        <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--severity-low)]" aria-hidden="true" />
+        Safe Route Selected
+      </span>
+      <span className={[
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1",
+        volunteerApproved
+          ? "bg-[color:var(--severity-low)]/12 text-[color:var(--severity-low)] ring-[color:var(--severity-low)]/25"
+          : "bg-[color:var(--severity-moderate)]/15 text-[color:var(--severity-moderate)] ring-[color:var(--severity-moderate)]/30",
+      ].join(" ")}>
+        <span className={[
+          "h-1.5 w-1.5 rounded-full",
+          volunteerApproved ? "bg-[color:var(--severity-low)]" : "bg-[color:var(--severity-moderate)]",
+        ].join(" ")} aria-hidden="true" />
+        {volunteerApproved ? "Transport Approved" : "Needs Transport"}
+      </span>
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--severity-critical)]/12 px-2.5 py-1 text-[11px] font-semibold text-[color:var(--severity-critical)] ring-1 ring-[color:var(--severity-critical)]/25">
+        <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--severity-critical)]" aria-hidden="true" />
+        Flood Warning Active
+      </span>
     </div>
   );
 }
@@ -100,6 +127,7 @@ export const ActionCard = forwardRef<HTMLDivElement, Props>(function ActionCard(
       {disaster === "Flood" && (
         <>
           <Hero verb="GO TO HIGHER GROUND" tone="go" />
+          <StatusBadges volunteerApproved={volunteerApproved} />
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <div>
               <p className="flex items-center gap-2 text-sm font-semibold">

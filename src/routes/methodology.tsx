@@ -4,8 +4,8 @@ import { PageShell } from "../components/PageShell";
 export const Route = createFileRoute("/methodology")({
   head: () => ({
     meta: [
-      { title: "Methodology — Relief Radar" },
-      { name: "description", content: "How Relief Radar scores signals and resilience." },
+      { title: "Methodology — DisasterCompass" },
+      { name: "description", content: "How DisasterCompass scores signals and resilience." },
     ],
   }),
   component: MethodologyPage,

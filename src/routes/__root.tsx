@@ -81,12 +81,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Relief Radar — Community disaster signal map" },
+      { title: "DisasterCompass — Community disaster signal map" },
       {
         name: "description",
         content: "Turn community signals into prioritized disaster action.",
       },
-      { property: "og:title", content: "Relief Radar" },
+      { property: "og:title", content: "DisasterCompass" },
       {
         property: "og:description",
         content: "Turn community signals into prioritized disaster action.",

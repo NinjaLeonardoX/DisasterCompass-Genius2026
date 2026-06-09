@@ -19,7 +19,7 @@ import { ROUTES, VOLUNTEERS, RIVERA_HOUSEHOLD, SHELTERS } from "@/data/seed";
 export const Route = createFileRoute("/action-plan")({
   head: () => ({
     meta: [
-      { title: "Recommended Response Plan — Relief Radar" },
+      { title: "Recommended Response Plan — DisasterCompass" },
       { name: "description", content: "A prioritized action plan based on community signals." },
     ],
   }),

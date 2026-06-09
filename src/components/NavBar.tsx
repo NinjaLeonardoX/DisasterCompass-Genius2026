@@ -21,7 +21,7 @@ export function NavBar({ activeScenario, onSelectScenario }: NavBarProps) {
           <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
             <Radar className="h-5 w-5" aria-hidden="true" />
           </span>
-          <span className="hidden text-lg tracking-tight sm:inline">Relief Radar</span>
+          <span className="hidden text-lg tracking-tight sm:inline">DisasterCompass</span>
         </Link>
 
         <div className="ml-4 hidden flex-1 items-center gap-4 xl:flex">

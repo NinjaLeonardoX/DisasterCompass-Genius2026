@@ -17,7 +17,7 @@ const MapPanel = lazy(() => import("../components/MapPanel"));
 export const Route = createFileRoute("/map")({
   head: () => ({
     meta: [
-      { title: "Disaster Signal Map — Relief Radar" },
+      { title: "Disaster Signal Map — DisasterCompass" },
       { name: "description", content: "Live community disaster signals visualized on a map." },
     ],
   }),
