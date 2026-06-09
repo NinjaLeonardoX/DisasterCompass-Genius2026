@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 
 export const REFERENCE_LINKS = [
+  { to: "/compass", label: "DisasterCompass" },
   { to: "/shelters-routes", label: "Shelters & Routes" },
   { to: "/methodology", label: "Methodology" },
   { to: "/ai-disclosure", label: "AI Disclosure" },
