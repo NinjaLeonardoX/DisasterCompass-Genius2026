@@ -89,10 +89,17 @@ export function RouteScorePanel() {
         <p className="text-xs text-card-foreground/60">Rules-based, explainable</p>
       </div>
       <div className="grid gap-3 lg:grid-cols-3">
-        {ROUTES.map((r) => (
+        {ROUTES.map((r) => {
+          const borderCls =
+            r.status === "Best"
+              ? "border-[color:var(--severity-low)]/50 bg-[color:var(--severity-low)]/5 ring-1 ring-[color:var(--severity-low)]/30"
+              : r.status === "Caution"
+                ? "border-[color:var(--severity-moderate)]/50 bg-[color:var(--severity-moderate)]/5"
+                : "border-[color:var(--severity-critical)]/40 bg-[color:var(--severity-critical)]/5";
+          return (
           <div
             key={r.name}
-            className="rounded-xl border border-card-foreground/10 p-4"
+            className={`rounded-xl border p-4 transition-shadow hover:shadow-md ${borderCls}`}
           >
             <div className="flex items-center justify-between">
               <p className="font-semibold">{r.name}</p>
@@ -124,7 +131,8 @@ export function RouteScorePanel() {
               ))}
             </dl>
           </div>
-        ))}
+          );
+        })}
       </div>
       <p className="mt-4 text-sm text-card-foreground/75">
         Best: Route B — avoids the flooded bridge and reaches higher ground.

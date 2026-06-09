@@ -40,44 +40,44 @@
 
 :root {
   --radius: 0.875rem;
-  /* Deep navy/teal base */
-  --background: oklch(0.252 0.045 230);
-  --foreground: oklch(0.985 0.005 220);
+  /* DisasterCompass civic palette — light base, navy surfaces */
+  --background: #F8FAFC;          /* dc-bg */
+  --foreground: #0F172A;          /* dc-navy */
 
-  --surface: oklch(0.305 0.04 225);
-  --surface-foreground: oklch(0.985 0.005 220);
+  --surface: #0F172A;             /* dark navy header */
+  --surface-foreground: #F8FAFC;
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.205 0.04 240);
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
 
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.205 0.04 240);
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
 
-  /* Teal accent #14C0C0 */
-  --primary: oklch(0.745 0.13 195);
-  --primary-foreground: oklch(0.18 0.03 230);
+  /* Primary = navy (official/trust) */
+  --primary: #0F172A;
+  --primary-foreground: #FFFFFF;
 
-  --secondary: oklch(0.36 0.04 225);
-  --secondary-foreground: oklch(0.985 0.005 220);
+  --secondary: #F1F5F9;
+  --secondary-foreground: #0F172A;
 
-  --muted: oklch(0.36 0.035 225);
-  --muted-foreground: oklch(0.78 0.02 220);
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;    /* dc-muted */
 
-  --accent: oklch(0.745 0.13 195);
-  --accent-foreground: oklch(0.18 0.03 230);
+  --accent: #E2E8F0;
+  --accent-foreground: #0F172A;
 
-  --destructive: oklch(0.62 0.22 27);
-  --destructive-foreground: oklch(0.985 0.005 220);
+  --destructive: #DC2626;
+  --destructive-foreground: #FFFFFF;
 
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.745 0.13 195);
+  --border: #E2E8F0;              /* dc-border */
+  --input: #E2E8F0;
+  --ring: #38BDF8;                /* dc-blue focus ring */
 
-  /* Severity (paired with icon + label, never color-alone) */
-  --severity-critical: oklch(0.58 0.22 27);   /* #DC2626 */
-  --severity-high: oklch(0.65 0.19 42);       /* #EA580C */
-  --severity-moderate: oklch(0.72 0.16 70);   /* #D97706 */
-  --severity-low: oklch(0.62 0.17 145);       /* #16A34A */
+  /* Severity (icon + label always paired) */
+  --severity-critical: #DC2626;
+  --severity-high: #DC2626;
+  --severity-moderate: #F59E0B;   /* dc-amber */
+  --severity-low: #16A34A;        /* dc-green */
 }
 
 @layer base {
