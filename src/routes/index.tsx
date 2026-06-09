@@ -67,7 +67,7 @@ function LandingPage() {
         </header>
 
         {/* HERO */}
-        <section className="mx-auto max-w-7xl px-6 pt-12 pb-12 lg:pt-20 lg:pb-16">
+        <section className="mx-auto max-w-7xl px-6 pt-12 pb-4 lg:pt-20 lg:pb-6">
           <div className="grid items-center gap-14 lg:grid-cols-12">
             <div className="lg:col-span-7">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white/80 backdrop-blur">
@@ -181,7 +181,7 @@ function LandingPage() {
 
 
         {/* FEATURES */}
-        <section id="features" className="mx-auto max-w-7xl px-6 py-12 lg:py-16">
+        <section id="features" className="mx-auto max-w-7xl px-6 pt-4 pb-12 lg:pt-6 lg:pb-16">
           <div className="max-w-2xl">
             <p className="text-xs uppercase tracking-[0.25em] text-[#16A34A]">The system</p>
             <h2 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
