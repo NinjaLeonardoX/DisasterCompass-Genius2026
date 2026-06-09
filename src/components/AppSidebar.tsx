@@ -21,6 +21,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { DemoScenarioDropdown, type DemoScenario } from "./DemoScenarioDropdown";
+import dcLogo from "@/assets/disaster-compass-logo.png.asset.json";
 
 interface AppSidebarProps {
   activeScenario: string | null;
@@ -48,21 +49,12 @@ export function AppSidebar({ activeScenario, onSelectScenario }: AppSidebarProps
       className="border-r border-white/5 [&_[data-sidebar=sidebar]]:bg-[color:var(--surface)] [&_[data-sidebar=sidebar]]:text-surface-foreground"
     >
       <SidebarHeader className="border-b border-white/10 bg-[color:var(--surface)]">
-        <Link to="/compass" className="flex items-center gap-2.5 px-1 py-2">
-          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white ring-1 ring-white/15">
-            <Compass className="h-5 w-5" aria-hidden="true" />
-          </span>
-          {!collapsed && (
-            <div className="min-w-0">
-              <p className="truncate text-sm font-bold tracking-tight">
-                <span className="text-white">Disaster</span>
-                <span className="text-[color:var(--severity-low)]">Compass</span>
-              </p>
-              <p className="truncate text-[10px] uppercase tracking-wider text-slate-400">
-                Community Action Planner
-              </p>
-            </div>
-          )}
+        <Link to="/compass" className="flex items-center px-1 py-2">
+          <img
+            src={dcLogo.url}
+            alt="DisasterCompass"
+            className={`${collapsed ? "h-8 w-8 object-cover object-left" : "h-9 w-auto"} rounded-md bg-white px-1.5 py-0.5 ring-1 ring-white/15`}
+          />
         </Link>
         {!collapsed && (
           <div className="px-1 pb-2">
