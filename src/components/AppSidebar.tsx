@@ -21,7 +21,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { DemoScenarioDropdown, type DemoScenario } from "./DemoScenarioDropdown";
-import dcLogo from "@/assets/disaster-compass-logo.png.asset.json";
+
 
 interface AppSidebarProps {
   activeScenario: string | null;
