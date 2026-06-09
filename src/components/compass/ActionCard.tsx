@@ -127,6 +127,7 @@ export const ActionCard = forwardRef<HTMLDivElement, Props>(function ActionCard(
       {disaster === "Flood" && (
         <>
           <Hero verb="GO TO HIGHER GROUND" tone="go" />
+          <StatusBadges volunteerApproved={volunteerApproved} />
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <div>
               <p className="flex items-center gap-2 text-sm font-semibold">
