@@ -21,7 +21,7 @@ const sections = [
 
 function AIDisclosurePage() {
   return (
-    <PageShell title="AI Disclosure">
+    <PageShell title="AI Disclosure" showStepIndicator={false}>
       <div className="grid gap-4 sm:grid-cols-2">
         {sections.map((s) => (
           <section

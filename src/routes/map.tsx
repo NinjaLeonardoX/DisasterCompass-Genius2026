@@ -1,7 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouterState } from "@tanstack/react-router";
 import { MapPin } from "lucide-react";
 import { PageShell } from "../components/PageShell";
 import { EmptyState } from "../components/EmptyState";
+import { NextBackNav } from "../components/NextBackNav";
 
 export const Route = createFileRoute("/map")({
   head: () => ({
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/map")({
 });
 
 function MapPage() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
     <PageShell title="Disaster Signal Map">
       <EmptyState
@@ -21,6 +23,7 @@ function MapPage() {
         heading="No scenario loaded"
         helper="Load a demo scenario to see signals on the map."
       />
+      <NextBackNav currentPath={pathname} />
     </PageShell>
   );
 }

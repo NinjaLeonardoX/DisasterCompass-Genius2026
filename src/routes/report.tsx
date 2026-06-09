@@ -1,7 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouterState } from "@tanstack/react-router";
 import { MessageSquarePlus } from "lucide-react";
 import { PageShell } from "../components/PageShell";
 import { EmptyState } from "../components/EmptyState";
+import { NextBackNav } from "../components/NextBackNav";
 
 export const Route = createFileRoute("/report")({
   head: () => ({
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/report")({
 });
 
 function SignalDropPage() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
     <PageShell title="Report a Community Signal">
       <EmptyState
@@ -21,6 +23,7 @@ function SignalDropPage() {
         heading="Form coming soon"
         helper="The signal report form will appear here."
       />
+      <NextBackNav currentPath={pathname} />
     </PageShell>
   );
 }

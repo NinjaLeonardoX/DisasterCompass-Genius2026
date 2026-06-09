@@ -1,5 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ShieldCheck, Activity, LifeBuoy, ArrowRight, PlayCircle } from "lucide-react";
+import {
+  ShieldCheck,
+  Activity,
+  LifeBuoy,
+  ArrowRight,
+  PlayCircle,
+  Map as MapIcon,
+  MessageSquarePlus,
+  BarChart3,
+  ListChecks,
+} from "lucide-react";
 import { useScenario } from "../components/ScenarioContext";
 import { DemoScenarioDropdown } from "../components/DemoScenarioDropdown";
 
@@ -17,12 +27,19 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
 });
 
+const flowSteps = [
+  { n: 1, label: "Load a scenario", icon: PlayCircle },
+  { n: 2, label: "See signals on the map", icon: MapIcon },
+  { n: 3, label: "Report a signal", icon: MessageSquarePlus },
+  { n: 4, label: "View the dashboard", icon: BarChart3 },
+  { n: 5, label: "Get an action plan", icon: ListChecks },
+];
+
 function LandingPage() {
   const { setActiveScenario } = useScenario();
 
   return (
     <main className="flex-1">
-      {/* Hero */}
       <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
         <div className="max-w-3xl">
           <span className="inline-flex items-center gap-2 rounded-full bg-surface px-3 py-1 text-xs font-medium text-primary">
@@ -48,25 +65,12 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* Prepare / Respond / Recover */}
       <section className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6">
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {[
-            {
-              icon: ShieldCheck,
-              title: "Prepare",
-              body: "See risks and resource gaps before disaster strikes.",
-            },
-            {
-              icon: Activity,
-              title: "Respond",
-              body: "Prioritize live community signals as events unfold.",
-            },
-            {
-              icon: LifeBuoy,
-              title: "Recover",
-              body: "Track resilience and direct help where it's needed most.",
-            },
+            { icon: ShieldCheck, title: "Prepare", body: "See risks and resource gaps before disaster strikes." },
+            { icon: Activity, title: "Respond", body: "Prioritize live community signals as events unfold." },
+            { icon: LifeBuoy, title: "Recover", body: "Track resilience and direct help where it's needed most." },
           ].map(({ icon: Icon, title, body }) => (
             <article
               key={title}
@@ -82,25 +86,21 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* How it works */}
       <section className="mx-auto w-full max-w-7xl px-4 pb-20 sm:px-6">
         <h2 className="text-xl font-semibold text-foreground">How it works</h2>
-        <ol className="mt-5 grid gap-4 sm:grid-cols-3">
-          {[
-            { n: 1, t: "Load a scenario", icon: PlayCircle },
-            { n: 2, t: "See ranked signals & gaps", icon: Activity },
-            { n: 3, t: "Get an action plan", icon: LifeBuoy },
-          ].map(({ n, t, icon: Icon }) => (
+        <p className="mt-1 text-sm text-foreground/70">Five steps, left to right — same as the top nav.</p>
+        <ol className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {flowSteps.map(({ n, label, icon: Icon }) => (
             <li
               key={n}
-              className="flex items-center gap-4 rounded-2xl border border-border bg-surface/60 p-5"
+              className="flex items-center gap-3 rounded-2xl border border-border bg-surface/60 p-4"
             >
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground font-semibold">
+              <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold">
                 {n}
               </span>
-              <div className="flex items-center gap-2 text-foreground">
-                <Icon className="h-4 w-4 text-primary" aria-hidden="true" />
-                <span className="text-sm font-medium">{t}</span>
+              <div className="flex min-w-0 items-center gap-2 text-foreground">
+                <Icon className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                <span className="truncate text-sm font-medium">{label}</span>
               </div>
             </li>
           ))}

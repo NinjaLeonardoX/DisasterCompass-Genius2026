@@ -22,7 +22,7 @@ const sections = [
 
 function MethodologyPage() {
   return (
-    <PageShell title="Methodology">
+    <PageShell title="Methodology" showStepIndicator={false}>
       <div className="grid gap-4 sm:grid-cols-2">
         {sections.map((s) => (
           <section
