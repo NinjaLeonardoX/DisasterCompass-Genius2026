@@ -63,6 +63,7 @@ function CompassPage() {
               onSelect={setSelectedDisaster}
             />
           </div>
+          <CommunityReadiness disaster={selectedDisaster} />
         </div>
 
         {/* HERO: Action + Map side-by-side, above the fold */}
