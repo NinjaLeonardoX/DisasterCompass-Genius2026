@@ -16,6 +16,7 @@ import { RecoveryPanel } from "../components/compass/RecoveryPanel";
 import { AiSummaryPanel } from "../components/compass/AiSummaryPanel";
 import { AboutFooter } from "../components/compass/AboutFooter";
 import { CommunityReadiness } from "../components/compass/CommunityReadiness";
+import { EvacuationCountdown } from "../components/compass/EvacuationCountdown";
 
 export const Route = createFileRoute("/compass")({
   head: () => ({
@@ -52,6 +53,8 @@ function CompassPage() {
       <div className="space-y-6">
         <Header />
         <AlertPanel />
+        <EvacuationCountdown disaster={selectedDisaster} />
+
 
         <div className="dc-card p-5 text-card-foreground">
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-card-foreground/55">
