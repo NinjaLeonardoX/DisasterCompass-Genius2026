@@ -184,10 +184,10 @@ function LandingPage() {
         <section className="border-y border-white/5 bg-white/[0.02]">
           <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px overflow-hidden md:grid-cols-4">
             {[
-              { v: "8 min", l: "Median decision time" },
-              { v: "94%", l: "Routes verified safe" },
-              { v: "30s", l: "Signal refresh" },
-              { v: "0", l: "Generic dashboards" },
+              { v: "3", l: "Routes scored" },
+              { v: "5", l: "Households tracked" },
+              { v: "3", l: "Volunteers on call" },
+              { v: "1", l: "Recommended action" },
             ].map((s) => (
               <div key={s.l} className="bg-[#0f1a2e] px-6 py-8 text-center">
                 <p className="text-3xl font-bold tracking-tight text-white">{s.v}</p>
