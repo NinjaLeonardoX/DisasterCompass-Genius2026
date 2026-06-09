@@ -51,7 +51,7 @@ export function MapPanel({ disaster }: Props) {
           className="absolute inset-0 opacity-40"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(30,41,59,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(30,41,59,0.06) 1px, transparent 1px)",
+              "linear-gradient(rgba(42,59,85,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(42,59,85,0.06) 1px, transparent 1px)",
             backgroundSize: "32px 32px",
           }}
         />
@@ -121,7 +121,7 @@ export function MapPanel({ disaster }: Props) {
               strokeLinecap="round"
             />
             {/* Household marker (navy) */}
-            <circle cx="70" cy="260" r="10" fill="#1e293b" />
+            <circle cx="70" cy="260" r="10" fill="#2a3b55" />
             <circle cx="70" cy="260" r="4" fill="#FFFFFF" />
             {/* Volunteer marker (blue) */}
             <circle cx="115" cy="245" r="7" fill="#38BDF8" stroke="#FFFFFF" strokeWidth="2" />
