@@ -1,14 +1,14 @@
 import { ShieldCheck } from "lucide-react";
-import dcLogo from "@/assets/disaster-compass-logo.png.asset.json";
+import dcLogo from "@/assets/disaster-compass-logo-transparent.png";
 
 export function Header() {
   return (
     <header className="flex flex-col gap-4 rounded-2xl bg-surface px-6 py-5 text-surface-foreground shadow-md shadow-black/20 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center">
         <img
-          src={dcLogo.url}
+          src={dcLogo}
           alt="DisasterCompass — Community Disaster Action Planner"
-          className="h-14 w-auto rounded-lg bg-white px-3 py-1.5 ring-1 ring-white/15"
+          className="h-14 w-auto rounded-lg px-2 py-1"
         />
       </div>
       <div className="flex flex-wrap items-center gap-2">

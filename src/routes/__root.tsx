@@ -10,7 +10,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import dcLogo from "@/assets/disaster-compass-logo.png.asset.json";
+import dcLogo from "@/assets/disaster-compass-logo-transparent.png";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppFooter } from "../components/AppFooter";
 import { AppSidebar } from "../components/AppSidebar";
@@ -143,9 +143,9 @@ function AppChrome() {
             <SidebarTrigger className="text-white hover:bg-white/10" />
             <div className="flex items-center gap-2">
               <img
-                src={dcLogo.url}
+                src={dcLogo}
                 alt="DisasterCompass"
-                className="h-8 w-auto rounded-md bg-white px-1.5 py-0.5 ring-1 ring-white/15"
+                className="h-8 w-auto rounded-md px-1.5 py-0.5"
               />
               <span className="ml-2 hidden rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-200 ring-1 ring-white/10 sm:inline-flex">
                 North Creek Demo
