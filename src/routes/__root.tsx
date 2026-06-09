@@ -141,13 +141,11 @@ function AppChrome() {
           <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-white/10 bg-[color:var(--surface)] px-4 text-surface-foreground shadow-[0_8px_30px_-12px_rgba(42,59,85,0.45)] sm:px-6">
             <SidebarTrigger className="text-white hover:bg-white/10" />
             <div className="flex items-center gap-2">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-white/10 ring-1 ring-white/15">
-                <span className="h-2 w-2 rounded-full bg-[color:var(--severity-low)] shadow-[0_0_0_3px_rgba(22,163,74,0.25)]" aria-hidden="true" />
-              </span>
-              <span className="text-sm font-bold tracking-tight">
-                <span className="text-white">Disaster</span>
-                <span className="text-[color:var(--severity-low)]">Compass</span>
-              </span>
+              <img
+                src={dcLogo.url}
+                alt="DisasterCompass"
+                className="h-8 w-auto rounded-md bg-white px-1.5 py-0.5 ring-1 ring-white/15"
+              />
               <span className="ml-2 hidden rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-200 ring-1 ring-white/10 sm:inline-flex">
                 North Creek Demo
               </span>
