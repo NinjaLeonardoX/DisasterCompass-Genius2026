@@ -73,16 +73,27 @@ export const ActionCard = forwardRef<HTMLDivElement, Props>(function ActionCard(
   { disaster, volunteerApproved, extremeHeatLabel = "GO TO COOLING CENTER", highlight = false },
   ref,
 ) {
+  const isGo = disaster === "Flood" || disaster === "Hurricane" || disaster === "Wildfire";
   return (
     <section
       ref={ref}
       aria-label="Recommended action"
       className={[
-        "rounded-2xl bg-card p-6 text-card-foreground shadow-lg shadow-black/15 transition-all",
-        highlight ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : "",
+        "dc-hero-surface relative overflow-hidden rounded-3xl border border-border/70 p-6 text-card-foreground transition-all sm:p-7",
+        isGo ? "dc-glow-green" : "dc-elev-hero",
+        highlight ? "ring-2 ring-[color:var(--severity-low)] ring-offset-2 ring-offset-background" : "",
       ].join(" ")}
     >
-      <p className="text-xs font-semibold uppercase tracking-wider text-card-foreground/60">
+      <span
+        aria-hidden="true"
+        className={[
+          "absolute left-0 top-0 h-full w-1.5",
+          isGo
+            ? "bg-gradient-to-b from-[color:var(--severity-low)] to-[color:var(--severity-low)]/40"
+            : "bg-gradient-to-b from-[color:var(--severity-moderate)] to-[color:var(--severity-moderate)]/40",
+        ].join(" ")}
+      />
+      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-card-foreground/55">
         Compass recommendation — {disaster}
       </p>
 

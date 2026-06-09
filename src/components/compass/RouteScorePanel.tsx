@@ -83,23 +83,23 @@ function StatusBadge({ status }: { status: Status }) {
 
 export function RouteScorePanel() {
   return (
-    <section className="rounded-2xl bg-card p-5 text-card-foreground shadow-md shadow-black/10">
+    <section className="dc-card p-6 text-card-foreground">
       <div className="mb-4 flex items-baseline justify-between">
-        <h3 className="text-base font-semibold">Route scoring</h3>
+        <h3 className="text-base font-bold tracking-tight">Route scoring</h3>
         <p className="text-xs text-card-foreground/60">Rules-based, explainable</p>
       </div>
-      <div className="grid gap-3 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3">
         {ROUTES.map((r) => {
           const borderCls =
             r.status === "Best"
-              ? "border-[color:var(--severity-low)]/50 bg-[color:var(--severity-low)]/5 ring-1 ring-[color:var(--severity-low)]/30"
+              ? "dc-glow-green border-[color:var(--severity-low)]/40 bg-[color:var(--severity-low)]/5"
               : r.status === "Caution"
-                ? "border-[color:var(--severity-moderate)]/50 bg-[color:var(--severity-moderate)]/5"
-                : "border-[color:var(--severity-critical)]/40 bg-[color:var(--severity-critical)]/5";
+                ? "border-[color:var(--severity-moderate)]/50 bg-[color:var(--severity-moderate)]/5 shadow-[0_12px_30px_-18px_rgba(245,158,11,0.45)]"
+                : "border-[color:var(--severity-critical)]/45 bg-[color:var(--severity-critical)]/5 shadow-[0_12px_30px_-18px_rgba(220,38,38,0.45)]";
           return (
           <div
             key={r.name}
-            className={`rounded-xl border p-4 transition-shadow hover:shadow-md ${borderCls}`}
+            className={`dc-hover-lift rounded-2xl border p-4 ${borderCls}`}
           >
             <div className="flex items-center justify-between">
               <p className="font-semibold">{r.name}</p>
