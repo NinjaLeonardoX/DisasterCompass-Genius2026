@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ReportRouteImport } from './routes/report'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as MapRouteImport } from './routes/map'
-import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AiDisclosureRouteImport } from './routes/ai-disclosure'
 import { Route as ActionPlanRouteImport } from './routes/action-plan'
 import { Route as IndexRouteImport } from './routes/index'
@@ -30,11 +29,6 @@ const MethodologyRoute = MethodologyRouteImport.update({
 const MapRoute = MapRouteImport.update({
   id: '/map',
   path: '/map',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AiDisclosureRoute = AiDisclosureRouteImport.update({
@@ -57,7 +51,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/action-plan': typeof ActionPlanRoute
   '/ai-disclosure': typeof AiDisclosureRoute
-  '/dashboard': typeof DashboardRoute
   '/map': typeof MapRoute
   '/methodology': typeof MethodologyRoute
   '/report': typeof ReportRoute
@@ -66,7 +59,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/action-plan': typeof ActionPlanRoute
   '/ai-disclosure': typeof AiDisclosureRoute
-  '/dashboard': typeof DashboardRoute
   '/map': typeof MapRoute
   '/methodology': typeof MethodologyRoute
   '/report': typeof ReportRoute
@@ -76,7 +68,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/action-plan': typeof ActionPlanRoute
   '/ai-disclosure': typeof AiDisclosureRoute
-  '/dashboard': typeof DashboardRoute
   '/map': typeof MapRoute
   '/methodology': typeof MethodologyRoute
   '/report': typeof ReportRoute
@@ -87,7 +78,6 @@ export interface FileRouteTypes {
     | '/'
     | '/action-plan'
     | '/ai-disclosure'
-    | '/dashboard'
     | '/map'
     | '/methodology'
     | '/report'
@@ -96,7 +86,6 @@ export interface FileRouteTypes {
     | '/'
     | '/action-plan'
     | '/ai-disclosure'
-    | '/dashboard'
     | '/map'
     | '/methodology'
     | '/report'
@@ -105,7 +94,6 @@ export interface FileRouteTypes {
     | '/'
     | '/action-plan'
     | '/ai-disclosure'
-    | '/dashboard'
     | '/map'
     | '/methodology'
     | '/report'
@@ -115,7 +103,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActionPlanRoute: typeof ActionPlanRoute
   AiDisclosureRoute: typeof AiDisclosureRoute
-  DashboardRoute: typeof DashboardRoute
   MapRoute: typeof MapRoute
   MethodologyRoute: typeof MethodologyRoute
   ReportRoute: typeof ReportRoute
@@ -142,13 +129,6 @@ declare module '@tanstack/react-router' {
       path: '/map'
       fullPath: '/map'
       preLoaderRoute: typeof MapRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ai-disclosure': {
@@ -179,7 +159,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActionPlanRoute: ActionPlanRoute,
   AiDisclosureRoute: AiDisclosureRoute,
-  DashboardRoute: DashboardRoute,
   MapRoute: MapRoute,
   MethodologyRoute: MethodologyRoute,
   ReportRoute: ReportRoute,
@@ -187,3 +166,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

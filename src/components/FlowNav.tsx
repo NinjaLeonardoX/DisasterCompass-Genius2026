@@ -2,17 +2,16 @@ import { Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 
 interface FlowStep {
-  to: "/" | "/map" | "/report" | "/dashboard" | "/action-plan";
+  to: "/" | "/map" | "/report" | "/action-plan";
   label: string;
   short: string;
   hub?: boolean;
 }
 
 export const FLOW_STEPS: readonly FlowStep[] = [
-  { to: "/", label: "Home", short: "Home" },
+  { to: "/", label: "Dashboard", short: "Dashboard", hub: true },
   { to: "/map", label: "Map", short: "Map" },
   { to: "/report", label: "Report", short: "Report" },
-  { to: "/dashboard", label: "Dashboard", short: "Dashboard", hub: true },
   { to: "/action-plan", label: "Action Plan", short: "Action" },
 ] as const;
 

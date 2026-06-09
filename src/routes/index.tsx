@@ -1,111 +1,106 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ShieldCheck,
-  Activity,
-  LifeBuoy,
-  ArrowRight,
-  PlayCircle,
-  Map as MapIcon,
-  MessageSquarePlus,
-  BarChart3,
-  ListChecks,
-} from "lucide-react";
-import { useScenario } from "../components/ScenarioContext";
+import { createFileRoute, useRouterState } from "@tanstack/react-router";
+import { BarChart3, Sparkles } from "lucide-react";
+import { PageShell } from "../components/PageShell";
+import { EmptyState } from "../components/EmptyState";
+import { NextBackNav } from "../components/NextBackNav";
 import { DemoScenarioDropdown } from "../components/DemoScenarioDropdown";
+import { useScenario } from "../components/ScenarioContext";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Relief Radar — Turn community signals into prioritized disaster action" },
+      { title: "Relief Radar — Community Dashboard" },
       {
         name: "description",
         content:
-          "Relief Radar helps neighborhoods prepare for, respond to, and recover from natural disasters.",
+          "Community resilience scores, resource gaps, and disaster signals at a glance.",
       },
     ],
   }),
-  component: LandingPage,
+  component: DashboardPage,
 });
 
-const flowSteps = [
-  { n: 1, label: "Load a scenario", icon: PlayCircle },
-  { n: 2, label: "See signals on the map", icon: MapIcon },
-  { n: 3, label: "Report a signal", icon: MessageSquarePlus },
-  { n: 4, label: "View the dashboard", icon: BarChart3 },
-  { n: 5, label: "Get an action plan", icon: ListChecks },
+const kpiLabels = [
+  "Active Signals",
+  "Critical Reports",
+  "Open Requests",
+  "Shelters Available",
+  "Power Status",
+  "Water Status",
+  "Volunteers Online",
+  "Resilience Score",
 ];
 
-function LandingPage() {
+const chartTiles = [
+  { label: "Resources", helper: "Inventory & coverage" },
+  { label: "Vulnerability", helper: "Exposed populations" },
+  { label: "Priority", helper: "Ranked needs" },
+  { label: "Readiness", helper: "Preparedness over time" },
+];
+
+function DashboardPage() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { setActiveScenario } = useScenario();
 
   return (
-    <main className="flex-1">
-      <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
-        <div className="max-w-3xl">
-          <span className="inline-flex items-center gap-2 rounded-full bg-surface px-3 py-1 text-xs font-medium text-primary">
-            <span className="h-2 w-2 rounded-full bg-primary" /> Relief Radar
-          </span>
-          <h1 className="mt-5 text-4xl font-semibold tracking-tight text-foreground sm:text-6xl">
-            Turn community signals into prioritized disaster action.
-          </h1>
-          <p className="mt-5 text-lg text-foreground/80 sm:text-xl">
-            A neighborhood-scale disaster signal map and resilience dashboard for floods,
-            wildfires, heatwaves, hurricanes, and earthquakes.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <DemoScenarioDropdown onSelect={setActiveScenario} />
-            <Link
-              to="/dashboard"
-              className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground hover:bg-surface/70"
-            >
-              Open Dashboard
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+    <PageShell
+      title="Community Dashboard"
+      description="The central hub — KPIs, gaps, and resilience signals at a glance."
+      actions={<DemoScenarioDropdown onSelect={setActiveScenario} />}
+    >
+      <div className="relative">
+        {/* Dashboard placeholder grid */}
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {kpiLabels.map((label) => (
+              <div
+                key={label}
+                className="rounded-2xl bg-card p-5 text-card-foreground shadow-md shadow-black/10"
+              >
+                <p className="text-xs font-medium uppercase tracking-wide text-card-foreground/60">
+                  {label}
+                </p>
+                <div className="mt-3 h-7 w-16 rounded-md bg-card-foreground/10" aria-hidden="true" />
+                <div className="mt-2 h-2 w-24 rounded-md bg-card-foreground/5" aria-hidden="true" />
+              </div>
+            ))}
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            {chartTiles.map((c) => (
+              <div
+                key={c.label}
+                className="rounded-2xl bg-card p-6 text-card-foreground shadow-md shadow-black/10"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold">{c.label}</h3>
+                    <p className="text-xs text-card-foreground/60">{c.helper}</p>
+                  </div>
+                  <BarChart3 className="h-5 w-5 text-card-foreground/30" aria-hidden="true" />
+                </div>
+                <div
+                  className="mt-4 h-44 w-full rounded-xl bg-card-foreground/5"
+                  aria-hidden="true"
+                />
+              </div>
+            ))}
           </div>
         </div>
-      </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6">
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {[
-            { icon: ShieldCheck, title: "Prepare", body: "See risks and resource gaps before disaster strikes." },
-            { icon: Activity, title: "Respond", body: "Prioritize live community signals as events unfold." },
-            { icon: LifeBuoy, title: "Recover", body: "Track resilience and direct help where it's needed most." },
-          ].map(({ icon: Icon, title, body }) => (
-            <article
-              key={title}
-              className="rounded-2xl bg-card p-6 text-card-foreground shadow-md shadow-black/10"
-            >
-              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/15 text-primary">
-                <Icon className="h-5 w-5" aria-hidden="true" />
-              </span>
-              <h3 className="mt-4 text-lg font-semibold">{title}</h3>
-              <p className="mt-1 text-sm text-card-foreground/70">{body}</p>
-            </article>
-          ))}
+        {/* EmptyState overlay */}
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-2xl bg-background/70 backdrop-blur-sm">
+          <div className="pointer-events-auto w-full max-w-md px-4">
+            <EmptyState
+              icon={Sparkles}
+              heading="Dashboard awaiting data"
+              helper="Load a demo scenario to populate your dashboard."
+            />
+          </div>
         </div>
-      </section>
+      </div>
 
-      <section className="mx-auto w-full max-w-7xl px-4 pb-20 sm:px-6">
-        <h2 className="text-xl font-semibold text-foreground">How it works</h2>
-        <p className="mt-1 text-sm text-foreground/70">Five steps, left to right — same as the top nav.</p>
-        <ol className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          {flowSteps.map(({ n, label, icon: Icon }) => (
-            <li
-              key={n}
-              className="flex items-center gap-3 rounded-2xl border border-border bg-surface/60 p-4"
-            >
-              <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold">
-                {n}
-              </span>
-              <div className="flex min-w-0 items-center gap-2 text-foreground">
-                <Icon className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                <span className="truncate text-sm font-medium">{label}</span>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </section>
-    </main>
+      <NextBackNav currentPath={pathname} />
+    </PageShell>
   );
 }
