@@ -137,7 +137,7 @@ function LandingPage() {
                       <AlertTriangle className="h-3 w-3" />
                       Flood Warning
                     </span>
-                    <span className="text-[11px] text-white/50">Updated 12s ago</span>
+                    <span className="text-[11px] text-white/50">Demo · North Creek</span>
                   </div>
 
                   <div className="mt-5">
@@ -146,7 +146,7 @@ function LandingPage() {
                       Go to higher ground
                     </h3>
                     <p className="mt-1 text-sm text-white/60">
-                      Maple Ridge Shelter · 1.2 mi · ETA 8 min
+                      Hilltop Community Center · 3.0 mi · ETA 35 min
                     </p>
                   </div>
 
@@ -156,14 +156,14 @@ function LandingPage() {
                       GO — Route B
                     </span>
                     <span className="inline-flex h-9 items-center rounded-lg bg-white/10 px-3 text-xs font-medium text-white/80 ring-1 ring-white/10">
-                      Safe Route Selected
+                      Route A rejected (flooded bridge)
                     </span>
                   </div>
 
                   <div className="mt-6 grid grid-cols-3 gap-3 border-t border-white/10 pt-5">
                     {[
-                      { label: "Route Score", value: "94", tone: "text-[#5EE6A1]" },
-                      { label: "Neighbors", value: "12", tone: "text-white" },
+                      { label: "Route B Score", value: "91", tone: "text-[#5EE6A1]" },
+                      { label: "Households", value: "5", tone: "text-white" },
                       { label: "Need Help", value: "2", tone: "text-amber-300" },
                     ].map((s) => (
                       <div key={s.label}>
