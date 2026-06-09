@@ -11,9 +11,10 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { NavBar } from "../components/NavBar";
 import { AppFooter } from "../components/AppFooter";
+import { AppSidebar } from "../components/AppSidebar";
 import { ScenarioProvider, useScenario } from "../components/ScenarioContext";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 function NotFoundComponent() {
   return (
@@ -118,11 +119,26 @@ function RootShell({ children }: { children: ReactNode }) {
 function AppChrome() {
   const { activeScenario, setActiveScenario } = useScenario();
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <NavBar activeScenario={activeScenario} onSelectScenario={setActiveScenario} />
-      <Outlet />
-      <AppFooter />
-    </div>
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-background">
+        <AppSidebar activeScenario={activeScenario} onSelectScenario={setActiveScenario} />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:px-6">
+            <SidebarTrigger className="text-foreground" />
+            <div className="ml-auto flex items-center gap-3">
+              {activeScenario && (
+                <span className="hidden rounded-full bg-surface px-3 py-1 text-xs text-foreground/90 sm:inline-flex">
+                  Active scenario:{" "}
+                  <span className="ml-1 font-medium text-primary">{activeScenario}</span>
+                </span>
+              )}
+            </div>
+          </header>
+          <Outlet />
+          <AppFooter />
+        </div>
+      </div>
+    </SidebarProvider>
   );
 }
 
