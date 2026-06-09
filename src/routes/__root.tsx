@@ -10,6 +10,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import dcLogo from "@/assets/disaster-compass-logo.png.asset.json";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppFooter } from "../components/AppFooter";
 import { AppSidebar } from "../components/AppSidebar";
