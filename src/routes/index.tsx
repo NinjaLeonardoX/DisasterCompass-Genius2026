@@ -101,10 +101,10 @@ function LandingPage() {
                   <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                 </Link>
                 <a
-                  href="#how"
+                  href="#features"
                   className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white/90 backdrop-blur transition hover:bg-white/10"
                 >
-                  How it works
+                  See features
                 </a>
               </div>
 
