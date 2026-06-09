@@ -1,21 +1,15 @@
-import { Compass, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
+import dcLogo from "@/assets/disaster-compass-logo.png.asset.json";
 
 export function Header() {
   return (
     <header className="flex flex-col gap-4 rounded-2xl bg-surface px-6 py-5 text-surface-foreground shadow-md shadow-black/20 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center gap-3">
-        <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-white ring-1 ring-white/15">
-          <Compass className="h-6 w-6" aria-hidden="true" />
-        </span>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-[1.6rem]">
-            <span className="text-white">Disaster</span>
-            <span className="text-[color:var(--severity-low)]">Compass</span>
-          </h1>
-          <p className="text-sm text-slate-300">
-            Community Disaster Action Planner
-          </p>
-        </div>
+      <div className="flex items-center">
+        <img
+          src={dcLogo.url}
+          alt="DisasterCompass — Community Disaster Action Planner"
+          className="h-14 w-auto rounded-lg bg-white px-3 py-1.5 ring-1 ring-white/15"
+        />
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-slate-100 ring-1 ring-white/10">
