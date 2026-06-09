@@ -145,7 +145,7 @@ function AppChrome() {
               <img
                 src={dcLogo.url}
                 alt="DisasterCompass"
-                className="h-8 w-auto"
+                className="h-10 w-auto"
               />
               <span className="ml-2 hidden rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-700 ring-1 ring-slate-200 sm:inline-flex">
                 North Creek Demo
