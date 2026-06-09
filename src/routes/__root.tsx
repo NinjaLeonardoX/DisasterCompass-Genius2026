@@ -123,13 +123,25 @@ function AppChrome() {
       <div className="flex min-h-screen w-full">
         <AppSidebar activeScenario={activeScenario} onSelectScenario={setActiveScenario} />
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border/60 bg-white/70 px-4 backdrop-blur-md sm:px-6">
-            <SidebarTrigger className="text-foreground" />
+          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-white/10 bg-[color:var(--surface)] px-4 text-surface-foreground shadow-[0_8px_30px_-12px_rgba(15,23,42,0.45)] sm:px-6">
+            <SidebarTrigger className="text-white hover:bg-white/10" />
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-white/10 ring-1 ring-white/15">
+                <span className="h-2 w-2 rounded-full bg-[color:var(--severity-low)] shadow-[0_0_0_3px_rgba(22,163,74,0.25)]" aria-hidden="true" />
+              </span>
+              <span className="text-sm font-bold tracking-tight">
+                <span className="text-white">Disaster</span>
+                <span className="text-[color:var(--severity-low)]">Compass</span>
+              </span>
+              <span className="ml-2 hidden rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-200 ring-1 ring-white/10 sm:inline-flex">
+                North Creek Demo
+              </span>
+            </div>
             <div className="ml-auto flex items-center gap-3">
               {activeScenario && (
-                <span className="hidden rounded-full border border-border/60 bg-white/80 px-3 py-1 text-xs text-foreground/90 shadow-sm sm:inline-flex">
+                <span className="hidden rounded-full bg-white/10 px-3 py-1 text-xs text-slate-100 ring-1 ring-white/10 sm:inline-flex">
                   Active scenario:{" "}
-                  <span className="ml-1 font-medium text-[color:var(--severity-low)]">{activeScenario}</span>
+                  <span className="ml-1 font-semibold text-[color:var(--severity-low)]">{activeScenario}</span>
                 </span>
               )}
             </div>
