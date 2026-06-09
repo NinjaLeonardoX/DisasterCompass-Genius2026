@@ -15,6 +15,8 @@ import { AppFooter } from "../components/AppFooter";
 import { AppSidebar } from "../components/AppSidebar";
 import { ScenarioProvider, useScenario } from "../components/ScenarioContext";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { useRouterState } from "@tanstack/react-router";
+
 
 function NotFoundComponent() {
   return (
@@ -118,6 +120,13 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function AppChrome() {
   const { activeScenario, setActiveScenario } = useScenario();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isLanding = pathname === "/";
+
+  if (isLanding) {
+    return <Outlet />;
+  }
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
@@ -153,6 +162,7 @@ function AppChrome() {
     </SidebarProvider>
   );
 }
+
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
