@@ -16,6 +16,7 @@ import { RecoveryPanel } from "../components/compass/RecoveryPanel";
 import { AiSummaryPanel } from "../components/compass/AiSummaryPanel";
 import { AboutFooter } from "../components/compass/AboutFooter";
 import { CommunityReadiness } from "../components/compass/CommunityReadiness";
+import { EvacuationCountdown } from "../components/compass/EvacuationCountdown";
 
 export const Route = createFileRoute("/compass")({
   head: () => ({
