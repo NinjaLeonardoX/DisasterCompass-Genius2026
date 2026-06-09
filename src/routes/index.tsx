@@ -225,36 +225,6 @@ function LandingPage() {
           </div>
         </section>
 
-        <section id="trust" className="mx-auto max-w-7xl px-6 py-28">
-          <div className="overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#2a3b55] to-[#1a2540] p-10 sm:p-16">
-            <div className="grid items-center gap-10 lg:grid-cols-2">
-              <div>
-                <p className="text-xs uppercase tracking-[0.25em] text-[#16A34A]">
-                  AI you can audit
-                </p>
-                <h2 className="mt-3 text-4xl font-bold leading-tight tracking-tight">
-                  Every recommendation shows its work.
-                </h2>
-                <p className="mt-4 text-white/60">
-                  Click any route, score, or alert to see the exact signals,
-                  weights, and sources behind the call. No black boxes when
-                  it's your family.
-                </p>
-              </div>
-              <div className="space-y-3">
-                {disclosures.map((d) => (
-                  <div
-                    key={d}
-                    className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3"
-                  >
-                    <CheckCircle2 className="h-4 w-4 shrink-0 text-[#16A34A]" />
-                    <span className="text-sm text-white/85">{d}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* CTA */}
         <section className="mx-auto max-w-7xl px-6 pb-32">
