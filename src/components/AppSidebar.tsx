@@ -86,10 +86,7 @@ export function AppSidebar({ activeScenario, onSelectScenario }: AppSidebarProps
                       </Link>
                     </SidebarMenuButton>
                     {!collapsed && !isLast && (
-                      <div
-                        className="ml-[18px] flex h-2 items-center"
-                        aria-hidden="true"
-                      >
+                      <div className="ml-[18px] flex h-2 items-center" aria-hidden="true">
                         <ChevronRight className="h-3 w-3 text-foreground/25" />
                       </div>
                     )}
@@ -135,8 +132,7 @@ export function AppSidebar({ activeScenario, onSelectScenario }: AppSidebarProps
             <DemoScenarioDropdown onSelect={onSelectScenario} />
             {activeScenario && (
               <p className="text-[11px] text-foreground/80">
-                Active:{" "}
-                <span className="font-medium text-primary">{activeScenario}</span>
+                Active: <span className="font-medium text-primary">{activeScenario}</span>
               </p>
             )}
           </div>

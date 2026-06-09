@@ -57,7 +57,11 @@ export function NavBar({ activeScenario, onSelectScenario }: NavBarProps) {
               <p className="px-1 pb-2 text-[11px] font-semibold uppercase tracking-wider text-foreground/50">
                 Primary flow
               </p>
-              <FlowNav currentPath={pathname} variant="vertical" onNavigate={() => setOpen(false)} />
+              <FlowNav
+                currentPath={pathname}
+                variant="vertical"
+                onNavigate={() => setOpen(false)}
+              />
             </div>
             <div className="border-t border-border pt-3">
               <p className="px-1 pb-2 text-[11px] font-semibold uppercase tracking-wider text-foreground/50">
