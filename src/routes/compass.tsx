@@ -53,6 +53,8 @@ function CompassPage() {
       <div className="space-y-6">
         <Header />
         <AlertPanel />
+        <EvacuationCountdown disaster={selectedDisaster} />
+
 
         <div className="dc-card p-5 text-card-foreground">
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-card-foreground/55">
