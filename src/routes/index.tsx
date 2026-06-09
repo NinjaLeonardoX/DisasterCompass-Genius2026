@@ -114,15 +114,15 @@ function LandingPage() {
               <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 text-xs text-white/50">
                 <span className="inline-flex items-center gap-2">
                   <ShieldCheck className="h-3.5 w-3.5 text-[#16A34A]" />
-                  Built with FEMA-aligned guidance
+                  FEMA-aligned guidance
                 </span>
                 <span className="inline-flex items-center gap-2">
                   <Sparkles className="h-3.5 w-3.5 text-[#16A34A]" />
-                  Transparent AI reasoning
+                  Open scoring formula
                 </span>
                 <span className="inline-flex items-center gap-2">
                   <Activity className="h-3.5 w-3.5 text-[#16A34A]" />
-                  Updates every 30s
+                  Rules-based, not a black box
                 </span>
               </div>
             </div>
@@ -137,7 +137,7 @@ function LandingPage() {
                       <AlertTriangle className="h-3 w-3" />
                       Flood Warning
                     </span>
-                    <span className="text-[11px] text-white/50">Updated 12s ago</span>
+                    <span className="text-[11px] text-white/50">Demo · North Creek</span>
                   </div>
 
                   <div className="mt-5">
@@ -146,7 +146,7 @@ function LandingPage() {
                       Go to higher ground
                     </h3>
                     <p className="mt-1 text-sm text-white/60">
-                      Maple Ridge Shelter · 1.2 mi · ETA 8 min
+                      Hilltop Community Center · 3.0 mi · ETA 35 min
                     </p>
                   </div>
 
@@ -156,14 +156,14 @@ function LandingPage() {
                       GO — Route B
                     </span>
                     <span className="inline-flex h-9 items-center rounded-lg bg-white/10 px-3 text-xs font-medium text-white/80 ring-1 ring-white/10">
-                      Safe Route Selected
+                      Route A rejected (flooded bridge)
                     </span>
                   </div>
 
                   <div className="mt-6 grid grid-cols-3 gap-3 border-t border-white/10 pt-5">
                     {[
-                      { label: "Route Score", value: "94", tone: "text-[#5EE6A1]" },
-                      { label: "Neighbors", value: "12", tone: "text-white" },
+                      { label: "Route B Score", value: "91", tone: "text-[#5EE6A1]" },
+                      { label: "Households", value: "5", tone: "text-white" },
                       { label: "Need Help", value: "2", tone: "text-amber-300" },
                     ].map((s) => (
                       <div key={s.label}>
@@ -184,10 +184,10 @@ function LandingPage() {
         <section className="border-y border-white/5 bg-white/[0.02]">
           <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px overflow-hidden md:grid-cols-4">
             {[
-              { v: "8 min", l: "Median decision time" },
-              { v: "94%", l: "Routes verified safe" },
-              { v: "30s", l: "Signal refresh" },
-              { v: "0", l: "Generic dashboards" },
+              { v: "3", l: "Routes scored" },
+              { v: "5", l: "Households tracked" },
+              { v: "3", l: "Volunteers on call" },
+              { v: "1", l: "Recommended action" },
             ].map((s) => (
               <div key={s.l} className="bg-[#0f1a2e] px-6 py-8 text-center">
                 <p className="text-3xl font-bold tracking-tight text-white">{s.v}</p>
