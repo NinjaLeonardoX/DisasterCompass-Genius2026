@@ -36,10 +36,10 @@ export function DisasterPicker({ selected, onSelect }: Props) {
             aria-selected={active}
             onClick={() => onSelect(kind)}
             className={[
-              "inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors",
+              "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
               active
-                ? "bg-primary text-primary-foreground"
-                : "bg-surface text-foreground/80 hover:bg-surface/80",
+                ? "border-[color:var(--foreground)] bg-[color:var(--foreground)] text-white shadow-sm"
+                : "border-border bg-white text-[color:var(--muted-foreground)] hover:border-slate-300 hover:text-[color:var(--foreground)]",
             ].join(" ")}
           >
             <Icon className="h-4 w-4" aria-hidden="true" />
