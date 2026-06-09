@@ -121,7 +121,7 @@ export function MapPanel({ disaster }: Props) {
               strokeLinecap="round"
             />
             {/* Household marker (navy) */}
-            <circle cx="70" cy="260" r="10" fill="#0F172A" />
+            <circle cx="70" cy="260" r="10" fill="#1e293b" />
             <circle cx="70" cy="260" r="4" fill="#FFFFFF" />
             {/* Volunteer marker (blue) */}
             <circle cx="115" cy="245" r="7" fill="#38BDF8" stroke="#FFFFFF" strokeWidth="2" />
