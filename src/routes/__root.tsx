@@ -15,6 +15,8 @@ import { AppFooter } from "../components/AppFooter";
 import { AppSidebar } from "../components/AppSidebar";
 import { ScenarioProvider, useScenario } from "../components/ScenarioContext";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { useRouterState } from "@tanstack/react-router";
+
 
 function NotFoundComponent() {
   return (
