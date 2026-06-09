@@ -50,12 +50,12 @@ export function AppSidebar({ activeScenario, onSelectScenario }: AppSidebarProps
       collapsible="icon"
       className="border-r border-white/5 [&_[data-sidebar=sidebar]]:bg-[color:var(--surface)] [&_[data-sidebar=sidebar]]:text-surface-foreground"
     >
-      <SidebarHeader className="border-b border-slate-200 bg-white">
-        <Link to="/compass" className="flex items-center px-1 py-2">
+      <SidebarHeader className="h-14 flex-row items-center border-b border-slate-200 bg-white p-0 px-2">
+        <Link to="/compass" className="flex h-full items-center">
           <img
             src={dcLogo.url}
             alt="DisasterCompass"
-            className={`${collapsed ? "h-8 w-8 object-cover object-left" : "h-9 w-auto"}`}
+            className={`${collapsed ? "h-7 w-7 object-cover object-left" : "h-8 w-auto"}`}
           />
         </Link>
       </SidebarHeader>
