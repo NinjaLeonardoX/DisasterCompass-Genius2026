@@ -31,12 +31,24 @@ function Hero({
       : tone === "stay"
         ? "text-[color:var(--severity-low)]"
         : "text-[color:var(--severity-moderate)]";
+  const pillClass =
+    tone === "go"
+      ? "bg-[color:var(--severity-critical)]/10 text-[color:var(--severity-critical)] ring-[color:var(--severity-critical)]/25"
+      : tone === "stay"
+        ? "bg-[color:var(--severity-low)]/10 text-[color:var(--severity-low)] ring-[color:var(--severity-low)]/25"
+        : "bg-[color:var(--severity-moderate)]/10 text-[color:var(--severity-moderate)] ring-[color:var(--severity-moderate)]/25";
+  const label = tone === "go" ? "GO" : tone === "stay" ? "STAY" : "WAIT";
   return (
-    <p
-      className={`text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl ${toneClass}`}
-    >
-      {verb}
-    </p>
+    <div className="mt-3 flex flex-wrap items-center gap-3">
+      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold tracking-wider ring-1 ${pillClass}`}>
+        {label}
+      </span>
+      <p
+        className={`text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl ${toneClass}`}
+      >
+        {verb}
+      </p>
+    </div>
   );
 }
 
