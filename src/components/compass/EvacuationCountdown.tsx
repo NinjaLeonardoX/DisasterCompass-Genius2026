@@ -228,6 +228,9 @@ export function EvacuationCountdown({ disaster }: { disaster: DisasterKind }) {
       <p className="mt-3 text-xs leading-relaxed text-card-foreground/70">
         {meta.note}
       </p>
+      <p className="mt-2 flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-card-foreground/45">
+        <Clock className="h-3 w-3" aria-hidden /> Source: {ctx.source}
+      </p>
     </section>
   );
 }
