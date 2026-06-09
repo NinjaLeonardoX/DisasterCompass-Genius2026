@@ -21,7 +21,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { DemoScenarioDropdown, type DemoScenario } from "./DemoScenarioDropdown";
-import dcLogo from "@/assets/disaster-compass-logo-transparent.png";
+import dcLogo from "@/assets/disaster-compass-logo.png.asset.json";
 
 interface AppSidebarProps {
   activeScenario: string | null;
@@ -48,12 +48,12 @@ export function AppSidebar({ activeScenario, onSelectScenario }: AppSidebarProps
       collapsible="icon"
       className="border-r border-white/5 [&_[data-sidebar=sidebar]]:bg-[color:var(--surface)] [&_[data-sidebar=sidebar]]:text-surface-foreground"
     >
-      <SidebarHeader className="border-b border-white/10 bg-[color:var(--surface)]">
+      <SidebarHeader className="border-b border-slate-200 bg-white">
         <Link to="/compass" className="flex items-center px-1 py-2">
           <img
-            src={dcLogo}
+            src={dcLogo.url}
             alt="DisasterCompass"
-            className={`${collapsed ? "h-8 w-8 object-cover object-left" : "h-9 w-auto"} rounded-md px-1.5 py-0.5`}
+            className={`${collapsed ? "h-8 w-8 object-cover object-left" : "h-9 w-auto"}`}
           />
         </Link>
         {!collapsed && (

@@ -10,7 +10,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import dcLogo from "@/assets/disaster-compass-logo-transparent.png";
+import dcLogo from "@/assets/disaster-compass-logo.png.asset.json";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppFooter } from "../components/AppFooter";
 import { AppSidebar } from "../components/AppSidebar";
@@ -139,23 +139,23 @@ function AppChrome() {
       <div className="flex min-h-screen w-full">
         <AppSidebar activeScenario={activeScenario} onSelectScenario={setActiveScenario} />
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-white/10 bg-[color:var(--surface)] px-4 text-surface-foreground shadow-[0_8px_30px_-12px_rgba(42,59,85,0.45)] sm:px-6">
-            <SidebarTrigger className="text-white hover:bg-white/10" />
+          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-slate-200 bg-white px-4 text-slate-900 shadow-[0_8px_30px_-12px_rgba(42,59,85,0.25)] sm:px-6">
+            <SidebarTrigger className="text-slate-700 hover:bg-slate-100" />
             <div className="flex items-center gap-2">
               <img
-                src={dcLogo}
+                src={dcLogo.url}
                 alt="DisasterCompass"
-                className="h-8 w-auto rounded-md px-1.5 py-0.5"
+                className="h-8 w-auto"
               />
-              <span className="ml-2 hidden rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-200 ring-1 ring-white/10 sm:inline-flex">
+              <span className="ml-2 hidden rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-700 ring-1 ring-slate-200 sm:inline-flex">
                 North Creek Demo
               </span>
             </div>
             <div className="ml-auto flex items-center gap-3">
               {activeScenario && (
-                <span className="hidden rounded-full bg-white/10 px-3 py-1 text-xs text-slate-100 ring-1 ring-white/10 sm:inline-flex">
+                <span className="hidden rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700 ring-1 ring-slate-200 sm:inline-flex">
                   Active scenario:{" "}
-                  <span className="ml-1 font-semibold text-[color:var(--severity-low)]">{activeScenario}</span>
+                  <span className="ml-1 font-semibold text-emerald-600">{activeScenario}</span>
                 </span>
               )}
             </div>

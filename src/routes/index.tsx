@@ -11,7 +11,7 @@ import {
   Activity,
   CheckCircle2,
 } from "lucide-react";
-import dcLogo from "@/assets/disaster-compass-logo-transparent.png";
+import dcLogo from "@/assets/disaster-compass-logo.png.asset.json";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -47,11 +47,11 @@ function LandingPage() {
       <div className="relative">
         {/* NAV */}
         <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
-          <Link to="/" className="flex items-center">
+          <Link to="/" className="flex items-center rounded-lg bg-white px-2 py-1 shadow-sm ring-1 ring-white/20">
             <img
-              src={dcLogo}
+              src={dcLogo.url}
               alt="DisasterCompass — Community Disaster Action Planner"
-              className="h-10 w-auto rounded-md px-2 py-1"
+              className="h-10 w-auto"
             />
           </Link>
           <nav className="hidden items-center gap-8 text-sm text-white/70 md:flex">
