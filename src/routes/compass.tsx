@@ -15,6 +15,7 @@ import { CoordinatorPanel } from "../components/compass/CoordinatorPanel";
 import { RecoveryPanel } from "../components/compass/RecoveryPanel";
 import { AiSummaryPanel } from "../components/compass/AiSummaryPanel";
 import { AboutFooter } from "../components/compass/AboutFooter";
+import { CommunityReadiness } from "../components/compass/CommunityReadiness";
 
 export const Route = createFileRoute("/compass")({
   head: () => ({
