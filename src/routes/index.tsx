@@ -70,26 +70,28 @@ function LandingPage() {
         <section className="mx-auto max-w-7xl px-6 pt-12 pb-24 lg:pt-20">
           <div className="grid items-center gap-14 lg:grid-cols-12">
             <div className="lg:col-span-7">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/80 backdrop-blur">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white/80 backdrop-blur">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#16A34A] opacity-60" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-[#16A34A]" />
                 </span>
-                Live in North Creek — Flood Scenario Active
+                Prepare. Respond. Recover.
               </div>
 
               <h1 className="mt-6 text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
-                Calm decisions in the first{" "}
+                Ready before the warning.{" "}
                 <span className="bg-gradient-to-r from-[#16A34A] to-[#5EE6A1] bg-clip-text text-transparent">
-                  60 minutes
-                </span>
-                .
+                  Clear and calm
+                </span>{" "}
+                when it hits. Supported after.
               </h1>
 
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/70">
-                When the warning hits, families freeze. DisasterCompass turns
-                community signals into one clear plan — the safest route, who
-                needs help, and exactly what to do next.
+                When disaster strikes, families freeze. Disaster Compass gives
+                every household one clear action — go, stay, or wait — with the
+                safest route and a neighbor to help those who can't leave alone,
+                then guides them through recovery. Built for floods,
+                earthquakes, wildfires, hurricanes, and extreme heat.
               </p>
 
               <div className="mt-9 flex flex-wrap items-center gap-3">
@@ -97,7 +99,7 @@ function LandingPage() {
                   to="/compass"
                   className="group inline-flex items-center gap-2 rounded-full bg-[#16A34A] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_10px_40px_-10px_rgba(22,163,74,0.7)] transition hover:brightness-110"
                 >
-                  See the Compass Plan
+                  Generate My Action Plan
                   <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                 </Link>
                 <a
