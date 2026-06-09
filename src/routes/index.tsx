@@ -179,22 +179,6 @@ function LandingPage() {
           </div>
         </section>
 
-        {/* STATS STRIP */}
-        <section className="border-y border-white/5 bg-white/[0.02]">
-          <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px overflow-hidden md:grid-cols-4">
-            {[
-              { v: "3", l: "Routes scored" },
-              { v: "5", l: "Households tracked" },
-              { v: "3", l: "Volunteers on call" },
-              { v: "1", l: "Recommended action" },
-            ].map((s) => (
-              <div key={s.l} className="bg-[#0f1a2e] px-6 py-8 text-center">
-                <p className="text-3xl font-bold tracking-tight text-white">{s.v}</p>
-                <p className="mt-1 text-xs uppercase tracking-wider text-white/40">{s.l}</p>
-              </div>
-            ))}
-          </div>
-        </section>
 
         {/* FEATURES */}
         <section id="features" className="mx-auto max-w-7xl px-6 py-28">
