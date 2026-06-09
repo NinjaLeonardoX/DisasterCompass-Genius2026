@@ -120,16 +120,16 @@ function AppChrome() {
   const { activeScenario, setActiveScenario } = useScenario();
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-background">
+      <div className="flex min-h-screen w-full">
         <AppSidebar activeScenario={activeScenario} onSelectScenario={setActiveScenario} />
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:px-6">
+          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border/60 bg-white/70 px-4 backdrop-blur-md sm:px-6">
             <SidebarTrigger className="text-foreground" />
             <div className="ml-auto flex items-center gap-3">
               {activeScenario && (
-                <span className="hidden rounded-full bg-surface px-3 py-1 text-xs text-foreground/90 sm:inline-flex">
+                <span className="hidden rounded-full border border-border/60 bg-white/80 px-3 py-1 text-xs text-foreground/90 shadow-sm sm:inline-flex">
                   Active scenario:{" "}
-                  <span className="ml-1 font-medium text-primary">{activeScenario}</span>
+                  <span className="ml-1 font-medium text-[color:var(--severity-low)]">{activeScenario}</span>
                 </span>
               )}
             </div>
