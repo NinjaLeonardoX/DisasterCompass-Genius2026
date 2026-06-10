@@ -187,11 +187,27 @@ interface SnapshotSummary {
 /** Part A — Readiness Snapshot on the Prepare overview card (rolls up by scope). */
 function PrepareSnapshot() {
   const { scope } = usePhase();
+  const { activeAddress, resolved } = useLocation();
   const meta = getScopeMeta(scope);
   const readyCount = COMMUNITY_MEMBERS.filter((m) => m.readiness >= 80).length;
   const communityAvg = Math.round(
     COMMUNITY_MEMBERS.reduce((sum, m) => sum + m.readiness, 0) / COMMUNITY_MEMBERS.length,
   );
+
+  const placeFor = (id: ReadinessScope): string => {
+    switch (id) {
+      case "household":
+        return activeAddress?.name ?? meta.place;
+      case "community":
+        return resolved?.city ? `near ${resolved.city}` : meta.place;
+      case "town":
+        return resolved?.city ?? resolved?.county ?? meta.place;
+      case "state":
+        return resolved?.state ?? resolved?.stateCode ?? meta.place;
+      case "national":
+        return resolved?.country ?? meta.place;
+    }
+  };
 
   const SUMMARY: Record<ReadinessScope, SnapshotSummary> = {
     household: {
@@ -226,6 +242,8 @@ function PrepareSnapshot() {
     },
   };
   const s = SUMMARY[scope];
+  const place = placeFor(scope);
+
 
   return (
     <div className="space-y-3">
