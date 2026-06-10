@@ -274,6 +274,20 @@ function blankSkipped(): SkipMap {
   };
 }
 
+const MY_ADDRESS: SavedLocation = {
+  id: "my-address",
+  name: "My Address",
+  type: "Home",
+  area: "",
+  ready: false,
+  answers: blankAnswers(),
+  skipped: blankSkipped(),
+  routes: [],
+  readinessScore: 0,
+  hazardScores: { flood: null, earthquake: null, heat: null, hurricane: null, wildfire: null, winter: null },
+  gaps: [],
+};
+
 const SJFU: SavedLocation = {
   id: "sjfu",
   name: "St. John Fisher University",
