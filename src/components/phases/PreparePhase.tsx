@@ -27,7 +27,7 @@ import {
   type HazardRisk,
   type RollupData,
 } from "@/data/prepare";
-import { useHousehold, useLocation } from "../LocationContext";
+import { useLocation } from "../LocationContext";
 import { RollupPanel } from "../RollupPanel";
 
 // Prepare leads with the calm risk map. Leaflet touches `window`, so the map is
