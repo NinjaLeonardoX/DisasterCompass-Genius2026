@@ -1,56 +1,46 @@
+# Use real device geolocation as the household's "current location"
+
 ## Goal
+The Prepare → Respond → Recover flow currently pins the Rivera household to North Creek, CO (40.024, -105.272). Replace that with the user's actual device location so all routes, risk maps, and "nearest shelter" logic recenter on them.
 
-Refactor the app navigation and composition so the existing DisasterCompass features tell a clear 3-phase story (Prepare → Respond → Recover) without rewriting working logic (Leaflet map, route scores, volunteer match, coordinator, recovery checklist, scoring, seeded data).
+## Approach (minimal, frontend-only)
 
-## What changes
+### 1. New geolocation hook — `src/hooks/useDeviceLocation.ts`
+- Wraps `navigator.geolocation.getCurrentPosition` with permission states: `idle | prompting | granted | denied | unsupported | error`.
+- Returns `{ status, coords, error, request(), clear() }` where `coords = { lat, lng, accuracyMeters }`.
+- Caches the last grant in `sessionStorage` so refresh doesn't re-prompt.
+- SSR-safe (guards `typeof navigator`).
 
-### 1. Sidebar (`src/components/AppSidebar.tsx`)
-Replace the current 7-item nav with:
-- **Mode toggle** at top: Resident | Community (via React context)
-- **3 phase tabs**: Prepare (Readiness Radar) · Respond (Compass Action Plan) · Recover (Recovery Launchpad)
-- **Footer secondary links**: Methodology, AI Disclosure
-- Keep dark navy style, polished green active state.
+### 2. Location context — `src/components/LocationContext.tsx`
+- Provides `{ household, source: 'device' | 'seed', requestLocation, useSeed }`.
+- Starts from seed (`RIVERA_HOUSEHOLD`) so first paint is never blank.
+- When the hook returns coords, returns a derived household: same name/members, but `lat/lng` from device and `locationName` reverse-geocoded to "Near {City, State}" via a free reverse-geocode (Nominatim, called once and cached).
+- Mounted under the existing `PhaseProvider` in `__root.tsx`.
 
-### 2. New phase context
-New `src/components/PhaseContext.tsx` provides `activePhase`, `mode`, `setActivePhase`, `setMode`. Wraps app in `__root.tsx`.
+### 3. Prepare screen permission card
+- Add a compact card at the top of `PreparePhase.tsx`: "Use your real location" with Allow / Use demo location buttons, status pill, and accuracy line.
+- Hidden once `source === 'device'`.
 
-### 3. New main app route (replace `/compass` UX, keep route)
-`src/routes/compass.tsx` becomes a host that renders:
-- **Lifecycle Dashboard** (always at top): title "One family. Three moments. One clear plan." + 3 cinematic gradient cards (Prepare/Respond/Recover) with phase label, status pill, tooltip, "View Actions" expansion, creative tagline. Pure CSS premium look (no new image assets needed) — layered gradients, grid textures, glass overlays, lucide icons.
-- **Phase panel** below, switches on `activePhase`.
+### 4. Recenter downstream consumers
+Switch these reads from the seed constant to `useLocation().household`:
+- `MapPanel.tsx`, `PrepareRiskMap.tsx` — map center + household marker
+- `EvacuationCountdown.tsx`, `CommunityReadiness.tsx` — proximity calculations
+- `compass.tsx`, `action-plan.tsx`, `map.tsx`, `report.tsx`, `index.tsx` — route loaders that read household
+- `RecoverPhase.tsx` — recovery checklist anchor
 
-### 4. Phase screens (new files under `src/components/phases/`)
-- `PreparePhase.tsx` — Readiness Radar: drill banner, disaster picker, Rivera profile, readiness ring (SVG), gap list with Fix-now buttons that close gaps via local state, community-mode readiness summary.
-- `RespondPhase.tsx` — Compass Action Plan: reuses existing `ActionCard`, `MapPanel`, collapsible `RouteScorePanel`, `VolunteerMatchCard`, compact `CoordinatorPanel`, plus a small Disaster Contrast Panel (Flood/Earthquake/Heat micro-cards).
-- `RecoverPhase.tsx` — Recovery Launchpad: single-current-action queue (steps from `getRecoveryChecklist`), Recovery Packet card, "Neighbor network repurposed" using volunteer data, Resource Router chips (reuse list from existing `RecoveryPanel`).
+Routes/shelters/volunteers stay at their real Rochester coordinates from the landmark dataset; distances are recomputed against the new origin via the existing scoring lib (no scoring math changes).
 
-### 5. Reusable bits
-- `WhyThisPopover.tsx` — small "Why this?" tooltip used inline on action/route/volunteer/recovery (uses existing shadcn `Popover`). Removes need for AI Disclosure top tab.
-- `LifecycleCard.tsx` — premium gradient card used in dashboard.
+### 5. Out of scope
+- No backend, no DB writes — purely client geolocation.
+- No editing of `realLandmarkScenarios.ts` (already Rochester-centered).
+- No changes to `actions.ts`/`matching.ts`/`scoring.ts` math.
+- No write back to seed.ts (keep as fallback).
 
-### 6. Routes
-- `/compass` remains the main app (single-page phase switcher).
-- Keep existing `/ai-disclosure` and `/methodology` for footer links.
-- Other top-level routes (`/map`, `/report`, etc.) untouched, but no longer in sidebar.
+## Technical notes
+- Reverse geocode: `https://nominatim.openstreetmap.org/reverse?format=json&lat=&lon=` with a UA header; failures silently fall back to "Your location".
+- Permission denied → show inline "Using demo location (North Creek, CO)" badge so the dashboard still works.
+- All 4 screens (Prepare/Respond/Recover + Compass) stay functional whether granted, denied, or pending.
 
-## What stays untouched
-- `src/lib/scoring.ts`, `src/lib/matching.ts`, `src/lib/recovery.ts`, `src/lib/actions.ts`
-- `src/data/seed.ts`
-- `src/components/compass/MapPanel.tsx` (Leaflet)
-- `src/components/compass/RouteScorePanel.tsx`
-- `src/components/compass/VolunteerMatchCard.tsx` (approve button behavior preserved)
-- `src/components/compass/CoordinatorPanel.tsx`
-- Landing page `src/routes/index.tsx`
-
-## Visual rules
-- Dark navy sidebar, light atmospheric main bg, white elevated cards, soft shadows.
-- Green = safe/GO, Amber = caution/needs help, Red = danger/rejected only, Blue = water/map.
-- Action heading "GO TO HIGHER GROUND" stays navy with green GO badge (not red).
-
-## Out of scope
-- No backend, auth, localStorage, live APIs.
-- No new image assets — use CSS gradients + icons for cinematic cards.
-- No changes to scoring math or seeded data.
-
-## Demo flow it enables
-Open app → see 3 lifecycle cards → click Prepare (Rivera gaps) → click Respond (flood GO + Route B + Approve Ana → Rivera En Route) → click Recover (next-action queue + packet + repurposed network). Tagline footer: "AI explains. Rules decide. Humans approve."
+## Files touched
+- new: `src/hooks/useDeviceLocation.ts`, `src/components/LocationContext.tsx`
+- edited: `src/routes/__root.tsx`, `src/components/phases/PreparePhase.tsx`, `MapPanel.tsx`, `PrepareRiskMap.tsx`, `EvacuationCountdown.tsx`, `CommunityReadiness.tsx`, and the 5 route files listed above (single-line import + hook swap each)
