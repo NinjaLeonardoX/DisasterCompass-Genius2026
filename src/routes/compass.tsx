@@ -43,8 +43,8 @@ function CompassLayout() {
   return (
     <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 sm:py-10">
       <div className="space-y-10">
-        {/* Safety Location always sits at the very top */}
-        <SafetyLocationPanel />
+        {/* Safety Location sits at the top — except during Respond, which is the simplest screen */}
+        {!isRespond && <SafetyLocationPanel />}
 
         {hasLocation ? (
           <>
