@@ -149,7 +149,7 @@ const slides: Slide[] = [
       ],
       tooling: ["Vite", "Bun", "ESLint", "Prettier"],
     },
-    footer: "Live APIs (feature-flagged), each with a seeded demo fallback.",
+    footer: "Live APIs: MapTiler, Open-Meteo, NWS, OpenWeatherMap, OpenRouteService, and OSM Nominatim.",
   },
   // 5 — AI disclosure
   {
