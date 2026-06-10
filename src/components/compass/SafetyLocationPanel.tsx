@@ -1213,6 +1213,25 @@ ${planBlocks}
           onChangeName={setDraftName}
           onChangeType={setDraftType}
           onChangeArea={setDraftArea}
+          onSelectPlace={(s: PlaceSuggestion) => {
+            setDraftArea(s.displayName);
+            setDraftGeo({
+              lat: s.lat,
+              lng: s.lng,
+              displayName: s.displayName,
+              city: s.city,
+              county: null,
+              state: s.state,
+              stateCode: null,
+              country: s.country,
+              countryCode: null,
+            });
+            const inferred = inferLocationType(s.klass, s.type);
+            setDraftType(inferred);
+            if ((draftName === "Home" || !draftName.trim()) && s.name) {
+              setDraftName(s.name.slice(0, 60));
+            }
+          }}
           onChangeAnswers={setAnswers}
           onChangeSkipped={setSkipped}
           onChangeWizardIndex={setWizardIndex}
@@ -1221,6 +1240,8 @@ ${planBlocks}
           onGoReview={goToReview}
           onGeneratePlan={generatePlan}
           onClose={closeAfterResults}
+          genProgress={genProgress}
+          genStatus={genStatus}
         />
       )}
     </section>
