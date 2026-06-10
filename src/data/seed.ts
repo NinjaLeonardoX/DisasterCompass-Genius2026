@@ -237,7 +237,7 @@ export const VOLUNTEERS: Volunteer[] = [
 export const COORDINATOR_HOUSEHOLDS: CoordinatorHousehold[] = [
   {
     id: "hh-rivera",
-    name: "Rivera Family",
+    name: "Your household",
     status: "Needs Transport",
     note: "No vehicle, accessibility + pet needs. Awaiting volunteer.",
   },

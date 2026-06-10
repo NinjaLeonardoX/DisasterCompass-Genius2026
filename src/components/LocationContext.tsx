@@ -48,6 +48,7 @@ const LocationContext = createContext<LocationContextValue | null>(null);
 function householdFromSaved(addr: SavedAddress): Household {
   return {
     ...RIVERA_HOUSEHOLD,
+    name: addr.name,
     locationName: addr.name,
     lat: addr.lat,
     lng: addr.lng,
@@ -154,15 +155,17 @@ export function LocationProvider({ children }: { children: ReactNode }) {
       };
     }
     if (coords) {
+      const placeLabel = deviceResolved
+        ? `${deviceResolved.city ?? deviceResolved.county ?? "your location"}${
+            deviceResolved.state ? `, ${deviceResolved.state}` : ""
+          }`
+        : "your current location";
       const household: Household = {
         ...RIVERA_HOUSEHOLD,
+        name: `Household near ${placeLabel}`,
         lat: coords.lat,
         lng: coords.lng,
-        locationName: deviceResolved
-          ? `Near ${deviceResolved.city ?? deviceResolved.county ?? "you"}${
-              deviceResolved.state ? `, ${deviceResolved.state}` : ""
-            }`
-          : "Your current location",
+        locationName: deviceResolved ? `Near ${placeLabel}` : "Your current location",
       };
       return {
         ...base,
@@ -184,7 +187,7 @@ export function LocationProvider({ children }: { children: ReactNode }) {
     }
     return {
       ...base,
-      household: RIVERA_HOUSEHOLD,
+      household: { ...RIVERA_HOUSEHOLD, name: "Your household", locationName: "Set your location" },
       source: "seed",
       status,
       error,

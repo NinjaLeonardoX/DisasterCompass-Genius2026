@@ -61,7 +61,7 @@ function ActionPlanPage() {
   return (
     <PageShell
       title="Recommended Response Plan"
-      description="Everything for the Rivera Family in one place — action, route, transport, recovery."
+      description={`Everything for ${household.name} in one place — action, route, transport, recovery.`}
     >
       <div className="space-y-6">
         {/* Action recap */}
