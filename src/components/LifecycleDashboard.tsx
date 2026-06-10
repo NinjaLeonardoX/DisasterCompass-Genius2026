@@ -90,6 +90,7 @@ export function LifecycleDashboard() {
           onSelect={() => setActivePhase("recover")}
           visualClass="bg-[radial-gradient(circle_at_25%_30%,rgba(134,239,172,0.85),transparent_55%),radial-gradient(circle_at_80%_80%,rgba(34,197,94,0.85),transparent_55%),linear-gradient(135deg,#14532d_0%,#166534_55%,#052e16_100%)]"
         />
+        )}
       </div>
     </section>
   );
