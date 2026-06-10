@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useLocation } from "../LocationContext";
 import { usePhase } from "../PhaseContext";
-import { forwardGeocode, inferLocationType, type GeocodeResult, type PlaceSuggestion } from "@/lib/geocoding";
+import { forwardGeocode, reverseGeocode, inferLocationType, type GeocodeResult, type PlaceSuggestion } from "@/lib/geocoding";
 import { HAZARD_RISKS, HAZARD_ROUTES, SEVERITY_META, type HazardRisk } from "@/data/prepare";
 import { generateCompassPlan } from "@/lib/compass-plan.functions";
 import { lookupPlaceDetails } from "@/lib/place-lookup.functions";
@@ -619,8 +619,51 @@ export function SafetyLocationPanel() {
     setSetupMode("device");
     setDraftName("Home");
     setDraftType("Home");
-    setDraftArea("Detected near your current location");
+    setDraftArea("Detecting your location…");
+    setDraftGeo(null);
     setSetupStep("name");
+
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setDraftArea("");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude: lat, longitude: lng } = pos.coords;
+        setDraftArea(`Detected · resolving address (${lat.toFixed(4)}, ${lng.toFixed(4)})…`);
+        try {
+          const geo = await reverseGeocode(lat, lng);
+          if (geo) {
+            setDraftGeo(geo);
+            setDraftArea(geo.displayName);
+            const inferred = [geo.city, geo.state, geo.country].filter(Boolean).join(", ");
+            if (!inferred) setDraftArea(geo.displayName || `${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+          } else {
+            setDraftGeo({
+              lat, lng,
+              displayName: `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
+              city: null, county: null, state: null, stateCode: null, country: null, countryCode: null,
+            });
+            setDraftArea(`${lat.toFixed(5)}, ${lng.toFixed(5)} (address lookup unavailable)`);
+          }
+        } catch {
+          setDraftGeo({
+            lat, lng,
+            displayName: `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
+            city: null, county: null, state: null, stateCode: null, country: null, countryCode: null,
+          });
+          setDraftArea(`${lat.toFixed(5)}, ${lng.toFixed(5)} (address lookup failed)`);
+        }
+      },
+      (err) => {
+        const msg =
+          err.code === err.PERMISSION_DENIED
+            ? "Location permission denied — enter your address manually below."
+            : "Couldn't detect your location — enter it manually below.";
+        setDraftArea(msg);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+    );
   }
   function startManualFlow() {
     setSetupMode("manual");
