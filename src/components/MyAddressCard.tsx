@@ -152,7 +152,7 @@ export function MyAddressCard() {
           <button
             onClick={requestLocation}
             disabled={status === "prompting"}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground hover:bg-surface/70 disabled:opacity-60"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-surface disabled:opacity-60"
           >
             {status === "prompting" ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
