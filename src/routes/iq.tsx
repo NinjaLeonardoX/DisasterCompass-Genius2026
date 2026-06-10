@@ -848,19 +848,19 @@ export type SOSRecipient = { title: string; name: string; organization: string; 
 
 export const DEFAULT_SOS_RECIPIENT: SOSRecipient = {
   title: "Chief",
-  name: "Milo",
+  name: "William & Miguel",
   organization: "Firestation 80",
   phone: "",
 };
 
 export function readSOSRecipient(): SOSRecipient {
   try {
-    const raw = window.localStorage.getItem("iq:sosRecipient");
+    const raw = window.localStorage.getItem("iq:sosRecipient:v2");
     if (raw) {
       const parsed = JSON.parse(raw) as Partial<SOSRecipient>;
       return {
         title: parsed.title?.trim() || DEFAULT_SOS_RECIPIENT.title,
-        name: parsed.name?.trim() || DEFAULT_SOS_RECIPIENT.name,
+        name: DEFAULT_SOS_RECIPIENT.name,
         organization: parsed.organization?.trim() || DEFAULT_SOS_RECIPIENT.organization,
         phone: parsed.phone?.trim() ?? "",
       };
@@ -881,7 +881,7 @@ export function formatSOSMessage(r: SOSRecipient): string {
 }
 
 function SOSRecipientPanel() {
-  const [recipient, setRecipient] = useLocalState<SOSRecipient>("iq:sosRecipient", DEFAULT_SOS_RECIPIENT);
+  const [recipient, setRecipient] = useLocalState<SOSRecipient>("iq:sosRecipient:v2", DEFAULT_SOS_RECIPIENT);
   const [saved, setSaved] = useState(false);
 
   function update<K extends keyof SOSRecipient>(key: K, value: SOSRecipient[K]) {
@@ -913,9 +913,8 @@ function SOSRecipientPanel() {
           Name
           <input
             value={recipient.name}
-            onChange={(e) => update("name", e.target.value)}
-            placeholder="Milo"
-            className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-1.5 text-sm font-normal normal-case tracking-normal text-foreground"
+            disabled
+            className="mt-1 w-full rounded-lg border border-border bg-card-foreground/5 px-3 py-1.5 text-sm font-normal normal-case tracking-normal text-foreground/60 cursor-not-allowed"
           />
         </label>
         <label className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/60">
