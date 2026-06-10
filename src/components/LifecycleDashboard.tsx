@@ -83,7 +83,7 @@ export function LifecycleDashboard() {
           ]}
           active={activePhase === "recover"}
           onSelect={() => setActivePhase("recover")}
-          visualClass="bg-[radial-gradient(circle_at_30%_25%,rgba(245,158,11,0.30),transparent_55%),radial-gradient(circle_at_80%_75%,rgba(94,230,161,0.30),transparent_55%),linear-gradient(135deg,#1a2842_0%,#243b5f_50%,#0f1a2e_100%)]"
+          visualClass="bg-[radial-gradient(circle_at_25%_30%,rgba(134,239,172,0.85),transparent_55%),radial-gradient(circle_at_80%_80%,rgba(34,197,94,0.85),transparent_55%),linear-gradient(135deg,#14532d_0%,#166534_55%,#052e16_100%)]"
         />
       </div>
     </section>
