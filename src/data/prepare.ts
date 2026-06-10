@@ -275,9 +275,9 @@ export const SCOPE_META: ScopeMeta[] = [
   },
   {
     id: "town",
-    label: "Town",
+    label: "City",
     place: "North Creek",
-    blurb: "the whole town — households, shelters, and transport.",
+    blurb: "the whole city — households, shelters, and transport.",
     context: false,
   },
   {
