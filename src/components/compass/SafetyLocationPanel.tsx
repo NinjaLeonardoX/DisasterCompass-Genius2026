@@ -980,20 +980,21 @@ function SetupModal(p: SetupModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={p.onCancel}>
       <div
-        className="max-h-[90vh] w-full max-w-2xl overflow-auto rounded-2xl border border-border bg-card shadow-2xl"
+        className="max-h-[90vh] w-full max-w-2xl overflow-auto rounded-2xl border border-border bg-white text-black shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border px-5 py-3">
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-card-foreground/55">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black">
               {p.mode === "device" ? "Use My Location" : "Enter Manually"} · Readiness Onboarding
             </p>
-            <p className="text-sm font-semibold">{stepLabel}</p>
+            <p className="text-sm font-semibold text-black">{stepLabel}</p>
           </div>
-          <button onClick={p.onCancel} className="rounded-md p-1 text-card-foreground/60 hover:bg-surface">
+          <button onClick={p.onCancel} className="rounded-md p-1 text-black hover:bg-gray-100">
             <X className="h-4 w-4" />
           </button>
         </div>
+
 
         {/* Progress bar */}
         {p.step !== "name" && <ProgressBar step={p.step} wizardIndex={p.wizardIndex} totalSteps={totalSteps} />}
@@ -1026,22 +1027,22 @@ function NameStep(p: SetupModalProps) {
     <>
       {p.mode === "device" && (
         <div className="rounded-lg border border-border bg-surface/40 p-3 text-sm">
-          <p className="font-semibold text-foreground">Detected location</p>
-          <p className="text-xs text-card-foreground/65">{p.draftArea || "Detecting…"}</p>
+          <p className="font-semibold text-black">Detected location</p>
+          <p className="text-xs text-black">{p.draftArea || "Detecting…"}</p>
         </div>
       )}
 
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] font-semibold uppercase tracking-wide text-card-foreground/55">Location name</span>
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-black">Location name</span>
         <input
           value={p.draftName}
           onChange={(e) => p.onChangeName(e.target.value)}
           maxLength={60}
-          className="rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+          className="rounded-md border border-border bg-white px-2 py-1.5 text-sm text-black placeholder:text-black/50"
         />
         <div className="mt-1 flex flex-wrap gap-1.5">
           {NAME_PRESETS.map((n) => (
-            <button key={n} onClick={() => p.onChangeName(n)} className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] hover:bg-surface">
+            <button key={n} onClick={() => p.onChangeName(n)} className="rounded-full border border-border bg-white px-2.5 py-0.5 text-[11px] text-black hover:bg-gray-100">
               {n}
             </button>
           ))}
@@ -1050,30 +1051,30 @@ function NameStep(p: SetupModalProps) {
 
       {p.mode === "manual" && (
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-card-foreground/55">Address or area</span>
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-black">Address or area</span>
           <input
             value={p.draftArea}
             onChange={(e) => p.onChangeArea(e.target.value)}
             maxLength={200}
             placeholder="123 Main St, City, State"
-            className="rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+            className="rounded-md border border-border bg-white px-2 py-1.5 text-sm text-black placeholder:text-black/50"
           />
         </label>
       )}
 
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] font-semibold uppercase tracking-wide text-card-foreground/55">Location type</span>
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-black">Location type</span>
         <select
           value={p.draftType}
           onChange={(e) => p.onChangeType(e.target.value)}
-          className="rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+          className="rounded-md border border-border bg-white px-2 py-1.5 text-sm text-black"
         >
           {LOCATION_TYPES.map((t) => <option key={t}>{t}</option>)}
         </select>
       </label>
 
       <div className="flex justify-end gap-2 pt-2">
-        <button onClick={p.onCancel} className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium hover:bg-surface">
+        <button onClick={p.onCancel} className="rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-black hover:bg-gray-100">
           Cancel
         </button>
         <button
@@ -1087,6 +1088,7 @@ function NameStep(p: SetupModalProps) {
     </>
   );
 }
+
 
 function WizardStep(p: SetupModalProps) {
   const section = SECTIONS[p.wizardIndex];
