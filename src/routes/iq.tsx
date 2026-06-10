@@ -849,7 +849,7 @@ export type SOSRecipient = { title: string; name: string; organization: string; 
 export const DEFAULT_SOS_RECIPIENT: SOSRecipient = {
   title: "Chief",
   name: "William & Miguel",
-  organization: "Firestation 80",
+  organization: "Firestation 6",
   phone: "",
 };
 
@@ -922,7 +922,7 @@ function SOSRecipientPanel() {
           <input
             value={recipient.organization}
             onChange={(e) => update("organization", e.target.value)}
-            placeholder="Firestation 80"
+            placeholder="Firestation 6"
             className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-1.5 text-sm font-normal normal-case tracking-normal text-foreground"
           />
         </label>
