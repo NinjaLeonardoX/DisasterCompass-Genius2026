@@ -51,9 +51,9 @@ function LandingPage() {
             <div className="lg:col-span-7">
               <div className="road-badge relative inline-flex items-center gap-2.5 rounded-full px-5 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/95">
                 <svg className="road-border-svg" aria-hidden xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-                  <rect className="road-asphalt" x="1" y="1" width="calc(100% - 2px)" height="calc(100% - 2px)" rx="999" ry="999" />
-                  <rect className="road-edge" x="1" y="1" width="calc(100% - 2px)" height="calc(100% - 2px)" rx="999" ry="999" />
-                  <rect className="road-lane" x="1" y="1" width="calc(100% - 2px)" height="calc(100% - 2px)" rx="999" ry="999" />
+                  <rect className="road-asphalt" x="0" y="0" width="100%" height="100%" rx="999" ry="999" />
+                  <rect className="road-edge" x="0" y="0" width="100%" height="100%" rx="999" ry="999" />
+                  <rect className="road-lane" x="0" y="0" width="100%" height="100%" rx="999" ry="999" />
                 </svg>
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#16A34A] opacity-75" />
