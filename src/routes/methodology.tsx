@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ShieldCheck, Compass, LifeBuoy } from "lucide-react";
 import { PageShell } from "../components/PageShell";
+import { SiteHeader } from "../components/SiteHeader";
 
 export const Route = createFileRoute("/methodology")({
   head: () => ({
@@ -104,43 +105,46 @@ const phases: Phase[] = [
 
 function MethodologyPage() {
   return (
-    <PageShell
-      title="Methodology"
-      description="DisasterCompass follows the emergency lifecycle: Prepare before, Respond during, Recover after."
-      showStepIndicator={false}
-    >
-      <div className="space-y-10">
-        {phases.map((phase) => (
-          <section key={phase.id} id={phase.id} className="scroll-mt-24">
-            <div className="flex items-center gap-3">
-              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
-                <phase.icon className="h-5 w-5" />
-              </span>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-                  {phase.when} · {phase.sub}
-                </p>
-                <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-                  {phase.label}
-                </h2>
-              </div>
-            </div>
-            <p className="mt-3 max-w-3xl text-base text-foreground/75">{phase.intro}</p>
-
-            <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {phase.points.map((p) => (
-                <div
-                  key={p.title}
-                  className="rounded-2xl bg-card p-6 text-card-foreground shadow-md shadow-black/10"
-                >
-                  <h3 className="text-base font-semibold">{p.title}</h3>
-                  <p className="mt-2 text-sm text-card-foreground/70">{p.body}</p>
+    <div className="min-h-screen bg-background">
+      <SiteHeader />
+      <PageShell
+        title="Methodology"
+        description="DisasterCompass follows the emergency lifecycle: Prepare before, Respond during, Recover after."
+        showStepIndicator={false}
+      >
+        <div className="space-y-10">
+          {phases.map((phase) => (
+            <section key={phase.id} id={phase.id} className="scroll-mt-24">
+              <div className="flex items-center gap-3">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+                  <phase.icon className="h-5 w-5" />
+                </span>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                    {phase.when} · {phase.sub}
+                  </p>
+                  <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+                    {phase.label}
+                  </h2>
                 </div>
-              ))}
-            </div>
-          </section>
-        ))}
-      </div>
-    </PageShell>
+              </div>
+              <p className="mt-3 max-w-3xl text-base text-foreground/75">{phase.intro}</p>
+
+              <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {phase.points.map((p) => (
+                  <div
+                    key={p.title}
+                    className="rounded-2xl bg-card p-6 text-card-foreground shadow-md shadow-black/10"
+                  >
+                    <h3 className="text-base font-semibold">{p.title}</h3>
+                    <p className="mt-2 text-sm text-card-foreground/70">{p.body}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      </PageShell>
+    </div>
   );
 }

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Layers, Cpu, Database, GitBranch, Workflow, ShieldCheck } from "lucide-react";
 import { PageShell } from "../components/PageShell";
+import { SiteHeader } from "../components/SiteHeader";
 
 export const Route = createFileRoute("/solution")({
   head: () => ({
@@ -124,73 +125,76 @@ const principles = [
 
 function SolutionPage() {
   return (
-    <PageShell
-      title="Solution"
-      description="How DisasterCompass is architected and implemented — a rules-based, transparent action planner."
-      showStepIndicator={false}
-    >
-      <div className="space-y-12">
-        {/* Architecture layers */}
-        <section>
-          <h2 className="text-xl font-semibold tracking-tight text-foreground">
-            System architecture
-          </h2>
-          <p className="mt-2 max-w-3xl text-sm text-foreground/70">
-            Three layers, cleanly separated: a React presentation layer, a pure decision engine, and
-            an in-memory state and data layer.
-          </p>
+    <div className="min-h-screen bg-background">
+      <SiteHeader />
+      <PageShell
+        title="Solution"
+        description="How DisasterCompass is architected and implemented — a rules-based, transparent action planner."
+        showStepIndicator={false}
+      >
+        <div className="space-y-12">
+          {/* Architecture layers */}
+          <section>
+            <h2 className="text-xl font-semibold tracking-tight text-foreground">
+              System architecture
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm text-foreground/70">
+              Three layers, cleanly separated: a React presentation layer, a pure decision engine,
+              and an in-memory state and data layer.
+            </p>
 
-          <div className="mt-6 space-y-6">
-            {layers.map((layer) => (
-              <div
-                key={layer.id}
-                className="rounded-2xl bg-card p-6 text-card-foreground shadow-md shadow-black/10"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
-                    <layer.icon className="h-5 w-5" />
+            <div className="mt-6 space-y-6">
+              {layers.map((layer) => (
+                <div
+                  key={layer.id}
+                  className="rounded-2xl bg-card p-6 text-card-foreground shadow-md shadow-black/10"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+                      <layer.icon className="h-5 w-5" />
+                    </span>
+                    <h3 className="text-lg font-semibold">{layer.label}</h3>
+                  </div>
+                  <p className="mt-3 text-sm text-card-foreground/70">{layer.summary}</p>
+
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    {layer.items.map((item) => (
+                      <div
+                        key={item.name}
+                        className="rounded-xl border border-border/60 bg-background/40 p-4"
+                      >
+                        <p className="text-sm font-semibold text-foreground">{item.name}</p>
+                        <p className="mt-1 text-xs text-foreground/65">{item.detail}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Design principles */}
+          <section>
+            <h2 className="text-xl font-semibold tracking-tight text-foreground">
+              Implementation principles
+            </h2>
+            <div className="mt-6 grid gap-4 sm:grid-cols-3">
+              {principles.map((p) => (
+                <div
+                  key={p.title}
+                  className="rounded-2xl bg-card p-6 text-card-foreground shadow-md shadow-black/10"
+                >
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+                    <p.icon className="h-5 w-5" />
                   </span>
-                  <h3 className="text-lg font-semibold">{layer.label}</h3>
+                  <h3 className="mt-4 text-base font-semibold">{p.title}</h3>
+                  <p className="mt-2 text-sm text-card-foreground/70">{p.body}</p>
                 </div>
-                <p className="mt-3 text-sm text-card-foreground/70">{layer.summary}</p>
-
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  {layer.items.map((item) => (
-                    <div
-                      key={item.name}
-                      className="rounded-xl border border-border/60 bg-background/40 p-4"
-                    >
-                      <p className="text-sm font-semibold text-foreground">{item.name}</p>
-                      <p className="mt-1 text-xs text-foreground/65">{item.detail}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Design principles */}
-        <section>
-          <h2 className="text-xl font-semibold tracking-tight text-foreground">
-            Implementation principles
-          </h2>
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            {principles.map((p) => (
-              <div
-                key={p.title}
-                className="rounded-2xl bg-card p-6 text-card-foreground shadow-md shadow-black/10"
-              >
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
-                  <p.icon className="h-5 w-5" />
-                </span>
-                <h3 className="mt-4 text-base font-semibold">{p.title}</h3>
-                <p className="mt-2 text-sm text-card-foreground/70">{p.body}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      </div>
-    </PageShell>
+              ))}
+            </div>
+          </section>
+        </div>
+      </PageShell>
+    </div>
   );
 }
