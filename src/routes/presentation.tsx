@@ -67,10 +67,14 @@ const slides: Slide[] = [
         value: "27",
         label: "billion-dollar weather & climate disasters struck the U.S. in 2024.",
       },
+      {
+        value: "69%",
+        label: "of U.S. households haven't learned their evacuation routes.",
+      },
     ],
-    note: "FEMA preparedness data shows many households still don't know their evacuation routes, haven't practiced their plan, or haven't planned with their neighbors.",
+    note: "FEMA preparedness data also shows most households haven't practiced their plan or planned with their neighbors.",
     footer: "A warning tells you something is coming — not what to do next.",
-    source: "Sources: NOAA Billion-Dollar Disasters · FEMA National Household Survey",
+    source: "Sources: NOAA Billion-Dollar Disasters · FEMA 2023 National Household Survey",
   },
   // 2 — Strategy
   {
