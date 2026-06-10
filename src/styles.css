@@ -187,3 +187,52 @@
 .prepare-risk-map .leaflet-tile-pane {
   filter: grayscale(0.92) brightness(1.08) contrast(0.82) opacity(0.85);
 }
+
+/* Presentation deck: keep slide backgrounds/colors when exporting to PDF. */
+.slide {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* The print-only deck is hidden on screen and revealed for PDF export. */
+#print-deck {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: landscape;
+    margin: 0;
+  }
+  html,
+  body {
+    background: #0f1a2e !important;
+  }
+  body * {
+    visibility: hidden !important;
+  }
+  #print-deck,
+  #print-deck * {
+    visibility: visible !important;
+  }
+  #print-deck {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    display: block !important;
+  }
+  .print-page {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    page-break-after: always;
+    break-after: page;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .print-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+}
