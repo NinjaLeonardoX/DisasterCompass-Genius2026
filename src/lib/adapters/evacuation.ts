@@ -149,6 +149,7 @@ export function buildEvacuationRoute({
   const feature = ors?.features?.[0];
   const coords = feature?.geometry?.coordinates;
   const summary = feature?.properties?.summary;
+  const segments = feature?.properties?.segments ?? [];
 
   let coordinates: [number, number][];
   let distanceMiles: number;
@@ -170,6 +171,20 @@ export function buildEvacuationRoute({
     estimatedMinutes = Math.max(1, Math.round((distanceMiles / 25) * 60));
   }
 
+  // Flatten ORS segments → ordered turn-by-turn steps for the UI.
+  const steps: RouteStep[] = [];
+  for (const seg of segments) {
+    for (const s of seg.steps ?? []) {
+      if (!s?.instruction) continue;
+      steps.push({
+        instruction: s.instruction,
+        name: s.name && s.name !== "-" ? s.name : undefined,
+        distanceMiles: typeof s.distance === "number" ? s.distance / METERS_PER_MILE : 0,
+        durationMinutes: typeof s.duration === "number" ? s.duration / 60 : 0,
+      });
+    }
+  }
+
   const elevationGain = elevationGainFt != null ? Math.max(0, Math.round(elevationGainFt)) : 0;
 
   return {
@@ -186,6 +201,7 @@ export function buildEvacuationRoute({
     shelterFit: 1,
     accessibility: false,
     coordinates,
+    steps: steps.length > 0 ? steps : undefined,
     notes: KIND_NOTE[destination.kind],
   };
 }
