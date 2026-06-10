@@ -125,6 +125,12 @@ export function LocationProvider({ children }: { children: ReactNode }) {
     setAddrsTick((n) => n + 1);
   }, []);
 
+  const requestCurrentLocation = useCallback(() => {
+    setActiveAddressId(null);
+    setActiveAddress(null);
+    request();
+  }, [request]);
+
   const value = useMemo<LocationContextValue>(() => {
     const base = { locationConfirmed, confirmLocation, resetLocation };
     // Priority: saved address > device geolocation > seed fallback.
@@ -138,7 +144,7 @@ export function LocationProvider({ children }: { children: ReactNode }) {
         accuracyMeters: null,
         activeAddress,
         resolved: resolvedFromSaved(activeAddress),
-        requestLocation: request,
+        requestLocation: requestCurrentLocation,
         useSeed: () => {
           clear();
           selectAddress(null);
@@ -167,7 +173,7 @@ export function LocationProvider({ children }: { children: ReactNode }) {
         accuracyMeters: coords.accuracyMeters,
         activeAddress: null,
         resolved: deviceResolved,
-        requestLocation: request,
+        requestLocation: requestCurrentLocation,
         useSeed: () => {
           clear();
           selectAddress(null);
@@ -185,7 +191,7 @@ export function LocationProvider({ children }: { children: ReactNode }) {
       accuracyMeters: null,
       activeAddress: null,
       resolved: null,
-      requestLocation: request,
+      requestLocation: requestCurrentLocation,
       useSeed: () => {
         clear();
         selectAddress(null);
@@ -193,7 +199,7 @@ export function LocationProvider({ children }: { children: ReactNode }) {
       selectAddress,
       refreshAddresses,
     };
-  }, [activeAddress, coords, deviceResolved, status, error, request, clear, selectAddress, refreshAddresses, locationConfirmed, confirmLocation, resetLocation]);
+  }, [activeAddress, coords, deviceResolved, status, error, requestCurrentLocation, clear, selectAddress, refreshAddresses, locationConfirmed, confirmLocation, resetLocation]);
 
   return <LocationContext.Provider value={value}>{children}</LocationContext.Provider>;
 }

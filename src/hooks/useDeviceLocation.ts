@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export type GeoStatus =
   | "idle"
@@ -45,6 +45,7 @@ export function useDeviceLocation() {
   const [status, setStatus] = useState<GeoStatus>("idle");
   const [coords, setCoords] = useState<GeoCoords | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const watchIdRef = useRef<number | null>(null);
 
   // Hydrate from session cache on mount (client only).
   useEffect(() => {
@@ -61,9 +62,13 @@ export function useDeviceLocation() {
       setError("Geolocation is not available in this browser.");
       return;
     }
+    if (watchIdRef.current != null) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
+    }
     setStatus("prompting");
     setError(null);
-    navigator.geolocation.getCurrentPosition(
+    watchIdRef.current = navigator.geolocation.watchPosition(
       (pos) => {
         const next: GeoCoords = {
           lat: pos.coords.latitude,
@@ -87,11 +92,15 @@ export function useDeviceLocation() {
           setError(err.message || "Could not get location.");
         }
       },
-      { enableHighAccuracy: false, timeout: 10000, maximumAge: 60_000 },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
     );
   }, []);
 
   const clear = useCallback(() => {
+    if (typeof navigator !== "undefined" && navigator.geolocation && watchIdRef.current != null) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
+    }
     setCoords(null);
     setStatus("idle");
     setError(null);
@@ -102,6 +111,14 @@ export function useDeviceLocation() {
         /* ignore */
       }
     }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (typeof navigator !== "undefined" && navigator.geolocation && watchIdRef.current != null) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+      }
+    };
   }, []);
 
   return { status, coords, error, request, clear };

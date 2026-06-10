@@ -1,4 +1,5 @@
-import { MapContainer, TileLayer, Polygon, Polyline, CircleMarker, Tooltip } from "react-leaflet";
+import { useEffect } from "react";
+import { MapContainer, TileLayer, Polygon, Polyline, CircleMarker, Tooltip, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import type { RouteOption } from "@/types";
 import {
@@ -25,6 +26,21 @@ const ROUTE_COLORS: Record<RouteOption["colorType"], string> = {
   caution: "#D97706",
   rejected: "#9CA3AF",
 };
+
+function RefreshMapView({ center, routes }: { center: [number, number]; routes: RouteOption[] }) {
+  const map = useMap();
+
+  useEffect(() => {
+    const points = routes.flatMap((route) => route.coordinates);
+    if (points.length > 1) {
+      map.fitBounds(points, { padding: [28, 28], maxZoom: 15, animate: true });
+      return;
+    }
+    map.setView(center, map.getZoom(), { animate: true });
+  }, [center[0], center[1], map, routes]);
+
+  return null;
+}
 
 /** A computed safe destination to plot (location-aware evacuation mode). */
 export interface MapDestination {
@@ -76,6 +92,7 @@ export default function MapPanel({
         scrollWheelZoom={false}
         style={{ height, width: "100%", borderRadius: "1rem" }}
       >
+        <RefreshMapView center={center} routes={routes} />
         {flags.tiles && maptilerKey ? (
           <TileLayer
             attribution='&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

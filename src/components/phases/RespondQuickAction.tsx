@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, ShieldCheck, AlertCircle, LifeBuoy, Siren, MapPin, Loader2 } from "lucide-react";
 import { MapPanel } from "../compass/MapPanel";
 import { useLocation } from "../LocationContext";
-import { useRoutes, resolveDestinationShelter } from "@/lib/queries/routing";
+import { fetchAlertsByPoint, fetchAlertsByState, type NwsAlert } from "@/lib/nwsAlerts";
+import { useEvacuationRoutes } from "@/lib/queries/evacuation";
+import type { DisasterType } from "@/types";
 
 type Status = "none" | "safe" | "stuck" | "needs_help" | "sos";
+type AlertState = "idle" | "loading" | "ready" | "error";
 
 interface ActionDef {
   id: Exclude<Status, "none">;
@@ -49,10 +52,24 @@ const ACTIONS: ActionDef[] = [
   },
 ];
 
+function disasterFromAlert(alert: NwsAlert | null): { type: DisasterType; label: "Flood" | "Earthquake" | "Wildfire" | "Hurricane" | "Extreme Heat" } {
+  const event = alert?.event.toLowerCase() ?? "";
+  if (event.includes("heat")) return { type: "heat", label: "Extreme Heat" };
+  if (event.includes("fire") || event.includes("smoke")) return { type: "wildfire", label: "Wildfire" };
+  if (event.includes("hurricane") || event.includes("tropical") || event.includes("tornado") || event.includes("wind")) {
+    return { type: "hurricane", label: "Hurricane" };
+  }
+  if (event.includes("earthquake")) return { type: "earthquake", label: "Earthquake" };
+  return { type: "flood", label: "Flood" };
+}
+
 export function RespondQuickAction() {
   const [status, setStatus] = useState<Status>("none");
   const [lastMessage, setLastMessage] = useState<string | null>(null);
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
+  const [alertState, setAlertState] = useState<AlertState>("idle");
+  const [activeAlert, setActiveAlert] = useState<NwsAlert | null>(null);
+  const [alertScope, setAlertScope] = useState<"local" | "state" | null>(null);
 
   const {
     household,
@@ -60,6 +77,7 @@ export function RespondQuickAction() {
     status: geoStatus,
     error: geoError,
     accuracyMeters,
+    resolved,
     requestLocation,
   } = useLocation();
 
@@ -73,9 +91,47 @@ export function RespondQuickAction() {
 
   const hasRealLocation = source === "device";
   const home: [number, number] = [household.lat, household.lng];
-  const destShelter = resolveDestinationShelter();
-  const dest: [number, number] = destShelter ? [destShelter.lat, destShelter.lng] : home;
-  const { data: routes } = useRoutes(home, dest);
+  const currentDisaster = useMemo(() => disasterFromAlert(activeAlert), [activeAlert]);
+  const evacuation = useEvacuationRoutes(home, currentDisaster.type, hasRealLocation);
+  const routes = hasRealLocation ? evacuation.routes : [];
+
+  useEffect(() => {
+    if (!hasRealLocation) {
+      setActiveAlert(null);
+      setAlertScope(null);
+      setAlertState("idle");
+      return;
+    }
+    const ctrl = new AbortController();
+    setAlertState("loading");
+    fetchAlertsByPoint(household.lat, household.lng, ctrl.signal).then(async (result) => {
+      if (ctrl.signal.aborted) return;
+      if (!result) {
+        setActiveAlert(null);
+        setAlertScope(null);
+        setAlertState("error");
+        return;
+      }
+      if (result.alerts[0]) {
+        setActiveAlert(result.alerts[0]);
+        setAlertScope("local");
+        setAlertState("ready");
+        return;
+      }
+      const stateCode = resolved?.stateCode;
+      const stateResult = stateCode ? await fetchAlertsByState(stateCode, ctrl.signal) : null;
+      if (ctrl.signal.aborted) return;
+      setActiveAlert(stateResult?.alerts[0] ?? null);
+      setAlertScope(stateResult?.alerts[0] ? "state" : null);
+      setAlertState("ready");
+    });
+    return () => ctrl.abort();
+  }, [hasRealLocation, household.lat, household.lng, resolved?.stateCode]);
+
+  useEffect(() => {
+    const best = routes.find((route) => route.colorType === "safe") ?? routes[0];
+    setSelectedRouteId(best?.id ?? null);
+  }, [routes]);
 
   const onAction = (a: ActionDef) => {
     setStatus(a.id);
@@ -99,10 +155,16 @@ export function RespondQuickAction() {
         />
         <div className="min-w-0">
           <p className="text-base font-extrabold uppercase tracking-wide text-[color:var(--severity-critical)]">
-            Active Alert
+            {activeAlert ? activeAlert.event : alertState === "loading" ? "Checking current disaster" : "Current disaster"}
           </p>
           <p className="mt-1 text-sm font-medium text-foreground/85">
-            Follow the safe route and avoid marked danger areas.
+            {activeAlert?.headline ||
+              (hasRealLocation
+                ? alertState === "error"
+                  ? "Live alert lookup is unavailable; route is still generated from your live location."
+                  : `No ${alertScope === "state" ? "local" : "active"} alert found; route generated for ${currentDisaster.label.toLowerCase()} near your live location.`
+                : "Share your location to load the current disaster and route.")}
+            {activeAlert && alertScope === "state" ? " Statewide alert shown." : ""}
           </p>
         </div>
       </div>
@@ -136,30 +198,41 @@ export function RespondQuickAction() {
                     : geoError ?? "Location not shared"}
           </span>
         </div>
-        {!hasRealLocation && geoStatus !== "prompting" && (
+        {geoStatus !== "prompting" && (
           <button
             type="button"
             onClick={requestLocation}
             className="shrink-0 rounded-lg bg-foreground px-3 py-1.5 text-xs font-semibold text-background hover:opacity-90"
           >
-            Use my location
+            {hasRealLocation ? "Refresh" : "Use my location"}
           </button>
         )}
       </div>
 
       {/* Map */}
       <MapPanel
-        disaster="Flood"
+        disaster={currentDisaster.label}
         routes={routes}
         selectedRouteId={selectedRouteId}
         onSelectRoute={setSelectedRouteId}
         locationAware={hasRealLocation}
-        destinations={
-          hasRealLocation && destShelter
-            ? [{ id: destShelter.id, name: destShelter.name, lat: destShelter.lat, lng: destShelter.lng }]
-            : undefined
-        }
+        destinations={hasRealLocation ? evacuation.destinations : undefined}
       />
+
+      {hasRealLocation && (
+        <div className="rounded-xl border border-border bg-white px-4 py-3 text-sm text-foreground shadow-sm">
+          <p className="font-semibold">
+            {evacuation.isLoading
+              ? "Updating route…"
+              : routes.find((route) => route.id === selectedRouteId)?.name ?? "Route ready"}
+          </p>
+          <p className="mt-1 text-xs text-foreground/65">
+            {evacuation.source === "live"
+              ? "Using live road routing from your current GPS position."
+              : "Using estimated routing until live road routing responds."}
+          </p>
+        </div>
+      )}
 
       {/* Status confirmation */}
       {lastMessage && (
