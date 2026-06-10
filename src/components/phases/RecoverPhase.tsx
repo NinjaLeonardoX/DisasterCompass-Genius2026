@@ -174,7 +174,8 @@ export function RecoverPhase() {
   const { household, activeAddress, resolved } = useLocation();
   const [needs, setNeeds] = useState<Need[]>(SEED_NEEDS);
   const [helpers, setHelpers] = useState<HelpPoint[]>(SEED_HELP);
-  const [openForm, setOpenForm] = useState<null | "need" | "help">(null);
+  const [openForm, setOpenForm] = useState<null | "need" | "help" | "broadcast">(null);
+  const [draftNeed, setDraftNeed] = useState<Omit<Need, "id" | "status"> | null>(null);
 
   const householdLabel = activeAddress?.name ?? "Your household";
   const scopeLabel = resolved?.city
