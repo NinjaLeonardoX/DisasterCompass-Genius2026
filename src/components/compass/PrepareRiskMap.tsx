@@ -1,7 +1,7 @@
 import { MapContainer, TileLayer, Polygon, CircleMarker, Tooltip } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { FLOOD_POLYGON, MAP_CENTER, MAP_ZOOM } from "@/data/seed";
-import { useHousehold } from "@/components/LocationContext";
+import { useHousehold, useLocation } from "@/components/LocationContext";
 import {
   ASSEMBLY_POINT,
   FAULT_LINE_BAND,
