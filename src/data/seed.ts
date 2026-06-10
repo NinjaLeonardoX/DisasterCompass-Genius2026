@@ -141,6 +141,7 @@ export const ROUTES: RouteOption[] = [
       [40.03, -105.262],
       [40.0335, -105.2585],
     ],
+    streets: ["Creekside Drive", "River Road", "Bridge Street", "Summit Way"],
     notes:
       "Shortest on paper, but it crosses the flooded River Road bridge and a blocked road. Rejected.",
   },
@@ -164,6 +165,12 @@ export const ROUTES: RouteOption[] = [
       [40.0355, -105.261],
       [40.0335, -105.2585],
     ],
+    streets: [
+      "Creekside Drive",
+      "Maple Street",
+      "Hilltop Avenue",
+      "Summit Way",
+    ],
     notes:
       "Avoids the river and all blocked roads. Longer and uphill (slower), but accessible and reaches high ground safely. Recommended.",
   },
@@ -186,6 +193,12 @@ export const ROUTES: RouteOption[] = [
       [40.023, -105.256],
       [40.03, -105.256],
       [40.0335, -105.2585],
+    ],
+    streets: [
+      "Creekside Drive",
+      "South Bypass",
+      "East Ridge Road",
+      "Summit Way",
     ],
     notes:
       "Skirts the edge of the flood zone. Passable with caution, but a longer detour and not accessibility-rated.",

@@ -62,6 +62,11 @@ export interface RouteOption {
   accessibility: boolean;
   /** [lat, lng] pairs for drawing the polyline. */
   coordinates: [number, number][];
+  /**
+   * Street name driven along each segment (streets[i] is the road between
+   * coordinates[i] and coordinates[i+1]). Powers turn-by-turn navigation cues.
+   */
+  streets?: string[];
   notes: string;
 }
 

@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, Polygon, Polyline, CircleMarker, Tooltip } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import type { RouteOption } from "@/types";
@@ -10,6 +11,7 @@ import {
   VOLUNTEERS,
 } from "@/data/seed";
 import { flags } from "@/lib/flags";
+import { buildDriveModel, type DriveStatus } from "@/lib/driveSim";
 import { useHousehold } from "./LocationContext";
 
 // MapTiler key is server-only (process.env.MAPTILER_KEY). Tiles are proxied
@@ -25,6 +27,20 @@ const ROUTE_COLORS: Record<RouteOption["colorType"], string> = {
   caution: "#D97706",
   rejected: "#9CA3AF",
 };
+
+// Banner colour per guidance status during the driving simulation.
+const STATUS_STYLE: Record<DriveStatus, string> = {
+  safe: "bg-emerald-600",
+  caution: "bg-amber-500",
+  blocked: "bg-red-600",
+  arrived: "bg-emerald-600",
+};
+
+/** Tick interval (ms) between animation points while "driving". */
+const DRIVE_TICK_MS = 230;
+
+/** Stable empty list so the drive model isn't recomputed every render. */
+const NO_BLOCKED_ROADS: typeof BLOCKED_ROADS = [];
 
 /** A computed safe destination to plot (location-aware evacuation mode). */
 export interface MapDestination {
@@ -51,6 +67,8 @@ interface MapPanelProps {
   showDemoLayers?: boolean;
   /** Computed safe destinations to plot (location-aware mode). */
   destinations?: MapDestination[];
+  /** Show the "Simulate driving" turn-by-turn overlay (Respond map). */
+  enableDriveSim?: boolean;
 }
 
 export default function MapPanel({
@@ -61,8 +79,49 @@ export default function MapPanel({
   zoom = MAP_ZOOM,
   showDemoLayers = true,
   destinations,
+  enableDriveSim = false,
 }: MapPanelProps) {
   const household = useHousehold();
+
+  // Drive simulation follows the selected route, falling back to the safe one.
+  const simRoute =
+    routes.find((r) => r.id === selectedRouteId && r.colorType !== "rejected") ??
+    routes.find((r) => r.colorType === "safe") ??
+    routes.find((r) => r.colorType === "caution") ??
+    null;
+  const driveBlocked = showDemoLayers ? BLOCKED_ROADS : NO_BLOCKED_ROADS;
+  const model = useMemo(
+    () => (simRoute ? buildDriveModel(simRoute, driveBlocked) : null),
+    [simRoute, driveBlocked],
+  );
+
+  const [frame, setFrame] = useState(0);
+  const [driving, setDriving] = useState(false);
+
+  // Reset the playhead whenever the simulated route changes.
+  useEffect(() => {
+    setDriving(false);
+    setFrame(0);
+  }, [simRoute?.id]);
+
+  useEffect(() => {
+    if (!driving || !model) return;
+    if (frame >= model.points.length - 1) {
+      setDriving(false);
+      return;
+    }
+    const id = setTimeout(() => setFrame((f) => f + 1), DRIVE_TICK_MS);
+    return () => clearTimeout(id);
+  }, [driving, frame, model]);
+
+  const drivePos = model?.points[frame] ?? null;
+  const driveCue = model?.cues[frame] ?? null;
+  const driveActive = frame > 0 || driving;
+  const startDrive = () => {
+    if (!model) return;
+    setFrame(0);
+    setDriving(true);
+  };
   const hilltop = SHELTERS.find((s) => s.id === "shelter-hilltop")!;
   const ana = VOLUNTEERS.find((v) => v.id === "vol-ana")!;
   const center: [number, number] =
@@ -182,7 +241,56 @@ export default function MapPanel({
             </Tooltip>
           </CircleMarker>
         ))}
+
+        {/* Moving vehicle during the driving simulation. */}
+        {enableDriveSim && drivePos && driveActive && (
+          <CircleMarker
+            center={drivePos}
+            radius={9}
+            pathOptions={{ color: "#ffffff", weight: 3, fillColor: "#1D4ED8", fillOpacity: 1 }}
+          >
+            <Tooltip permanent direction="top" offset={[0, -10]}>
+              🚗 You
+            </Tooltip>
+          </CircleMarker>
+        )}
       </MapContainer>
+
+      {/* Driving simulation — control button + turn-by-turn banner */}
+      {enableDriveSim && simRoute && (
+        <>
+          <button
+            type="button"
+            onClick={driving ? () => setDriving(false) : startDrive}
+            className="absolute right-4 top-4 z-[1000] inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background shadow-lg transition hover:opacity-90"
+          >
+            {driving
+              ? "■ Stop"
+              : frame > 0
+                ? "▶ Drive again"
+                : "▶ Simulate driving"}
+          </button>
+
+          {driveCue && driveActive && (
+            <div className="pointer-events-none absolute left-1/2 top-4 z-[1000] w-[min(20rem,calc(100%-9rem))] -translate-x-1/2">
+              <div
+                className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold text-white shadow-lg ${STATUS_STYLE[driveCue.status]}`}
+              >
+                <span className="h-2.5 w-2.5 shrink-0 animate-pulse rounded-full bg-white/90" />
+                <span className="leading-tight">{driveCue.text}</span>
+              </div>
+              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-foreground/15">
+                <div
+                  className="h-full rounded-full bg-foreground/70 transition-all"
+                  style={{
+                    width: `${model ? Math.round((frame / (model.points.length - 1)) * 100) : 0}%`,
+                  }}
+                />
+              </div>
+            </div>
+          )}
+        </>
+      )}
 
       {/* Legend (seed demo only) */}
       {showDemoLayers && (

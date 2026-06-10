@@ -110,6 +110,7 @@ export function MapPanel({
             zoom={locationAware ? 12 : undefined}
             showDemoLayers={!locationAware}
             destinations={locationAware ? destinations : undefined}
+            enableDriveSim
           />
         </Suspense>
       ) : (
