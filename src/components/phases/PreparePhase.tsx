@@ -3,6 +3,7 @@ import { Radar, MapPin } from "lucide-react";
 import { HAZARD_RISKS, SEVERITY_META, type HazardRisk } from "@/data/prepare";
 import { useLocation } from "../LocationContext";
 import { RollupPanel } from "../RollupPanel";
+import { HouseholdCard } from "../compass/HouseholdCard";
 
 // Prepare leads with the calm risk map. Leaflet touches `window`, so the map is
 // lazy-loaded and only mounted client-side (mirrors src/routes/map.tsx).
