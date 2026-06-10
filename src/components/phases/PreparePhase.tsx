@@ -1,4 +1,3 @@
-import { Radar } from "lucide-react";
 import { RollupPanel } from "../RollupPanel";
 
 // Prepare phase content. The risk map + hazard list now live inside the
