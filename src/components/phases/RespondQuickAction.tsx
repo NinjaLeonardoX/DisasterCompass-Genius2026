@@ -105,7 +105,11 @@ export function RespondQuickAction() {
 
   const onAction = (a: ActionDef) => {
     setStatus(a.id);
-    setLastMessage(a.message);
+    if (a.id === "sos") {
+      setLastMessage(`Sent to ${formatSOSRecipient(readSOSRecipient())}`);
+    } else {
+      setLastMessage(a.message);
+    }
   };
 
   return (
