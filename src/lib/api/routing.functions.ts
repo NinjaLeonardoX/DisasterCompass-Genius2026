@@ -12,6 +12,26 @@ import type { OrsResponse } from "../adapters/routing";
 
 const lngLat = z.tuple([z.number(), z.number()]); // [lng, lat]
 
+// Single origin→destination directions (no alternatives, no avoid polygon).
+// Used by the location-aware evacuation flow. Throws when the key is absent so
+// the caller can fall back to a straight-line estimate.
+export const fetchDirection = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ start: lngLat, dest: lngLat }))
+  .handler(async ({ data }): Promise<OrsResponse> => {
+    const key = process.env.ORS_API_KEY;
+    if (!key) {
+      console.info("[routing] ORS_API_KEY absent — using straight-line estimate.");
+      throw new Error("ORS_API_KEY not configured");
+    }
+    const res = await fetch("https://api.openrouteservice.org/v2/directions/driving-car/geojson", {
+      method: "POST",
+      headers: { Authorization: key, "Content-Type": "application/json" },
+      body: JSON.stringify({ coordinates: [data.start, data.dest] }),
+    });
+    if (!res.ok) throw new Error(`ORS request failed: ${res.status}`);
+    return (await res.json()) as OrsResponse;
+  });
+
 export const fetchRoutes = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({

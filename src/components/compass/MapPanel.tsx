@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Map as MapIcon } from "lucide-react";
 import type { RouteOption } from "@/types";
+import type { MapDestination } from "../MapPanel";
 import type { DisasterKind } from "./DisasterPicker";
 
 // The real Leaflet map (MapTiler/OSM tiles, flood polygon, blocked roads, live
@@ -13,9 +14,19 @@ interface Props {
   routes: RouteOption[];
   selectedRouteId: string | null;
   onSelectRoute: (id: string) => void;
+  /** Location-aware mode: hide seed (North Creek) overlays, plot these targets. */
+  destinations?: MapDestination[];
+  locationAware?: boolean;
 }
 
-export function MapPanel({ disaster, routes, selectedRouteId, onSelectRoute }: Props) {
+export function MapPanel({
+  disaster,
+  routes,
+  selectedRouteId,
+  onSelectRoute,
+  destinations,
+  locationAware = false,
+}: Props) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -74,6 +85,9 @@ export function MapPanel({ disaster, routes, selectedRouteId, onSelectRoute }: P
             selectedRouteId={selectedRouteId}
             onSelectRoute={onSelectRoute}
             height="320px"
+            zoom={locationAware ? 12 : undefined}
+            showDemoLayers={!locationAware}
+            destinations={locationAware ? destinations : undefined}
           />
         </Suspense>
       ) : (

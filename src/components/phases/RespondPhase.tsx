@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { ChevronDown, Droplets, Activity, Sun, MapPin } from "lucide-react";
+import { ChevronDown, Droplets, Activity, Sun } from "lucide-react";
 import { ActionCard } from "../compass/ActionCard";
 import { MapPanel } from "../compass/MapPanel";
 import { RouteScorePanel } from "../compass/RouteScorePanel";
@@ -10,9 +10,21 @@ import { DisasterPicker, type DisasterKind } from "../compass/DisasterPicker";
 import { WhyThisPopover } from "../WhyThisPopover";
 import { WeatherCard } from "../WeatherCard";
 import { RollupPanel } from "../RollupPanel";
+import { RespondLocationBar } from "../RespondLocationBar";
 import { usePhase } from "../PhaseContext";
 import { useHousehold, useLocation } from "../LocationContext";
 import { useRoutes, resolveDestinationShelter } from "@/lib/queries/routing";
+import { useEvacuationRoutes } from "@/lib/queries/evacuation";
+import type { BadgeSource } from "../LiveDataBadge";
+import type { DisasterType } from "@/types";
+
+const KIND_TO_TYPE: Record<DisasterKind, DisasterType> = {
+  Flood: "flood",
+  Earthquake: "earthquake",
+  Wildfire: "wildfire",
+  Hurricane: "hurricane",
+  "Extreme Heat": "heat",
+};
 
 export function RespondPhase() {
   const [disaster, setDisaster] = useState<DisasterKind>("Flood");
@@ -21,19 +33,27 @@ export function RespondPhase() {
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
   const { mode } = usePhase();
   const household = useHousehold();
-  const { source, resolved } = useLocation();
+  const { source: locationSource } = useLocation();
   const actionRef = useRef<HTMLDivElement>(null);
 
-  // Same live-or-seed routing the /map page uses, so the polished flow shows
-  // real scores and real geometry. Flag off ⇒ seed routes (48 / 91 / 70).
   const home: [number, number] = [household.lat, household.lng];
-  const destShelter = resolveDestinationShelter();
-  const dest: [number, number] = destShelter ? [destShelter.lat, destShelter.lng] : home;
-  const { data: routes, source: routeSource } = useRoutes(home, dest);
+  const disasterType = KIND_TO_TYPE[disaster];
 
-  const scopeLabel = resolved?.city
-    ? `${resolved.city}${resolved.state ? `, ${resolved.state}` : ""}`
-    : household.locationName;
+  // Two routing modes:
+  //  - Demo (no real location set): the seeded North Creek flow (48/91/70).
+  //  - Location-aware (real device/saved location): computed safe targets near
+  //    the user, routed by ORS when a key is present, else straight-line
+  //    estimates. Earthquake ⇒ shelter in place (no routes).
+  const locationAware = locationSource !== "seed" && disaster !== "Earthquake";
+
+  const destShelter = resolveDestinationShelter();
+  const seedDest: [number, number] = destShelter ? [destShelter.lat, destShelter.lng] : home;
+  const seedRouting = useRoutes(home, seedDest);
+  const evac = useEvacuationRoutes(home, disasterType, locationAware);
+
+  const routes = locationAware ? evac.routes : seedRouting.data;
+  const routeSource: BadgeSource = locationAware ? evac.source : seedRouting.source;
+  const showScores = locationAware ? routes.length > 0 || evac.isLoading : disaster === "Flood";
 
   return (
     <div className="space-y-6">
@@ -55,19 +75,7 @@ export function RespondPhase() {
         />
       </div>
 
-      <div className="dc-card flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 text-xs">
-        <span className="inline-flex items-center gap-1.5 font-medium text-card-foreground/75">
-          <MapPin className="h-3.5 w-3.5 text-[color:var(--severity-low)]" />
-          Plan scope: <span className="font-semibold text-foreground">{scopeLabel}</span>
-        </span>
-        <span className="text-card-foreground/55">
-          {source === "saved"
-            ? "Following your saved household"
-            : source === "device"
-              ? "Following your device location"
-              : "Demo scope — set your address to personalize"}
-        </span>
-      </div>
+      <RespondLocationBar />
 
       <RollupPanel />
 
@@ -85,13 +93,15 @@ export function RespondPhase() {
             routes={routes}
             selectedRouteId={selectedRouteId}
             onSelectRoute={setSelectedRouteId}
+            locationAware={locationAware}
+            destinations={locationAware ? evac.destinations : undefined}
           />
         </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          {disaster === "Flood" && (
+          {showScores && (
             <div className="dc-card overflow-hidden">
               <div className="flex w-full items-center justify-between px-5 py-3">
                 <div className="flex items-center gap-3">
@@ -119,6 +129,7 @@ export function RespondPhase() {
                     source={routeSource}
                     selectedRouteId={selectedRouteId}
                     onSelectRoute={setSelectedRouteId}
+                    isLoading={evac.isLoading}
                   />
                 </div>
               )}
