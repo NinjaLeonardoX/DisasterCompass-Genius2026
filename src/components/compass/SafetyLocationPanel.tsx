@@ -925,8 +925,8 @@ ${planBlocks}
                         onClick={() => setBodyTab(t.id)}
                         className={`-mb-px rounded-t-md border-b-2 px-3 py-1.5 text-xs font-semibold transition-colors ${
                           active
-                            ? "border-foreground text-foreground"
-                            : "border-transparent text-card-foreground/60 hover:text-foreground"
+                            ? "border-black text-black"
+                            : "border-transparent text-black/60 hover:text-black"
                         }`}
                       >
                         {t.label}
