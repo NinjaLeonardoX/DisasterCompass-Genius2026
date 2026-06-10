@@ -38,6 +38,7 @@ export function useEvacuationRoutes(
   origin: [number, number],
   disaster: DisasterType,
   enabled: boolean,
+  refreshKey?: number,
 ): EvacuationResult {
   const [state, setState] = useState<EvacuationResult>(EMPTY);
   const [lat, lng] = origin;
@@ -133,7 +134,7 @@ export function useEvacuationRoutes(
     return () => {
       cancelled = true;
     };
-  }, [lat, lng, disaster, enabled]);
+  }, [lat, lng, disaster, enabled, refreshKey]);
 
   return state;
 }

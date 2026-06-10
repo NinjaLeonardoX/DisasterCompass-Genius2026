@@ -68,6 +68,7 @@ export function RespondQuickAction() {
   const [status, setStatus] = useState<Status>("none");
   const [lastMessage, setLastMessage] = useState<string | null>(null);
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
+  const [refreshTick, setRefreshTick] = useState(0);
 
   const {
     household,
@@ -90,9 +91,9 @@ export function RespondQuickAction() {
   const home: [number, number] = [household.lat, household.lng];
 
   // Location-aware evacuation: synthesize safe destinations near the real
-  // origin and route via ORS (or honest straight-line fallback). Always yields
+  // location and route via ORS (or honest straight-line fallback). Always yields
   // a line, regardless of how far the user is from the seed scenario.
-  const { routes, destinations } = useEvacuationRoutes(home, "flood", true);
+  const { routes, destinations } = useEvacuationRoutes(home, "flood", true, refreshTick);
 
   // Active alert event from NWS for the user's location. Defaults to
   // "Heat Wave" when no alert is active or the fetch fails.
@@ -106,7 +107,13 @@ export function RespondQuickAction() {
       })
       .catch(() => setAlertEvent("Heat Wave"));
     return () => controller.abort();
-  }, [home[0], home[1]]);
+  }, [home[0], home[1], refreshTick]);
+
+  // Re-check route + alert data every 10 seconds.
+  useEffect(() => {
+    const id = setInterval(() => setRefreshTick((t) => t + 1), 10000);
+    return () => clearInterval(id);
+  }, []);
 
   // Track when we last received a real device location.
   const [locationUpdatedAt, setLocationUpdatedAt] = useState<number | null>(null);
