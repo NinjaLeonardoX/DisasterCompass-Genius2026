@@ -1180,12 +1180,12 @@ function BroadcastBeacon({
         </button>
         <button
           type="button"
-          disabled={selected.length === 0}
+          disabled={selected.length === 0 || sending}
           onClick={() => onPost(selected)}
           className="inline-flex items-center gap-2 rounded-full bg-[color:var(--severity-high)] px-5 py-2 text-sm font-semibold text-white hover:brightness-110 disabled:opacity-50"
         >
-          <Megaphone className="h-4 w-4" />
-          Post Beacon
+          <Megaphone className={`h-4 w-4 ${sending ? "animate-pulse" : ""}`} />
+          {sending ? "Sending to beacon…" : "Post Beacon"}
         </button>
       </div>
     </div>
