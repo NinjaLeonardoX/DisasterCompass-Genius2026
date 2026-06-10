@@ -13,6 +13,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { HouseholdCard } from "../compass/HouseholdCard";
+import { SafetyLocationPanel } from "../compass/SafetyLocationPanel";
 import { VolunteerMatchCard } from "../compass/VolunteerMatchCard";
 import { usePhase } from "../PhaseContext";
 import {
