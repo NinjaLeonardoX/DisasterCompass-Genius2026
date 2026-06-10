@@ -993,7 +993,7 @@ function SetupModal(p: SetupModalProps) {
             </p>
             <p className="text-sm font-semibold text-black">{stepLabel}</p>
           </div>
-          <button type="button" className="rounded-md p-1 text-black hover:bg-gray-100" aria-label="Close setup">
+          <button type="button" onClick={p.onClose} className="rounded-md p-1 text-black hover:bg-gray-100" aria-label="Close setup">
             <X className="h-4 w-4" />
           </button>
         </div>
