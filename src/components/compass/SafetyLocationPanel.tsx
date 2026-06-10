@@ -1331,6 +1331,7 @@ function SetupModal(p: SetupModalProps) {
           {p.step === "name" && <NameStep {...p} />}
           {p.step === "wizard" && <WizardStep {...p} />}
           {p.step === "review" && <ReviewStep {...p} />}
+          {p.step === "generating" && <GeneratingStep {...p} />}
           {p.step === "generated" && <GeneratedStep {...p} />}
         </div>
       </div>
