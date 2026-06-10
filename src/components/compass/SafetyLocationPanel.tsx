@@ -723,7 +723,7 @@ ${planBlocks}
           </div>
         ) : (
           <div className="mb-4">
-            <h3 className="text-xl font-bold tracking-tight">Set your safety location</h3>
+            <h3 className="text-xl font-bold tracking-tight">Set your location</h3>
             <p className="mt-1 text-sm text-card-foreground/75">
               Choose how to add your address so DisasterCompass can build your Compass Plan.
             </p>
