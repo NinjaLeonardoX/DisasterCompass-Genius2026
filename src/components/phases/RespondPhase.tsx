@@ -12,15 +12,24 @@ import { WeatherCard } from "../WeatherCard";
 import { RollupPanel } from "../RollupPanel";
 import { usePhase } from "../PhaseContext";
 import { useHousehold, useLocation } from "../LocationContext";
+import { useRoutes, resolveDestinationShelter } from "@/lib/queries/routing";
 
 export function RespondPhase() {
   const [disaster, setDisaster] = useState<DisasterKind>("Flood");
   const [volunteerApproved, setVolunteerApproved] = useState(false);
   const [scoresOpen, setScoresOpen] = useState(true);
+  const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
   const { mode } = usePhase();
   const household = useHousehold();
   const { source, resolved } = useLocation();
   const actionRef = useRef<HTMLDivElement>(null);
+
+  // Same live-or-seed routing the /map page uses, so the polished flow shows
+  // real scores and real geometry. Flag off ⇒ seed routes (48 / 91 / 70).
+  const home: [number, number] = [household.lat, household.lng];
+  const destShelter = resolveDestinationShelter();
+  const dest: [number, number] = destShelter ? [destShelter.lat, destShelter.lng] : home;
+  const { data: routes, source: routeSource } = useRoutes(home, dest);
 
   const scopeLabel = resolved?.city
     ? `${resolved.city}${resolved.state ? `, ${resolved.state}` : ""}`
@@ -66,13 +75,17 @@ export function RespondPhase() {
         <DisasterPicker selected={disaster} onSelect={setDisaster} />
       </div>
 
-
       <div className="grid gap-6 lg:grid-cols-5 lg:items-stretch">
         <div className="lg:col-span-3">
           <ActionCard ref={actionRef} disaster={disaster} volunteerApproved={volunteerApproved} />
         </div>
         <div className="lg:col-span-2">
-          <MapPanel disaster={disaster} />
+          <MapPanel
+            disaster={disaster}
+            routes={routes}
+            selectedRouteId={selectedRouteId}
+            onSelectRoute={setSelectedRouteId}
+          />
         </div>
       </div>
 
@@ -101,7 +114,12 @@ export function RespondPhase() {
               </div>
               {scoresOpen && (
                 <div className="border-t border-border/60">
-                  <RouteScorePanel />
+                  <RouteScorePanel
+                    routes={routes}
+                    source={routeSource}
+                    selectedRouteId={selectedRouteId}
+                    onSelectRoute={setSelectedRouteId}
+                  />
                 </div>
               )}
               <p className="border-t border-border/60 px-5 py-2 text-[11px] italic text-card-foreground/60">

@@ -31,9 +31,16 @@ interface MapPanelProps {
   routes: RouteOption[];
   selectedRouteId: string | null;
   onSelectRoute: (id: string) => void;
+  /** CSS height of the map (default 520px). */
+  height?: string;
 }
 
-export default function MapPanel({ routes, selectedRouteId, onSelectRoute }: MapPanelProps) {
+export default function MapPanel({
+  routes,
+  selectedRouteId,
+  onSelectRoute,
+  height = "520px",
+}: MapPanelProps) {
   const household = useHousehold();
   const hilltop = SHELTERS.find((s) => s.id === "shelter-hilltop")!;
   const ana = VOLUNTEERS.find((v) => v.id === "vol-ana")!;
@@ -46,7 +53,7 @@ export default function MapPanel({ routes, selectedRouteId, onSelectRoute }: Map
         center={center}
         zoom={MAP_ZOOM}
         scrollWheelZoom={false}
-        style={{ height: "520px", width: "100%", borderRadius: "1rem" }}
+        style={{ height, width: "100%", borderRadius: "1rem" }}
       >
         {flags.tiles && maptilerKey ? (
           <TileLayer

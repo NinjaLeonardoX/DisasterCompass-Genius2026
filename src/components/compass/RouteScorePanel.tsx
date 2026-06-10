@@ -1,65 +1,31 @@
-import { CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
+import { CheckCircle2, XCircle, AlertTriangle, ShieldCheck } from "lucide-react";
+import type { RouteOption } from "@/types";
+import type { DataSource } from "@/lib/fallback";
+import { scoreRoute, getBestRoute } from "@/lib/scoring";
+import { flags } from "@/lib/flags";
+import { LiveDataBadge } from "../LiveDataBadge";
 
-type Status = "Best" | "Caution" | "Rejected";
+type Status = "Best" | "Safe" | "Caution" | "Rejected";
 
-interface RouteEntry {
-  name: string;
-  score: number;
-  status: Status;
-  factors: { label: string; value: number }[];
-}
-
-const ROUTES: RouteEntry[] = [
-  {
-    name: "Route A",
-    score: 48,
-    status: "Rejected",
-    factors: [
-      { label: "Flood", value: -30 },
-      { label: "Bridge", value: -20 },
-      { label: "Blocked", value: -10 },
-      { label: "Distance", value: -2 },
-      { label: "Elevation", value: +5 },
-      { label: "Shelter fit", value: +5 },
-      { label: "Accessibility", value: 0 },
-      { label: "Final", value: 48 },
-    ],
-  },
-  {
-    name: "Route B",
-    score: 91,
-    status: "Best",
-    factors: [
-      { label: "Flood", value: 0 },
-      { label: "Bridge", value: 0 },
-      { label: "Blocked", value: 0 },
-      { label: "Distance", value: -9 },
-      { label: "Elevation", value: +20 },
-      { label: "Shelter fit", value: +10 },
-      { label: "Accessibility", value: +5 },
-      { label: "Final", value: 91 },
-    ],
-  },
-  {
-    name: "Route C",
-    score: 70,
-    status: "Caution",
-    factors: [
-      { label: "Flood", value: -5 },
-      { label: "Bridge", value: 0 },
-      { label: "Blocked", value: -5 },
-      { label: "Distance", value: -5 },
-      { label: "Elevation", value: +10 },
-      { label: "Shelter fit", value: +5 },
-      { label: "Accessibility", value: 0 },
-      { label: "Final", value: 70 },
-    ],
-  },
-];
+// Short labels for the engine's breakdown rows, to keep the compact infographic
+// look. The values themselves come straight from scoreRoute() — no hardcoding.
+const LABELS: Record<string, string> = {
+  "Flood exposure": "Flood",
+  "Flooded bridge": "Bridge",
+  "Blocked road": "Blocked",
+  "Distance & travel time": "Distance",
+  "Elevation gain": "Elevation",
+  "Shelter fit": "Shelter fit",
+  Accessibility: "Accessibility",
+};
 
 function StatusBadge({ status }: { status: Status }) {
   const map = {
     Best: {
+      Icon: ShieldCheck,
+      cls: "bg-[color:var(--severity-low)]/15 text-[color:var(--severity-low)]",
+    },
+    Safe: {
       Icon: CheckCircle2,
       cls: "bg-[color:var(--severity-low)]/15 text-[color:var(--severity-low)]",
     },
@@ -74,68 +40,111 @@ function StatusBadge({ status }: { status: Status }) {
   } as const;
   const { Icon, cls } = map[status];
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}>
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}
+    >
       <Icon className="h-3.5 w-3.5" aria-hidden="true" />
       {status}
     </span>
   );
 }
 
-export function RouteScorePanel() {
+interface Props {
+  routes: RouteOption[];
+  source: DataSource;
+  selectedRouteId?: string | null;
+  onSelectRoute?: (id: string) => void;
+}
+
+export function RouteScorePanel({ routes, source, selectedRouteId, onSelectRoute }: Props) {
+  // Rules decide: the same engine that powers /map. With routing flag off these
+  // are the seed routes, so the scores read 48 / 91 / 70, best = Route B.
+  const bestRoute = getBestRoute(routes);
+
   return (
     <section className="dc-card p-6 text-card-foreground">
-      <div className="mb-4 flex items-baseline justify-between">
+      <div className="mb-4 flex items-baseline justify-between gap-2">
         <h3 className="text-base font-bold tracking-tight">Route scoring</h3>
-        <p className="text-xs text-card-foreground/60">Rules-based, explainable</p>
+        <div className="flex items-center gap-2">
+          {flags.routing && <LiveDataBadge source={source} />}
+          <p className="text-xs text-card-foreground/60">Rules-based, explainable</p>
+        </div>
       </div>
       <div className="grid gap-4 lg:grid-cols-3">
-        {ROUTES.map((r) => {
+        {routes.map((route) => {
+          const { score, breakdown } = scoreRoute(route);
+          const isBest = bestRoute?.id === route.id;
+          const status: Status = isBest
+            ? "Best"
+            : route.colorType === "rejected"
+              ? "Rejected"
+              : route.colorType === "caution"
+                ? "Caution"
+                : "Safe";
+
           const borderCls =
-            r.status === "Best"
+            status === "Best"
               ? "dc-glow-green border-[color:var(--severity-low)]/40 bg-[color:var(--severity-low)]/5"
-              : r.status === "Caution"
-                ? "border-[color:var(--severity-moderate)]/50 bg-[color:var(--severity-moderate)]/5 shadow-[0_12px_30px_-18px_rgba(245,158,11,0.45)]"
-                : "border-[color:var(--severity-critical)]/45 bg-[color:var(--severity-critical)]/5 shadow-[0_12px_30px_-18px_rgba(220,38,38,0.45)]";
+              : status === "Safe"
+                ? "border-[color:var(--severity-low)]/30 bg-[color:var(--severity-low)]/5"
+                : status === "Caution"
+                  ? "border-[color:var(--severity-moderate)]/50 bg-[color:var(--severity-moderate)]/5 shadow-[0_12px_30px_-18px_rgba(245,158,11,0.45)]"
+                  : "border-[color:var(--severity-critical)]/45 bg-[color:var(--severity-critical)]/5 shadow-[0_12px_30px_-18px_rgba(220,38,38,0.45)]";
+
+          const selected = selectedRouteId === route.id;
+          const rows = [
+            ...breakdown.map((b) => ({ label: LABELS[b.label] ?? b.label, value: b.value })),
+            { label: "Final", value: score },
+          ];
+
           return (
-          <div
-            key={r.name}
-            className={`dc-hover-lift rounded-2xl border p-4 ${borderCls}`}
-          >
-            <div className="flex items-center justify-between">
-              <p className="font-semibold">{r.name}</p>
-              <StatusBadge status={r.status} />
-            </div>
-            <p className="mt-1 text-2xl font-bold tracking-tight">{r.score}</p>
-            <dl className="mt-3 space-y-1 text-xs">
-              {r.factors.map((f) => (
-                <div
-                  key={f.label}
-                  className={[
-                    "flex items-center justify-between",
-                    f.label === "Final" ? "mt-2 border-t border-card-foreground/10 pt-2 font-semibold" : "",
-                  ].join(" ")}
-                >
-                  <dt className="text-card-foreground/70">{f.label}</dt>
-                  <dd
-                    className={
-                      f.value > 0
-                        ? "text-[color:var(--severity-low)]"
-                        : f.value < 0
-                          ? "text-[color:var(--severity-critical)]"
-                          : "text-card-foreground/70"
-                    }
+            <button
+              key={route.id}
+              type="button"
+              onClick={() => onSelectRoute?.(route.id)}
+              className={`dc-hover-lift rounded-2xl border p-4 text-left transition ${borderCls} ${
+                selected ? "ring-2 ring-primary" : ""
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <p className="font-semibold">{route.name}</p>
+                <StatusBadge status={status} />
+              </div>
+              <p className="mt-1 text-2xl font-bold tracking-tight tabular-nums">{score}</p>
+              <dl className="mt-3 space-y-1 text-xs">
+                {rows.map((f) => (
+                  <div
+                    key={f.label}
+                    className={[
+                      "flex items-center justify-between",
+                      f.label === "Final"
+                        ? "mt-2 border-t border-card-foreground/10 pt-2 font-semibold"
+                        : "",
+                    ].join(" ")}
                   >
-                    {f.value > 0 ? `+${f.value}` : f.value}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </div>
+                    <dt className="text-card-foreground/70">{f.label}</dt>
+                    <dd
+                      className={
+                        f.value > 0
+                          ? "text-[color:var(--severity-low)]"
+                          : f.value < 0
+                            ? "text-[color:var(--severity-critical)]"
+                            : "text-card-foreground/70"
+                      }
+                    >
+                      {f.value > 0 ? `+${f.value}` : f.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </button>
           );
         })}
       </div>
       <p className="mt-4 text-sm text-card-foreground/75">
-        Best: Route B — avoids the flooded bridge and reaches higher ground.
+        {bestRoute
+          ? `Best: ${bestRoute.name} — avoids the flooded bridge and reaches higher ground.`
+          : "No eligible route — escalate to a coordinator."}
       </p>
     </section>
   );
