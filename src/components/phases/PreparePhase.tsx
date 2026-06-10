@@ -188,7 +188,7 @@ export function PreparePhase() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h3 className="text-lg font-bold tracking-tight">
-                      Readiness gaps for Rivera Family
+                      Readiness gaps for {householdLabel}
                     </h3>
                     <p className="mt-1 text-sm text-card-foreground/70">
                       Close gaps before the warning. Each fix raises the score live.
