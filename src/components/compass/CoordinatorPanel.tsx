@@ -1,3 +1,5 @@
+import { useLocation } from "../LocationContext";
+
 interface Props {
   volunteerApproved: boolean;
 }
@@ -22,6 +24,14 @@ function Pill({ tone, children }: { tone: PillTone; children: React.ReactNode })
 }
 
 export function CoordinatorPanel({ volunteerApproved }: Props) {
+  const { resolved, household } = useLocation();
+  const residenceName =
+    resolved?.city ??
+    resolved?.county ??
+    resolved?.state ??
+    household.locationName ??
+    "Your residence";
+
   const counts = [
     { label: "Needs transport", value: 1, tone: "moderate" as PillTone },
     { label: "Unaccounted", value: 1, tone: "critical" as PillTone },
@@ -31,7 +41,7 @@ export function CoordinatorPanel({ volunteerApproved }: Props) {
 
   const households: { name: string; status: string; tone: PillTone }[] = [
     {
-      name: "Rivera",
+      name: residenceName,
       status: volunteerApproved ? "En Route" : "Needs Transport",
       tone: volunteerApproved ? "low" : "moderate",
     },
