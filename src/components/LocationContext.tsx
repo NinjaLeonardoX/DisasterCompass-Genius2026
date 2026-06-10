@@ -82,11 +82,29 @@ export function LocationProvider({ children }: { children: ReactNode }) {
   const [deviceResolved, setDeviceResolved] = useState<GeocodeResult | null>(null);
   const [addrsTick, setAddrsTick] = useState(0);
   const [locationConfirmed, setLocationConfirmed] = useState(false);
-  const [manualLocation, setManualLocationState] = useState<ManualLocation | null>(null);
+  const [manualLocation, setManualLocationState] = useState<ManualLocation | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = window.localStorage.getItem("dc.manualLocation");
+      return raw ? (JSON.parse(raw) as ManualLocation) : null;
+    } catch {
+      return null;
+    }
+  });
 
   const confirmLocation = useCallback(() => setLocationConfirmed(true), []);
   const resetLocation = useCallback(() => setLocationConfirmed(false), []);
-  const setManualLocation = useCallback((loc: ManualLocation | null) => setManualLocationState(loc), []);
+  const setManualLocation = useCallback((loc: ManualLocation | null) => {
+    setManualLocationState(loc);
+    if (typeof window !== "undefined") {
+      try {
+        if (loc) window.localStorage.setItem("dc.manualLocation", JSON.stringify(loc));
+        else window.localStorage.removeItem("dc.manualLocation");
+      } catch {
+        /* ignore */
+      }
+    }
+  }, []);
 
   // Hydrate active saved address on mount and whenever the saved-list changes.
   useEffect(() => {
