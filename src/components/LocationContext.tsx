@@ -31,6 +31,10 @@ interface LocationContextValue {
   activeAddress: SavedAddress | null;
   /** Active geocode resolution — city/county/state — sourced from device OR saved address. */
   resolved: GeocodeResult | null;
+  /** True once the user has explicitly chosen/confirmed a safety location. */
+  locationConfirmed: boolean;
+  confirmLocation: () => void;
+  resetLocation: () => void;
 
   requestLocation: () => void;
   useSeed: () => void;
@@ -69,6 +73,10 @@ export function LocationProvider({ children }: { children: ReactNode }) {
   const [activeAddress, setActiveAddress] = useState<SavedAddress | null>(null);
   const [deviceResolved, setDeviceResolved] = useState<GeocodeResult | null>(null);
   const [addrsTick, setAddrsTick] = useState(0);
+  const [locationConfirmed, setLocationConfirmed] = useState(false);
+
+  const confirmLocation = useCallback(() => setLocationConfirmed(true), []);
+  const resetLocation = useCallback(() => setLocationConfirmed(false), []);
 
   // Hydrate active saved address on mount and whenever the saved-list changes.
   useEffect(() => {
