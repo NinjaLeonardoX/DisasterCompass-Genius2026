@@ -906,6 +906,7 @@ ${planBlocks}
           const TABS: { id: typeof bodyTab; label: string }[] = [
             { id: "overview", label: "Overview" },
             { id: "people", label: copy.peopleTab },
+            ...(showRiskMap ? [{ id: "risk" as const, label: "Risk map" }] : []),
             { id: "routes", label: "Routes" },
             { id: "gaps", label: `Gaps${selected.gaps.length ? ` (${selected.gaps.length})` : ""}` },
           ];
