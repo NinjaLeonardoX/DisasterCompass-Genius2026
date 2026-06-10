@@ -1137,6 +1137,18 @@ ${planBlocks}
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={startDeviceFlow}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary"
+            >
+              <LocateFixed className="h-3.5 w-3.5" /> Use my location
+            </button>
+            <button
+              onClick={startManualFlow}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary"
+            >
+              <Pencil className="h-3.5 w-3.5" /> Enter address manually
+            </button>
             <div className="relative">
               <button
                 onClick={() => setDropdownOpen((v) => !v)}
