@@ -66,6 +66,9 @@ export function HouseholdCard({ onGeneratePlan, riskMap }: Props) {
           Household composition is illustrative. Set your address above to anchor the plan to your real location.
         </p>
       )}
+      {riskMap ? (
+        <div className="mt-5 border-t border-border/60 pt-5">{riskMap}</div>
+      ) : null}
       <button
         type="button"
         onClick={onGeneratePlan}
