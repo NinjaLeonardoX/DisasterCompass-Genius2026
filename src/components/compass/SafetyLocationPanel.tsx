@@ -23,6 +23,13 @@ import {
   XCircle,
   SkipForward,
   Sparkles,
+  Users,
+  UserRound,
+  Baby,
+  PawPrint,
+  Car,
+  Stethoscope,
+  Accessibility,
 } from "lucide-react";
 
 /**
@@ -322,6 +329,106 @@ const LOCATION_TYPES = ["Home", "School", "Campus", "Community Center", "Church"
 const NAME_PRESETS = ["Home", "School", "Community Center"];
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Type-aware copy
+// ─────────────────────────────────────────────────────────────────────────────
+
+type TypeGroup = "home" | "school" | "business" | "community";
+
+function typeGroup(type: string): TypeGroup {
+  const t = type.toLowerCase();
+  if (t === "home") return "home";
+  if (t === "school" || t === "campus") return "school";
+  if (t === "business") return "business";
+  if (t === "community center" || t === "church") return "community";
+  return "home";
+}
+
+interface TypeCopy {
+  groupNoun: string;          // "household", "school community", ...
+  peopleTab: string;           // tab label
+  peopleHeading: string;       // panel heading
+  peopleIntro: string;         // descriptive sentence
+  baseTitle: string;           // wizard Base step title
+  baseIntro: string;           // wizard Base step description
+  planIntro: string;           // saved-location header description
+  attrs: { Icon: typeof Users; label: string; warn?: boolean }[];
+}
+
+const TYPE_COPY: Record<TypeGroup, TypeCopy> = {
+  home: {
+    groupNoun: "household",
+    peopleTab: "Household",
+    peopleHeading: "Who lives here",
+    peopleIntro: "Who needs to be accounted for when an alert fires — family, pets, and access needs.",
+    baseTitle: "Household Profile",
+    baseIntro: "Tell us about the people, pets, and access needs in your household so the plan accounts for everyone.",
+    planIntro: "Your household Compass Plan is ready. Review routes, fix gaps, or print the guide.",
+    attrs: [
+      { Icon: Users, label: "5 people" },
+      { Icon: UserRound, label: "Elderly 1" },
+      { Icon: Baby, label: "Toddler 1" },
+      { Icon: PawPrint, label: "Pet 1" },
+      { Icon: Car, label: "No vehicle", warn: true },
+      { Icon: Stethoscope, label: "Medical needs" },
+      { Icon: Accessibility, label: "Accessibility needs" },
+    ],
+  },
+  school: {
+    groupNoun: "school community",
+    peopleTab: "School community",
+    peopleHeading: "Who is on campus",
+    peopleIntro: "Students, staff, and visitors who must be accounted for during a drill or real event.",
+    baseTitle: "Campus Profile",
+    baseIntro: "Tell us about students, staff, and accessibility needs on campus so muster, shelter, and evacuation steps match the people on site.",
+    planIntro: "Your campus Compass Plan is ready. Review muster points, drill routes, and print the staff/parent guide.",
+    attrs: [
+      { Icon: Users, label: "Students on site" },
+      { Icon: UserRound, label: "Staff & teachers" },
+      { Icon: Baby, label: "Pre-K / early grades" },
+      { Icon: Accessibility, label: "Accessibility needs" },
+      { Icon: Stethoscope, label: "Nurse / medical needs" },
+      { Icon: Car, label: "Bus & parent pickup" },
+    ],
+  },
+  business: {
+    groupNoun: "team",
+    peopleTab: "Team & visitors",
+    peopleHeading: "Who is on site",
+    peopleIntro: "Employees, visitors, and shift coverage that need to be accounted for during an incident.",
+    baseTitle: "Workplace Profile",
+    baseIntro: "Tell us about employees, visitors, shifts, and ADA accommodations so the plan covers everyone in the building.",
+    planIntro: "Your workplace Compass Plan is ready. Review evacuation routes, fix gaps, or print the team guide.",
+    attrs: [
+      { Icon: Users, label: "Employees on shift" },
+      { Icon: UserRound, label: "Visitors / customers" },
+      { Icon: Accessibility, label: "ADA accommodations" },
+      { Icon: Stethoscope, label: "First-aid coverage" },
+      { Icon: Car, label: "Parking & exits" },
+    ],
+  },
+  community: {
+    groupNoun: "congregation",
+    peopleTab: "Members",
+    peopleHeading: "Who gathers here",
+    peopleIntro: "Members, volunteers, and any childcare or eldercare groups who use this space.",
+    baseTitle: "Community Profile",
+    baseIntro: "Tell us about members, volunteers, and any childcare or eldercare groups so the plan reflects everyone who gathers here.",
+    planIntro: "Your community Compass Plan is ready. Review routes, fix gaps, or print the member guide.",
+    attrs: [
+      { Icon: Users, label: "Members & attendees" },
+      { Icon: UserRound, label: "Volunteers" },
+      { Icon: Baby, label: "Childcare groups" },
+      { Icon: Accessibility, label: "Accessibility needs" },
+      { Icon: Stethoscope, label: "Medical needs" },
+    ],
+  },
+};
+
+function getTypeCopy(type: string): TypeCopy {
+  return TYPE_COPY[typeGroup(type)];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Scoring + generation
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -476,6 +583,7 @@ export function SafetyLocationPanel() {
   const [wizardIndex, setWizardIndex] = useState(0); // 0..SECTIONS.length-1
 
   const [selectedDisaster, setSelectedDisaster] = useState<Disaster>("flood");
+  const [bodyTab, setBodyTab] = useState<"overview" | "people" | "routes" | "gaps">("overview");
 
   const selected = locations.find((l) => l.id === selectedId) ?? SJFU;
   const currentRoute = useMemo(
@@ -758,7 +866,7 @@ ${planBlocks}
           <div className="mb-4">
             <h3 className="text-xl font-bold tracking-tight">{selected.name}</h3>
             <p className="mt-1 text-sm text-card-foreground/75">
-              Your Compass Plan is ready. Review routes, fix gaps, or print the guide.
+              {getTypeCopy(selected.type).planIntro}
             </p>
           </div>
         ) : (
@@ -784,118 +892,187 @@ ${planBlocks}
           </div>
         )}
 
-        {selected.ready && (
-          <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
-            <div className="space-y-4">
-              {/* Score + hazard scores + gaps */}
-              <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-xl border border-border bg-surface/40 p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">
-                    Readiness Score
-                  </p>
-                  <p className="mt-1 text-3xl font-bold" style={{ color: readinessColor(selected.readinessScore) }}>
-                    {selected.readinessScore}%
-                  </p>
-                  <p className="text-[11px] font-semibold" style={{ color: readinessColor(selected.readinessScore) }}>
-                    {readinessLabel(selected.readinessScore)}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-border bg-surface/40 p-4 sm:col-span-2">
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">
-                    Hazard Readiness
-                  </p>
-                  <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
-                    {DISASTERS.map(({ id, label, Icon }) => {
-                      const s = selected.hazardScores[id];
-                      return (
-                        <li key={id} className="flex items-center justify-between gap-2">
-                          <span className="inline-flex items-center gap-1.5 text-card-foreground/80">
-                            <Icon className="h-3 w-3" /> {label}
-                          </span>
-                          <span className="font-semibold tabular-nums" style={{ color: readinessColor(s) }}>
-                            {s === null ? "Not Assessed" : `${s}%`}
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              </div>
-
-              {selected.gaps.length > 0 && (
-                <div className="rounded-xl border border-border bg-surface/40 p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">
-                    Open Gaps
-                  </p>
-                  <ul className="mt-1 grid gap-1 sm:grid-cols-2">
-                    {selected.gaps.map((g) => (
-                      <li key={g} className="flex items-start gap-1.5 text-sm text-card-foreground/80">
-                        <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[color:var(--severity-moderate)]" />
-                        {g}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Disaster selector */}
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">
-                  Pre-mapped Route Plan
-                </p>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {DISASTERS.map(({ id, label, Icon }) => {
-                    const active = id === selectedDisaster;
+        {selected.ready && (() => {
+          const copy = getTypeCopy(selected.type);
+          const TABS: { id: typeof bodyTab; label: string }[] = [
+            { id: "overview", label: "Overview" },
+            { id: "people", label: copy.peopleTab },
+            { id: "routes", label: "Routes" },
+            { id: "gaps", label: `Gaps${selected.gaps.length ? ` (${selected.gaps.length})` : ""}` },
+          ];
+          return (
+            <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
+              <div className="space-y-4">
+                {/* Tab strip */}
+                <div role="tablist" className="flex flex-wrap gap-1 border-b border-border">
+                  {TABS.map((t) => {
+                    const active = bodyTab === t.id;
                     return (
                       <button
-                        key={id}
-                        onClick={() => setSelectedDisaster(id)}
-                        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                        key={t.id}
+                        role="tab"
+                        aria-selected={active}
+                        onClick={() => setBodyTab(t.id)}
+                        className={`-mb-px rounded-t-md border-b-2 px-3 py-1.5 text-xs font-semibold transition-colors ${
                           active
-                            ? "border-foreground bg-foreground text-white"
-                            : "border-border bg-background text-foreground hover:bg-surface"
+                            ? "border-foreground text-foreground"
+                            : "border-transparent text-card-foreground/60 hover:text-foreground"
                         }`}
                       >
-                        <Icon className="h-3.5 w-3.5" /> {label}
+                        {t.label}
                       </button>
                     );
                   })}
                 </div>
 
-                {currentRoute && (
-                  <div className="mt-3 rounded-xl border border-border bg-surface/40 p-4">
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <Field label="First Action" value={currentRoute.firstAction} accent />
-                      <Field label="Destination" value={currentRoute.destination} />
-                      <Field label="Safe Route" value={currentRoute.safeRoute} />
-                      <Field label="Avoid" value={currentRoute.avoid} />
+                {/* Overview tab */}
+                {bodyTab === "overview" && (
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-xl border border-border bg-surface/40 p-4">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">
+                        Readiness Score
+                      </p>
+                      <p className="mt-1 text-3xl font-bold" style={{ color: readinessColor(selected.readinessScore) }}>
+                        {selected.readinessScore}%
+                      </p>
+                      <p className="text-[11px] font-semibold" style={{ color: readinessColor(selected.readinessScore) }}>
+                        {readinessLabel(selected.readinessScore)}
+                      </p>
                     </div>
-                    <p className="mt-3 text-xs italic text-card-foreground/65">
-                      Why this route: {currentRoute.why}
+                    <div className="rounded-xl border border-border bg-surface/40 p-4 sm:col-span-2">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">
+                        Hazard Readiness
+                      </p>
+                      <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+                        {DISASTERS.map(({ id, label, Icon }) => {
+                          const s = selected.hazardScores[id];
+                          return (
+                            <li key={id} className="flex items-center justify-between gap-2">
+                              <span className="inline-flex items-center gap-1.5 text-card-foreground/80">
+                                <Icon className="h-3 w-3" /> {label}
+                              </span>
+                              <span className="font-semibold tabular-nums" style={{ color: readinessColor(s) }}>
+                                {s === null ? "Not Assessed" : `${s}%`}
+                              </span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+
+                {/* People tab */}
+                {bodyTab === "people" && (
+                  <div className="rounded-xl border border-border bg-surface/40 p-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">
+                      {copy.peopleHeading}
+                    </p>
+                    <p className="mt-1 text-sm text-card-foreground/80">{copy.peopleIntro}</p>
+                    <ul className="mt-3 flex flex-wrap gap-1.5">
+                      {copy.attrs.map(({ Icon, label, warn }) => (
+                        <li
+                          key={label}
+                          className={[
+                            "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1",
+                            warn
+                              ? "bg-[color:var(--severity-moderate)]/12 text-[color:var(--severity-moderate)] ring-[color:var(--severity-moderate)]/30"
+                              : "bg-background text-card-foreground/85 ring-border",
+                          ].join(" ")}
+                        >
+                          <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                          {label}
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="mt-3 text-[11px] italic text-card-foreground/55">
+                      Re-run onboarding to update the {copy.groupNoun} profile.
                     </p>
                   </div>
                 )}
+
+                {/* Routes tab */}
+                {bodyTab === "routes" && (
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">
+                      Pre-mapped Route Plan
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {DISASTERS.map(({ id, label, Icon }) => {
+                        const active = id === selectedDisaster;
+                        return (
+                          <button
+                            key={id}
+                            onClick={() => setSelectedDisaster(id)}
+                            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                              active
+                                ? "border-foreground bg-foreground text-white"
+                                : "border-border bg-background text-foreground hover:bg-surface"
+                            }`}
+                          >
+                            <Icon className="h-3.5 w-3.5" /> {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {currentRoute && (
+                      <div className="mt-3 rounded-xl border border-border bg-surface/40 p-4">
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <Field label="First Action" value={currentRoute.firstAction} accent />
+                          <Field label="Destination" value={currentRoute.destination} />
+                          <Field label="Safe Route" value={currentRoute.safeRoute} />
+                          <Field label="Avoid" value={currentRoute.avoid} />
+                        </div>
+                        <p className="mt-3 text-xs italic text-card-foreground/65">
+                          Why this route: {currentRoute.why}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Gaps tab */}
+                {bodyTab === "gaps" && (
+                  <div className="rounded-xl border border-border bg-surface/40 p-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">
+                      Open Gaps
+                    </p>
+                    {selected.gaps.length === 0 ? (
+                      <p className="mt-1 text-sm text-card-foreground/70">No open gaps recorded. Nicely done.</p>
+                    ) : (
+                      <ul className="mt-2 grid gap-1 sm:grid-cols-2">
+                        {selected.gaps.map((g) => (
+                          <li key={g} className="flex items-start gap-1.5 text-sm text-card-foreground/80">
+                            <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[color:var(--severity-moderate)]" />
+                            {g}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-2 lg:w-44">
+                <button
+                  onClick={printGuide}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-foreground px-3 py-2 text-xs font-semibold text-white hover:brightness-110"
+                >
+                  <Printer className="h-3.5 w-3.5" /> Print Safety Guide
+                </button>
+                {!selected.preloaded && (
+                  <button
+                    onClick={() => startReadinessForExisting(selected.id)}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-xs font-semibold hover:bg-surface"
+                  >
+                    Re-run onboarding
+                  </button>
+                )}
               </div>
             </div>
-
-            <div className="flex flex-col gap-2 lg:w-44">
-              <button
-                onClick={printGuide}
-                className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-foreground px-3 py-2 text-xs font-semibold text-white hover:brightness-110"
-              >
-                <Printer className="h-3.5 w-3.5" /> Print Safety Guide
-              </button>
-              {!selected.preloaded && (
-                <button
-                  onClick={() => startReadinessForExisting(selected.id)}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-xs font-semibold hover:bg-surface"
-                >
-                  Re-run onboarding
-                </button>
-              )}
-            </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
 
       {/* Setup wizard modal */}
@@ -1074,6 +1251,7 @@ function NameStep(p: SetupModalProps) {
         >
           {LOCATION_TYPES.map((t) => <option key={t}>{t}</option>)}
         </select>
+        <span className="mt-1 text-xs text-black/70">{getTypeCopy(p.draftType).baseIntro}</span>
       </label>
 
       <div className="flex justify-end gap-2 pt-2">
@@ -1133,16 +1311,24 @@ function WizardStep(p: SetupModalProps) {
   const isLast = p.wizardIndex === SECTIONS.length - 1;
   const canBack = p.wizardIndex > 0;
 
+  const typeCopy = getTypeCopy(p.draftType);
+  const isBase = section.id === "base";
+  const heading = isBase ? typeCopy.baseTitle : section.title;
+  const description = isBase ? typeCopy.baseIntro : null;
+
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-base font-bold text-foreground">{section.title}</h3>
+        <h3 className="text-base font-bold text-foreground">{heading}</h3>
         {isSkipped && (
           <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--severity-moderate)]/15 px-2 py-0.5 text-[11px] font-semibold text-[color:var(--severity-moderate)]">
             <AlertTriangle className="h-3 w-3" /> Not assessed · review before printing final guide
           </span>
         )}
       </div>
+      {description && (
+        <p className="text-sm text-card-foreground/75">{description}</p>
+      )}
 
       <div className="flex flex-wrap gap-1.5">
         <button onClick={yesAll} className="inline-flex items-center gap-1 rounded-full bg-[color:var(--severity-low)]/15 px-3 py-1 text-[11px] font-semibold text-[color:var(--severity-low)] hover:brightness-110">
