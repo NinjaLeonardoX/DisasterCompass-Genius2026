@@ -108,6 +108,78 @@ export function RespondQuickAction() {
     return () => controller.abort();
   }, [home[0], home[1]]);
 
+  // Track when we last received a real device location.
+  const [locationUpdatedAt, setLocationUpdatedAt] = useState<number | null>(null);
+  useEffect(() => {
+    if (hasRealLocation) {
+      const now = Date.now();
+      setLocationUpdatedAt(now);
+      try {
+        const payload: CachedLoc = { lat: home[0], lng: home[1], accuracyMeters: accuracyMeters ?? null, savedAt: now };
+        localStorage.setItem(LOC_CACHE_KEY, JSON.stringify(payload));
+      } catch {}
+    }
+  }, [hasRealLocation, home[0], home[1], accuracyMeters]);
+
+  // Cached (offline) location + route restored from localStorage on mount.
+  const [cachedLoc, setCachedLoc] = useState<CachedLoc | null>(null);
+  const [cachedRoute, setCachedRoute] = useState<CachedRoute | null>(null);
+  useEffect(() => {
+    try {
+      const l = localStorage.getItem(LOC_CACHE_KEY);
+      if (l) setCachedLoc(JSON.parse(l));
+      const r = localStorage.getItem(ROUTE_CACHE_KEY);
+      if (r) setCachedRoute(JSON.parse(r));
+    } catch {}
+  }, []);
+
+  // Online/offline awareness so the user knows when data is stale.
+  const [isOffline, setIsOffline] = useState<boolean>(
+    typeof navigator !== "undefined" ? !navigator.onLine : false,
+  );
+  useEffect(() => {
+    const on = () => setIsOffline(false);
+    const off = () => setIsOffline(true);
+    window.addEventListener("online", on);
+    window.addEventListener("offline", off);
+    return () => {
+      window.removeEventListener("online", on);
+      window.removeEventListener("offline", off);
+    };
+  }, []);
+
+  // Pick the currently displayed route (selected or top-ranked safe route).
+  const displayRoute = useMemo<RouteOption | null>(() => {
+    if (!routes || routes.length === 0) return null;
+    if (selectedRouteId) {
+      const m = routes.find((r) => r.id === selectedRouteId);
+      if (m) return m;
+    }
+    const safe = routes.find((r) => r.colorType === "safe");
+    return safe ?? routes[0];
+  }, [routes, selectedRouteId]);
+
+  const displayDestName = useMemo(() => {
+    if (!displayRoute) return undefined;
+    return destinations.find((d) => d.id === displayRoute.destinationId)?.name;
+  }, [displayRoute, destinations]);
+
+  // Persist the current route so it survives reloads / offline.
+  useEffect(() => {
+    if (!displayRoute) return;
+    try {
+      const payload: CachedRoute = {
+        route: displayRoute,
+        destinationName: displayDestName,
+        savedAt: Date.now(),
+      };
+      localStorage.setItem(ROUTE_CACHE_KEY, JSON.stringify(payload));
+      setCachedRoute(payload);
+    } catch {}
+  }, [displayRoute, displayDestName]);
+
+
+
 
 
 
