@@ -32,14 +32,11 @@ export function LifecycleDashboard() {
     <section aria-label="Lifecycle dashboard" className="space-y-5">
       {activePhase !== "respond" && (
         <div className="max-w-3xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[color:var(--severity-low)]">
-            The DisasterCompass system
-          </p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-[color:var(--foreground)] sm:text-4xl">
-            One family. Three moments. One clear plan.
+            Plan your safest route before disaster strikes.
           </h1>
           <p className="mt-2 text-base text-[color:var(--muted-foreground)]">
-            DisasterCompass uses the same household profile and neighbor network before, during, and after impact.
+            It is clear, easy, and directly explains the Prepare screen.
           </p>
         </div>
       )}
