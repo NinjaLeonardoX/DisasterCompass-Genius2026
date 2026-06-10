@@ -382,7 +382,7 @@ export function MyAddressCard() {
                 onClick={() => setPendingDevice(false)}
                 className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-surface disabled:opacity-60"
               >
-                Not now
+                Cancel
               </button>
               <button
                 disabled={savingHousehold || !householdName.trim()}
