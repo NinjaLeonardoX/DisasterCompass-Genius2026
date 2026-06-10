@@ -14,7 +14,7 @@ export function PreparePhase() {
         </p>
         <h2 className="mt-1 text-2xl font-bold tracking-tight">Prepare</h2>
         <p className="mt-1 text-sm text-[color:var(--muted-foreground)]">
-          Plan your safest route before disaster strikes.
+          One family. Three moments. One clear plan.
         </p>
       </div>
 
