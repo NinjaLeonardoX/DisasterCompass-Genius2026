@@ -49,13 +49,6 @@ function LandingPage() {
         <section className="mx-auto max-w-7xl px-6 pt-12 pb-4 lg:pt-20 lg:pb-6">
           <div className="grid items-center gap-14 lg:grid-cols-12">
             <div className="lg:col-span-7">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white/80 backdrop-blur">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#16A34A] opacity-60" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[#16A34A]" />
-                </span>
-                Prepare. Respond. Recover.
-              </div>
 
               <h1 className="mt-6 text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
                 Ready before the warning.{" "}
