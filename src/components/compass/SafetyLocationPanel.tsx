@@ -1340,13 +1340,58 @@ function SetupModal(p: SetupModalProps) {
 }
 
 function ProgressBar({ step, wizardIndex, totalSteps }: { step: SetupStep; wizardIndex: number; totalSteps: number }) {
-  const current = step === "wizard" ? wizardIndex + 1 : step === "review" ? 8 : 9;
+  const current =
+    step === "wizard" ? wizardIndex + 1 : step === "review" ? 8 : step === "generating" ? 9 : 9;
   const pct = Math.round((current / totalSteps) * 100);
   return (
     <div className="px-5 pt-3">
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-card-foreground/10">
         <div className="h-full rounded-full bg-[color:var(--severity-low)] transition-all" style={{ width: `${pct}%` }} />
       </div>
+    </div>
+  );
+}
+
+function GeneratingStep(p: SetupModalProps) {
+  return (
+    <div className="space-y-4 py-2">
+      <div className="flex items-center gap-2">
+        <Sparkles className="h-4 w-4 text-[color:var(--severity-moderate)] animate-pulse" />
+        <h3 className="text-base font-bold text-foreground">Generating your Compass Plan</h3>
+      </div>
+      <p className="text-sm text-black/75">
+        AI is building personalized route plans for each disaster based on{" "}
+        <span className="font-semibold">{p.draftName}</span>
+        {p.draftArea ? ` (${p.draftArea.split(",").slice(0, 2).join(",")})` : ""}.
+      </p>
+      <div className="space-y-2">
+        <div className="h-2.5 w-full overflow-hidden rounded-full bg-black/10">
+          <div
+            className="h-full rounded-full bg-[color:var(--severity-moderate)] transition-all duration-300"
+            style={{ width: `${p.genProgress}%` }}
+          />
+        </div>
+        <div className="flex items-center justify-between text-xs">
+          <span className="font-medium text-black/70">{p.genStatus || "Working…"}</span>
+          <span className="font-semibold tabular-nums text-black">{p.genProgress}%</span>
+        </div>
+      </div>
+      <ul className="grid grid-cols-2 gap-1.5 pt-2 text-[11px] text-black/65 sm:grid-cols-3">
+        {["Flood", "Earthquake", "Heat", "Hurricane", "Wildfire", "Winter"].map((d, i) => {
+          const threshold = 25 + ((i + 1) / 6) * 60;
+          const done = p.genProgress >= threshold;
+          return (
+            <li
+              key={d}
+              className={`rounded-md border px-2 py-1 transition ${
+                done ? "border-[color:var(--severity-low)]/40 bg-[color:var(--severity-low)]/10 text-[color:var(--severity-low)]" : "border-border bg-white"
+              }`}
+            >
+              {done ? "✓" : "•"} {d} route
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
