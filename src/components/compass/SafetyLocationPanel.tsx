@@ -1398,6 +1398,52 @@ function GeneratingStep(p: SetupModalProps) {
 }
 
 function NameStep(p: SetupModalProps) {
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [aiNote, setAiNote] = useState<string | null>(null);
+
+  async function runAiLookup() {
+    const q = p.draftArea.trim() || p.draftName.trim();
+    if (q.length < 2) {
+      setAiError("Type a name or partial address first (e.g. 'Lincoln High Tampa').");
+      return;
+    }
+    setAiError(null);
+    setAiNote(null);
+    setAiLoading(true);
+    try {
+      const details = await lookupPlaceDetails({ data: { query: q } });
+      if (!details) {
+        setAiError("AI couldn't resolve that. Try adding a city or state.");
+        return;
+      }
+      const addressForGeo = [details.address, details.city, details.state, details.country]
+        .filter(Boolean)
+        .join(", ");
+      const geo = await forwardGeocode(addressForGeo);
+      const suggestion: PlaceSuggestion = {
+        displayName: geo?.displayName ?? addressForGeo,
+        name: details.name,
+        klass: "",
+        type: details.locationType.toLowerCase(),
+        lat: geo?.lat ?? 0,
+        lng: geo?.lng ?? 0,
+        city: geo?.city ?? details.city ?? null,
+        state: geo?.state ?? details.state ?? null,
+        country: geo?.country ?? details.country ?? null,
+      };
+      p.onSelectPlace(suggestion);
+      p.onChangeType(details.locationType);
+      if (details.name) p.onChangeName(details.name.slice(0, 60));
+      setAiNote(geo ? "Filled from AI + map lookup." : "Filled from AI (coordinates not verified).");
+    } catch (err) {
+      console.error(err);
+      setAiError("AI lookup failed. Please try again.");
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
   return (
     <>
       {p.mode === "device" && (
@@ -1426,9 +1472,21 @@ function NameStep(p: SetupModalProps) {
 
       {p.mode === "manual" && (
         <div className="flex flex-col gap-1">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-black">
-            Address, school, business, or landmark
-          </span>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-black">
+              Address, school, business, or landmark
+            </span>
+            <button
+              type="button"
+              onClick={runAiLookup}
+              disabled={aiLoading}
+              className="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--severity-moderate)]/40 bg-[color:var(--severity-moderate)]/10 px-2.5 py-1 text-[11px] font-semibold text-[color:var(--severity-moderate)] hover:brightness-95 disabled:opacity-60"
+              title="Use AI to fill address, type, and coordinates"
+            >
+              <Sparkles className={`h-3.5 w-3.5 ${aiLoading ? "animate-pulse" : ""}`} />
+              {aiLoading ? "Generating…" : "Generate with AI"}
+            </button>
+          </div>
           <PlaceAutocomplete
             value={p.draftArea}
             onChange={p.onChangeArea}
@@ -1436,10 +1494,13 @@ function NameStep(p: SetupModalProps) {
             placeholder="Try a school, hospital, business, or address…"
           />
           <span className="text-[11px] text-black/60">
-            Pick a result to auto-fill the location type and coordinates.
+            Pick a result, or type a name and tap <span className="font-semibold">Generate with AI</span> to auto-fill address and type.
           </span>
+          {aiError && <span className="text-[11px] font-medium text-[color:var(--severity-high)]">{aiError}</span>}
+          {aiNote && !aiError && <span className="text-[11px] font-medium text-[color:var(--severity-low)]">{aiNote}</span>}
         </div>
       )}
+
 
       <label className="flex flex-col gap-1">
         <span className="text-[11px] font-semibold uppercase tracking-wide text-black">Location type</span>
