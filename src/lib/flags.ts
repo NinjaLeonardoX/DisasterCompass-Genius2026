@@ -22,6 +22,8 @@ export const flags = {
   earthquakes: flagOn(import.meta.env.VITE_LIVE_EARTHQUAKES),
   /** NWS active alerts (keyless, US). */
   alerts: flagOn(import.meta.env.VITE_LIVE_ALERTS),
+  /** OpenWeatherMap severe-weather alerts (needs server-side OPENWEATHER_API_KEY). */
+  owmAlerts: flagOn(import.meta.env.VITE_LIVE_OWM_ALERTS),
 } as const;
 
 export type FeatureFlag = keyof typeof flags;
