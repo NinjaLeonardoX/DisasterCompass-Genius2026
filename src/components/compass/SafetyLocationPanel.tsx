@@ -9,24 +9,50 @@ import {
   ShieldCheck,
   ChevronDown,
   ArrowRight,
+  ArrowLeft,
   Waves,
   Flame,
   Wind,
   Thermometer,
   Activity,
+  Snowflake,
   X,
+  Check,
+  XCircle,
+  SkipForward,
+  Sparkles,
 } from "lucide-react";
 
 /**
- * Self-contained Saved Safety Location flow for the Prepare screen.
+ * Saved Safety Location flow — fast 9-step readiness onboarding wizard.
  *
- * - No backend, no localStorage — React state only.
- * - Default selection: St. John Fisher University (preloaded "Plan Ready").
- * - Use My Location / Enter Manually create session-only custom locations
- *   that move from "Needs Readiness Setup" to "Plan Ready" after onboarding.
+ * Steps:
+ *   0 Base profile · 1 Flood · 2 Earthquake · 3 Extreme Heat
+ *   4 Hurricane · 5 Wildfire · 6 Winter Storm · 7 Review · 8 Generate plan
+ *
+ * Each hazard section supports: Yes to All · No to All · Skip This Section.
+ * Skipped sections do not count toward the readiness percentage but are
+ * flagged on the review screen and the printable guide.
  */
 
-type Disaster = "flood" | "earthquake" | "wildfire" | "hurricane" | "heat";
+type Disaster = "flood" | "earthquake" | "heat" | "hurricane" | "wildfire" | "winter";
+
+type SectionId = "base" | Disaster;
+
+type Answer = "yes" | "no" | null;
+
+interface Question {
+  key: string;
+  q: string;
+  /** Optional human-readable gap label when answered "no". */
+  gap?: string;
+}
+
+interface Section {
+  id: SectionId;
+  title: string;
+  questions: Question[];
+}
 
 interface RoutePlan {
   disaster: Disaster;
@@ -38,33 +64,9 @@ interface RoutePlan {
   why: string;
 }
 
-interface OnboardingAnswers {
-  people: string;
-  elderly: boolean;
-  children: boolean;
-  pets: boolean;
-  medical: boolean;
-  powerMedical: boolean;
-  accessibility: boolean;
-  vehicle: boolean;
-  backupTransport: boolean;
-  goBag: boolean;
-  contactsPrinted: boolean;
-  backupPower: boolean;
-  drillPracticed: boolean;
-  commsPlan: boolean;
-  shelterKnown: boolean;
-  floodHigherGround: boolean;
-  floodAvoidLowRoads: boolean;
-  heatCooling: boolean;
-  heatBackupPower: boolean;
-  hurricaneShelter: boolean;
-  hurricanePetAccess: boolean;
-  wildfirePrimaryExit: boolean;
-  wildfireBackupExit: boolean;
-  earthquakeDropCover: boolean;
-  earthquakeAssembly: boolean;
-}
+type SectionAnswers = Record<string, Answer>;
+type AllAnswers = Record<SectionId, SectionAnswers>;
+type SkipMap = Record<SectionId, boolean>;
 
 interface SavedLocation {
   id: string;
@@ -73,19 +75,122 @@ interface SavedLocation {
   area: string;
   ready: boolean;
   preloaded?: boolean;
-  answers?: OnboardingAnswers;
+  answers: AllAnswers;
+  skipped: SkipMap;
   routes: RoutePlan[];
   readinessScore: number;
+  hazardScores: Record<Disaster, number | null>; // null = not assessed
   gaps: string[];
 }
 
 const DISASTERS: { id: Disaster; label: string; Icon: typeof Waves }[] = [
   { id: "flood", label: "Flood", Icon: Waves },
   { id: "earthquake", label: "Earthquake", Icon: Activity },
-  { id: "wildfire", label: "Wildfire", Icon: Flame },
-  { id: "hurricane", label: "Hurricane", Icon: Wind },
   { id: "heat", label: "Extreme Heat", Icon: Thermometer },
+  { id: "hurricane", label: "Hurricane", Icon: Wind },
+  { id: "wildfire", label: "Wildfire", Icon: Flame },
+  { id: "winter", label: "Winter Storm", Icon: Snowflake },
 ];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Checklists
+// ─────────────────────────────────────────────────────────────────────────────
+
+const SECTIONS: Section[] = [
+  {
+    id: "base",
+    title: "Base Profile",
+    questions: [
+      { key: "people", q: "Are people regularly present at this location?" },
+      { key: "elderly", q: "Are elderly people regularly present?" },
+      { key: "children", q: "Are toddlers or children regularly present?" },
+      { key: "pets", q: "Are pets usually present?" },
+      { key: "medical", q: "Are there medical needs or medications to plan for?" },
+      { key: "vehicle", q: "Is a vehicle available?", gap: "No vehicle available" },
+      { key: "contacts", q: "Are emergency contacts printed?", gap: "Emergency contacts not printed" },
+      { key: "goBag", q: "Is a go-bag ready?", gap: "Go-bag not ready" },
+      { key: "drill", q: "Has the family/group practiced the safety plan?", gap: "Safety plan not drilled" },
+    ],
+  },
+  {
+    id: "flood",
+    title: "Flood Readiness",
+    questions: [
+      { key: "higher", q: "Do you know your nearest higher-ground location?", gap: "Higher-ground destination not confirmed" },
+      { key: "avoid", q: "Do you know which roads, bridges, or underpasses to avoid?", gap: "Flood-avoid roads not mapped" },
+      { key: "route", q: "Do you have a route that avoids low areas?", gap: "Flood-safe route not confirmed" },
+      { key: "transport", q: "Is transportation arranged if you must leave?", gap: "No transportation arranged" },
+      { key: "blocked", q: "Do you know what to do if water blocks your route?", gap: "No backup plan if route is blocked" },
+      { key: "bag", q: "Is your go-bag ready to leave quickly?", gap: "Go-bag not ready" },
+    ],
+  },
+  {
+    id: "earthquake",
+    title: "Earthquake Readiness",
+    questions: [
+      { key: "drop", q: "Has everyone practiced Drop, Cover, and Hold On?", gap: "Drop/Cover/Hold not practiced" },
+      { key: "indoor", q: "Do you know where to shelter indoors?", gap: "Indoor shelter spot not chosen" },
+      { key: "assembly", q: "Do you know the outdoor assembly point after shaking stops?", gap: "Assembly area not confirmed" },
+      { key: "avoid", q: "Do you know what areas to avoid after shaking?", gap: "Post-shaking avoid zones unclear" },
+      { key: "contacts", q: "Are emergency contacts printed?", gap: "Emergency contacts not printed" },
+      { key: "bag", q: "Is the go-bag accessible after shaking?", gap: "Go-bag not accessible" },
+    ],
+  },
+  {
+    id: "heat",
+    title: "Extreme Heat Readiness",
+    questions: [
+      { key: "cooling", q: "Do you know your nearest cooling center?", gap: "Cooling center not confirmed" },
+      { key: "backup", q: "Do you have a backup cooling plan if power fails?", gap: "Backup cooling plan missing" },
+      { key: "water", q: "Is water available for the household/group?", gap: "Water supply not confirmed" },
+      { key: "risk", q: "Are elderly, children, or medical-risk people identified?", gap: "Medical-risk people not identified" },
+      { key: "charging", q: "Do you have a charging plan for phones or medical devices?", gap: "Charging plan missing" },
+      { key: "transport", q: "Is transport arranged if cooling is needed?", gap: "Cooling transport not arranged" },
+    ],
+  },
+  {
+    id: "hurricane",
+    title: "Hurricane Readiness",
+    questions: [
+      { key: "route", q: "Do you know your evacuation or shelter route?", gap: "Shelter route not confirmed" },
+      { key: "stay", q: "Do you know where to shelter if you stay?", gap: "Stay-in-place shelter not chosen" },
+      { key: "pets", q: "Is the shelter pet/accessibility compatible?", gap: "Pet/accessibility shelter fit not confirmed" },
+      { key: "transport", q: "Is transportation arranged before roads fill?", gap: "Transportation not arranged" },
+      { key: "bag", q: "Is your go-bag ready for several days?", gap: "Multi-day go-bag not ready" },
+      { key: "contact", q: "Do you know who to contact if separated?", gap: "Contact plan missing" },
+    ],
+  },
+  {
+    id: "wildfire",
+    title: "Wildfire Readiness",
+    questions: [
+      { key: "primary", q: "Do you know your primary exit route?", gap: "Primary exit not confirmed" },
+      { key: "backup", q: "Do you know your backup exit route?", gap: "Backup route not confirmed" },
+      { key: "bag", q: "Is your go-bag ready?", gap: "Go-bag not ready" },
+      { key: "wind", q: "Do you know what direction to avoid if fire or smoke spreads?", gap: "Smoke-avoid direction unclear" },
+      { key: "transport", q: "Is transportation ready?", gap: "Transportation not ready" },
+      { key: "items", q: "Are pets, medications, and documents ready to move quickly?", gap: "Pet/medication/document plan missing" },
+    ],
+  },
+  {
+    id: "winter",
+    title: "Winter Storm Readiness",
+    questions: [
+      { key: "warming", q: "Do you know your nearest warming center?", gap: "Warming center not confirmed" },
+      { key: "heat", q: "Do you have a backup heat plan if power fails?", gap: "Backup heat plan missing" },
+      { key: "supplies", q: "Do you have food, water, and medications for several days?", gap: "Food/water/medicine supply not confirmed" },
+      { key: "charging", q: "Do you have a phone or medical-device charging plan?", gap: "Charging plan missing" },
+      { key: "roads", q: "Do you know which icy roads, bridges, or steep routes to avoid?", gap: "Winter-safe route not confirmed" },
+      { key: "transport", q: "Is transportation arranged if you must go to a warming center?", gap: "Warming-center transport not arranged" },
+    ],
+  },
+];
+
+const HAZARD_SECTION_IDS: Disaster[] = ["flood", "earthquake", "heat", "hurricane", "wildfire", "winter"];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Seeded SJFU plan
+// ─────────────────────────────────────────────────────────────────────────────
 
 const SJFU_ROUTES: RoutePlan[] = [
   {
@@ -107,13 +212,13 @@ const SJFU_ROUTES: RoutePlan[] = [
     why: "Open field clear of falling debris; pre-designated campus muster point.",
   },
   {
-    disaster: "wildfire",
-    label: "Wildfire",
-    firstAction: "Evacuate via primary exit; check air quality alerts",
-    destination: "Off-campus shelter via I-490 W",
-    safeRoute: "Campus Dr → East Ave → I-490 W toward downtown Rochester",
-    avoid: "Wooded perimeter trails, Ellison Park access roads",
-    why: "Primary highway exit clears campus quickly; backup is Fairport Rd south.",
+    disaster: "heat",
+    label: "Extreme Heat",
+    firstAction: "Move indoors to a cooled common area; hydrate",
+    destination: "Campus Center — air-conditioned commons",
+    safeRoute: "Shaded walkway via Kearney Hall → Campus Center",
+    avoid: "Athletic fields, asphalt lots, midday direct sun",
+    why: "Always-cooled common space with charging stations and water access.",
   },
   {
     disaster: "hurricane",
@@ -125,15 +230,49 @@ const SJFU_ROUTES: RoutePlan[] = [
     why: "Reinforced interior space rated for high-wind shelter; pet-friendly room available.",
   },
   {
-    disaster: "heat",
-    label: "Extreme Heat",
-    firstAction: "Move indoors to a cooled common area; hydrate",
-    destination: "Campus Center — air-conditioned commons",
-    safeRoute: "Shaded walkway via Kearney Hall → Campus Center",
-    avoid: "Athletic fields, asphalt lots, midday direct sun",
-    why: "Always-cooled common space with charging stations and water access.",
+    disaster: "wildfire",
+    label: "Wildfire",
+    firstAction: "Evacuate via primary exit; check air quality alerts",
+    destination: "Off-campus shelter via I-490 W",
+    safeRoute: "Campus Dr → East Ave → I-490 W toward downtown Rochester",
+    avoid: "Wooded perimeter trails, Ellison Park access roads",
+    why: "Primary highway exit clears campus quickly; backup is Fairport Rd south.",
+  },
+  {
+    disaster: "winter",
+    label: "Winter Storm",
+    firstAction: "Walk indoors via the main walkway to the campus warming center",
+    destination: "Campus Warming & Charging Center — Campus Center commons",
+    safeRoute: "Winter Safe Route — Main Walkway / Main Road → Campus Center",
+    avoid: "Icy bridge path, steep service road, exposed outer walkway, unplowed parking edge",
+    why: "Winter route avoids icy bridges and exposed paths; warming center keeps power and heat.",
   },
 ];
+
+function allYesAnswers(): AllAnswers {
+  const out = {} as AllAnswers;
+  for (const s of SECTIONS) {
+    out[s.id] = {};
+    for (const q of s.questions) out[s.id][q.key] = "yes";
+  }
+  return out;
+}
+
+function blankAnswers(): AllAnswers {
+  const out = {} as AllAnswers;
+  for (const s of SECTIONS) {
+    out[s.id] = {};
+    for (const q of s.questions) out[s.id][q.key] = null;
+  }
+  return out;
+}
+
+function blankSkipped(): SkipMap {
+  return {
+    base: false, flood: false, earthquake: false, heat: false,
+    hurricane: false, wildfire: false, winter: false,
+  };
+}
 
 const SJFU: SavedLocation = {
   id: "sjfu",
@@ -142,65 +281,80 @@ const SJFU: SavedLocation = {
   area: "3690 East Ave, Pittsford, NY",
   ready: true,
   preloaded: true,
+  answers: allYesAnswers(),
+  skipped: blankSkipped(),
   routes: SJFU_ROUTES,
   readinessScore: 92,
+  hazardScores: { flood: 95, earthquake: 90, heat: 95, hurricane: 90, wildfire: 88, winter: 92 },
   gaps: ["Confirm pet-friendly shelter capacity", "Refresh quarterly drill schedule"],
 };
 
 const LOCATION_TYPES = ["Home", "School", "Campus", "Community Center", "Church", "Business", "Other"];
 const NAME_PRESETS = ["Home", "School", "Community Center"];
 
-function blankAnswers(): OnboardingAnswers {
-  return {
-    people: "1-3",
-    elderly: false,
-    children: false,
-    pets: false,
-    medical: false,
-    powerMedical: false,
-    accessibility: false,
-    vehicle: true,
-    backupTransport: false,
-    goBag: false,
-    contactsPrinted: false,
-    backupPower: false,
-    drillPracticed: false,
-    commsPlan: false,
-    shelterKnown: false,
-    floodHigherGround: false,
-    floodAvoidLowRoads: false,
-    heatCooling: false,
-    heatBackupPower: false,
-    hurricaneShelter: false,
-    hurricanePetAccess: false,
-    wildfirePrimaryExit: false,
-    wildfireBackupExit: false,
-    earthquakeDropCover: false,
-    earthquakeAssembly: false,
-  };
+// ─────────────────────────────────────────────────────────────────────────────
+// Scoring + generation
+// ─────────────────────────────────────────────────────────────────────────────
+
+function readinessLabel(score: number | null): string {
+  if (score === null) return "Not Assessed";
+  if (score >= 90) return "Plan Ready";
+  if (score >= 70) return "Mostly Ready";
+  if (score >= 40) return "Partially Ready";
+  return "Not Ready";
 }
 
-const BOOL_KEYS: (keyof OnboardingAnswers)[] = [
-  "vehicle", "backupTransport", "goBag", "contactsPrinted", "backupPower",
-  "drillPracticed", "commsPlan", "shelterKnown",
-  "floodHigherGround", "floodAvoidLowRoads", "heatCooling", "heatBackupPower",
-  "hurricaneShelter", "hurricanePetAccess", "wildfirePrimaryExit",
-  "wildfireBackupExit", "earthquakeDropCover", "earthquakeAssembly",
-];
+function readinessColor(score: number | null): string {
+  if (score === null) return "var(--severity-moderate)";
+  if (score >= 90) return "var(--severity-low)";
+  if (score >= 70) return "var(--severity-low)";
+  if (score >= 40) return "var(--severity-moderate)";
+  return "var(--severity-critical)";
+}
 
-function scoreFromAnswers(a: OnboardingAnswers): { score: number; gaps: string[] } {
-  const positives = BOOL_KEYS.filter((k) => a[k]).length;
-  const score = Math.round((positives / BOOL_KEYS.length) * 100);
+function scoreSection(answers: SectionAnswers, skipped: boolean): number | null {
+  if (skipped) return null;
+  const answered = Object.values(answers).filter((a) => a !== null);
+  if (answered.length === 0) return null;
+  const yes = answered.filter((a) => a === "yes").length;
+  return Math.round((yes / answered.length) * 100);
+}
+
+function computeScores(answers: AllAnswers, skipped: SkipMap): {
+  overall: number;
+  hazardScores: Record<Disaster, number | null>;
+  gaps: string[];
+} {
+  const hazardScores = {} as Record<Disaster, number | null>;
+  for (const d of HAZARD_SECTION_IDS) {
+    hazardScores[d] = scoreSection(answers[d] ?? {}, skipped[d]);
+  }
+  // Overall = yes / answered across all non-skipped sections
+  let yes = 0;
+  let answered = 0;
+  for (const s of SECTIONS) {
+    if (skipped[s.id]) continue;
+    for (const q of s.questions) {
+      const a = answers[s.id]?.[q.key];
+      if (a === null || a === undefined) continue;
+      answered++;
+      if (a === "yes") yes++;
+    }
+  }
+  const overall = answered === 0 ? 0 : Math.round((yes / answered) * 100);
+
+  // Gaps: every "no" answer that has a gap label
   const gaps: string[] = [];
-  if (!a.goBag) gaps.push("Pack a go-bag");
-  if (!a.shelterKnown) gaps.push("Identify a shelter destination");
-  if (!a.commsPlan) gaps.push("Create a communication plan");
-  if (!a.backupPower) gaps.push("Set a backup power plan");
-  if (!a.drillPracticed) gaps.push("Practice a household/site drill");
-  if (!a.contactsPrinted) gaps.push("Print emergency contacts");
-  if (a.powerMedical && !a.backupPower) gaps.push("Critical: power-dependent medical equipment without backup");
-  if (!a.vehicle && !a.backupTransport) gaps.push("Arrange backup transportation");
-  return { score, gaps: gaps.slice(0, 6) };
+  for (const s of SECTIONS) {
+    if (skipped[s.id]) continue;
+    for (const q of s.questions) {
+      if (answers[s.id]?.[q.key] === "no" && q.gap) gaps.push(q.gap);
+    }
+  }
+  // Deduplicate while preserving order
+  const seen = new Set<string>();
+  const uniqueGaps = gaps.filter((g) => (seen.has(g) ? false : (seen.add(g), true)));
+  return { overall, hazardScores, gaps: uniqueGaps };
 }
 
 function genericRoutes(name: string, area: string): RoutePlan[] {
@@ -223,12 +377,12 @@ function genericRoutes(name: string, area: string): RoutePlan[] {
       why: "Open space prevents falling-debris injury, the leading cause of earthquake harm.",
     },
     {
-      disaster: "wildfire", label: "Wildfire",
-      firstAction: "Evacuate early using your primary exit",
-      destination: "Designated regional shelter away from fire path",
-      safeRoute: "Primary: main highway away from fire direction. Backup: secondary route.",
-      avoid: "Forested roads, canyons, single-exit neighborhoods",
-      why: "Early evacuation avoids road closures and smoke-blocked exits.",
+      disaster: "heat", label: "Extreme Heat",
+      firstAction: "Move to a cooled space; hydrate every 15 minutes",
+      destination: "Nearest cooling center, library, or air-conditioned space",
+      safeRoute: "Shaded walking route; avoid direct sun between 11am–4pm",
+      avoid: "Parked cars, asphalt lots, sustained outdoor activity",
+      why: "Air-conditioned space prevents heatstroke; hydration sustains core temp.",
     },
     {
       disaster: "hurricane", label: "Hurricane",
@@ -239,17 +393,41 @@ function genericRoutes(name: string, area: string): RoutePlan[] {
       why: "Interior walls reduce wind and projectile risk during peak winds.",
     },
     {
-      disaster: "heat", label: "Extreme Heat",
-      firstAction: "Move to a cooled space; hydrate every 15 minutes",
-      destination: "Nearest cooling center, library, or air-conditioned space",
-      safeRoute: "Shaded walking route; avoid direct sun between 11am–4pm",
-      avoid: "Parked cars, asphalt lots, sustained outdoor activity",
-      why: "Air-conditioned space prevents heatstroke; hydration sustains core temp.",
+      disaster: "wildfire", label: "Wildfire",
+      firstAction: "Evacuate early using your primary exit",
+      destination: "Designated regional shelter away from fire path",
+      safeRoute: "Primary: main highway away from fire direction. Backup: secondary route.",
+      avoid: "Forested roads, canyons, single-exit neighborhoods",
+      why: "Early evacuation avoids road closures and smoke-blocked exits.",
+    },
+    {
+      disaster: "winter", label: "Winter Storm",
+      firstAction: "Stay indoors and conserve heat; move to a warming center if power fails",
+      destination: `Nearest warming and charging center from ${where}`,
+      safeRoute: "Plowed main roads and main walkways; avoid icy bridges and steep paths",
+      avoid: "Icy bridges, steep roads, unplowed roads, exposed walking paths, iced underpasses",
+      why: "Plowed arterials stay safer than side streets; warming center keeps heat and charging available.",
     },
   ];
 }
 
+function topFixNow(gaps: string[]): string[] {
+  // Priority keywords first (transport, medical/power, route, contacts/drill)
+  const priorities = [/transport/i, /power|medical|charging|heat/i, /route|exit|higher|warming|cooling/i, /contact|drill|plan/i];
+  const sorted = [...gaps].sort((a, b) => {
+    const ia = priorities.findIndex((re) => re.test(a));
+    const ib = priorities.findIndex((re) => re.test(b));
+    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+  });
+  return sorted.slice(0, 3);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Component
+// ─────────────────────────────────────────────────────────────────────────────
+
 type SetupMode = null | "device" | "manual";
+type SetupStep = "name" | "wizard" | "review" | "generated";
 
 export function SafetyLocationPanel() {
   const [locations, setLocations] = useState<SavedLocation[]>([SJFU]);
@@ -258,12 +436,14 @@ export function SafetyLocationPanel() {
 
   // Setup flow state
   const [setupMode, setSetupMode] = useState<SetupMode>(null);
+  const [setupStep, setSetupStep] = useState<SetupStep>("name");
   const [draftName, setDraftName] = useState("Home");
   const [draftType, setDraftType] = useState("Home");
   const [draftArea, setDraftArea] = useState("");
-  const [setupStep, setSetupStep] = useState<"name" | "questions" | "results">("name");
-  const [answers, setAnswers] = useState<OnboardingAnswers>(blankAnswers());
   const [draftLocationId, setDraftLocationId] = useState<string | null>(null);
+  const [answers, setAnswers] = useState<AllAnswers>(blankAnswers());
+  const [skipped, setSkipped] = useState<SkipMap>(blankSkipped());
+  const [wizardIndex, setWizardIndex] = useState(0); // 0..SECTIONS.length-1
 
   const [selectedDisaster, setSelectedDisaster] = useState<Disaster>("flood");
 
@@ -277,11 +457,9 @@ export function SafetyLocationPanel() {
     setSetupMode("device");
     setDraftName("Home");
     setDraftType("Home");
-    // Mock "current location" area string
     setDraftArea("Detected near your current location");
     setSetupStep("name");
   }
-
   function startManualFlow() {
     setSetupMode("manual");
     setDraftName("Home");
@@ -289,15 +467,16 @@ export function SafetyLocationPanel() {
     setDraftArea("");
     setSetupStep("name");
   }
-
   function cancelSetup() {
     setSetupMode(null);
     setSetupStep("name");
     setAnswers(blankAnswers());
+    setSkipped(blankSkipped());
+    setWizardIndex(0);
     setDraftLocationId(null);
   }
 
-  function createDraftAndStartQuestions() {
+  function createDraftAndStartWizard() {
     const id = `loc-${Date.now()}`;
     const draft: SavedLocation = {
       id,
@@ -305,76 +484,123 @@ export function SafetyLocationPanel() {
       type: draftType,
       area: draftArea.trim() || (setupMode === "device" ? "Current location" : ""),
       ready: false,
+      answers: blankAnswers(),
+      skipped: blankSkipped(),
       routes: [],
       readinessScore: 0,
+      hazardScores: { flood: null, earthquake: null, heat: null, hurricane: null, wildfire: null, winter: null },
       gaps: [],
     };
     setLocations((ls) => [...ls, draft]);
     setDraftLocationId(id);
     setSelectedId(id);
     setAnswers(blankAnswers());
-    setSetupStep("questions");
+    setSkipped(blankSkipped());
+    setWizardIndex(0);
+    setSetupStep("wizard");
   }
 
-  function finishOnboarding() {
+  function startReadinessForExisting(locId: string) {
+    setDraftLocationId(locId);
+    const loc = locations.find((l) => l.id === locId);
+    if (loc) {
+      setDraftName(loc.name);
+      setDraftArea(loc.area);
+      setDraftType(loc.type);
+    }
+    setSetupMode("manual");
+    setAnswers(blankAnswers());
+    setSkipped(blankSkipped());
+    setWizardIndex(0);
+    setSetupStep("wizard");
+  }
+
+  function goToReview() {
+    setSetupStep("review");
+  }
+
+  function generatePlan() {
     if (!draftLocationId) return;
-    const { score, gaps } = scoreFromAnswers(answers);
+    const { overall, hazardScores, gaps } = computeScores(answers, skipped);
     const routes = genericRoutes(draftName, draftArea);
     setLocations((ls) =>
       ls.map((l) =>
         l.id === draftLocationId
-          ? { ...l, ready: true, answers, routes, readinessScore: score, gaps }
+          ? {
+              ...l,
+              ready: true,
+              answers,
+              skipped,
+              routes,
+              readinessScore: overall,
+              hazardScores,
+              gaps,
+            }
           : l,
       ),
     );
-    setSetupStep("results");
+    setSetupStep("generated");
   }
 
   function closeAfterResults() {
     setSetupMode(null);
     setSetupStep("name");
     setDraftLocationId(null);
+    setAnswers(blankAnswers());
+    setSkipped(blankSkipped());
+    setWizardIndex(0);
   }
 
   function printGuide() {
     const title = `${selected.name} DisasterCompass Safety Guide`;
-    const r = currentRoute;
+    const hazardRows = HAZARD_SECTION_IDS.map((d) => {
+      const score = selected.hazardScores[d];
+      const label = DISASTERS.find((x) => x.id === d)?.label ?? d;
+      return `<div class="row"><b>${label}:</b> ${score === null ? "Not Assessed" : score + "% — " + readinessLabel(score)}</div>`;
+    }).join("");
+    const planBlocks = selected.routes.map((r) => `
+      <div class="block">
+        <h3>${r.label}</h3>
+        <div class="row"><b>First action:</b> ${r.firstAction}</div>
+        <div class="row"><b>Destination:</b> ${r.destination}</div>
+        <div class="row"><b>Safe route:</b> ${r.safeRoute}</div>
+        <div class="row"><b>Avoid:</b> ${r.avoid}</div>
+        <div class="muted">Why: ${r.why}</div>
+      </div>`).join("");
+
+    const skippedHazards = HAZARD_SECTION_IDS.filter((d) => selected.skipped[d]);
     const html = `<!doctype html><html><head><meta charset="utf-8"/><title>${title}</title>
 <style>
-  body{font-family:ui-sans-serif,system-ui,sans-serif;color:#0f172a;max-width:720px;margin:2rem auto;padding:0 1rem;line-height:1.5}
-  h1{font-size:22px;margin:0 0 4px}
-  h2{font-size:14px;text-transform:uppercase;letter-spacing:.1em;color:#64748b;margin:24px 0 6px}
+  body{font-family:ui-sans-serif,system-ui,sans-serif;color:#0f172a;max-width:760px;margin:2rem auto;padding:0 1rem;line-height:1.5}
+  h1{font-size:22px;margin:0 0 4px;color:#0f172a}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:#475569;margin:22px 0 6px}
+  h3{font-size:14px;margin:10px 0 4px;color:#0f172a}
   .pill{display:inline-block;background:#dcfce7;color:#166534;font-weight:600;padding:2px 10px;border-radius:999px;font-size:12px;margin-left:8px}
-  .row{margin:6px 0}
-  .muted{color:#475569;font-size:13px}
+  .warn{display:inline-block;background:#fef3c7;color:#92400e;font-weight:600;padding:2px 10px;border-radius:999px;font-size:12px}
+  .row{margin:4px 0;font-size:13px}
+  .muted{color:#475569;font-size:12px;margin-top:4px}
+  .block{padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;margin:8px 0}
   ul{padding-left:18px;margin:6px 0}
   .disclaimer{margin-top:32px;padding:12px;border:1px solid #fde68a;background:#fffbeb;border-radius:8px;font-size:12px;color:#92400e}
 </style></head><body>
-<h1>${title} <span class="pill">Plan Ready</span></h1>
+<h1>${title} <span class="pill">${readinessLabel(selected.readinessScore)}</span></h1>
 <div class="muted">${selected.type} · ${selected.area || ""}</div>
 
-<h2>Readiness</h2>
+<h2>Overall Readiness</h2>
 <div class="row"><b>Score:</b> ${selected.readinessScore}%</div>
 
-<h2>Selected Disaster</h2>
-<div class="row"><b>${r?.label ?? ""}</b></div>
+<h2>Hazard Readiness</h2>
+${hazardRows}
 
-<h2>Recommended Action</h2>
-<div class="row">${r?.firstAction ?? ""}</div>
+${skippedHazards.length ? `<h2>Skipped Sections</h2><div class="row"><span class="warn">Not assessed · review before printing final guide</span><div class="muted">${skippedHazards.map((d) => DISASTERS.find((x) => x.id === d)?.label).join(", ")}</div></div>` : ""}
 
-<h2>Safe Destination</h2>
-<div class="row">${r?.destination ?? ""}</div>
-
-<h2>Safe Route</h2>
-<div class="row">${r?.safeRoute ?? ""}</div>
-
-<h2>Avoid Areas</h2>
-<div class="row">${r?.avoid ?? ""}</div>
+<h2>Disaster Action Plans</h2>
+${planBlocks}
 
 <h2>Open Gaps</h2>
 <ul>${(selected.gaps.length ? selected.gaps : ["No open gaps recorded."]).map((g) => `<li>${g}</li>`).join("")}</ul>
 
-<div class="disclaimer">DisasterCompass complements official alerts, campus safety instructions, and emergency services; it does not replace 911. Actions and routes are rules-based and explainable.</div>
+<div class="disclaimer">Follow official emergency instructions and call 911 for life-threatening emergencies. DisasterCompass provides pre-mapped preparedness guidance using preloaded safety data.</div>
 </body></html>`;
     const w = window.open("", "_blank");
     if (!w) return;
@@ -384,9 +610,11 @@ export function SafetyLocationPanel() {
     setTimeout(() => w.print(), 250);
   }
 
+  const draftLoc = draftLocationId ? locations.find((l) => l.id === draftLocationId) ?? null : null;
+
   return (
     <section className="dc-card overflow-hidden">
-      {/* Header row: dropdown + actions */}
+      {/* Header row */}
       <div className="border-b border-border bg-card/95 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
@@ -399,22 +627,27 @@ export function SafetyLocationPanel() {
               </p>
               <p className="truncate text-sm font-semibold text-foreground">
                 {selected.name}
-                <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-[color:var(--severity-low)]/15 px-2 py-0.5 text-[10px] font-semibold text-[color:var(--severity-low)] ring-1 ring-[color:var(--severity-low)]/30">
-                  {selected.ready ? "Plan Ready" : "Needs Readiness Setup"}
+                <span
+                  className="ml-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1"
+                  style={{
+                    color: readinessColor(selected.ready ? selected.readinessScore : null),
+                    background: `color-mix(in srgb, ${readinessColor(selected.ready ? selected.readinessScore : null)} 14%, transparent)`,
+                  }}
+                >
+                  {selected.ready ? readinessLabel(selected.readinessScore) : "Needs Readiness Setup"}
                 </span>
               </p>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {/* Dropdown */}
             <div className="relative">
               <button
                 onClick={() => setDropdownOpen((v) => !v)}
                 className="inline-flex min-w-[260px] items-center justify-between gap-2 rounded-lg border border-border bg-background px-3 py-1.5 text-left text-xs font-medium text-foreground hover:bg-surface"
               >
                 <span className="truncate">
-                  {selected.name} · {selected.ready ? "Plan Ready" : "Needs Readiness Setup"}
+                  {selected.name} · {selected.ready ? readinessLabel(selected.readinessScore) : "Needs Readiness Setup"}
                 </span>
                 <ChevronDown className={`h-3.5 w-3.5 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
               </button>
@@ -435,8 +668,11 @@ export function SafetyLocationPanel() {
                             <MapPin className="mt-0.5 h-3.5 w-3.5 text-card-foreground/60" />
                             <span className="flex-1">
                               <span className="block font-semibold text-foreground">{l.name}</span>
-                              <span className={`block text-[11px] ${l.ready ? "text-[color:var(--severity-low)]" : "text-[color:var(--severity-moderate)]"}`}>
-                                {l.ready ? "Plan Ready" : "Needs Readiness Setup"}
+                              <span
+                                className="block text-[11px]"
+                                style={{ color: readinessColor(l.ready ? l.readinessScore : null) }}
+                              >
+                                {l.ready ? readinessLabel(l.readinessScore) : "Needs Readiness Setup"}
                               </span>
                             </span>
                             {active && <CheckCircle2 className="h-3.5 w-3.5 text-[color:var(--severity-low)]" />}
@@ -449,39 +685,26 @@ export function SafetyLocationPanel() {
               )}
             </div>
 
-            <button
-              onClick={startDeviceFlow}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-surface"
-            >
-              <LocateFixed className="h-3.5 w-3.5" />
-              Use My Location
+            <button onClick={startDeviceFlow} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-surface">
+              <LocateFixed className="h-3.5 w-3.5" /> Use My Location
             </button>
-            <button
-              onClick={startManualFlow}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-surface"
-            >
-              <Pencil className="h-3.5 w-3.5" />
-              Enter Manually
+            <button onClick={startManualFlow} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-surface">
+              <Pencil className="h-3.5 w-3.5" /> Enter Manually
             </button>
           </div>
         </div>
       </div>
 
-      {/* Body: selected location summary */}
+      {/* Body */}
       <div className="p-5">
         {selected.preloaded ? (
           <div className="mb-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--severity-low)]">
               Campus Community Safety Guide
             </p>
-            <h3 className="mt-1 text-xl font-bold tracking-tight">
-              Preparedness Mode · Plan Ready
-            </h3>
+            <h3 className="mt-1 text-xl font-bold tracking-tight">Preparedness Mode · Plan Ready</h3>
             <p className="mt-1 text-sm text-card-foreground/75">
-              This location already has preloaded preparedness data and pre-mapped safety routes.
-            </p>
-            <p className="mt-2 text-xs italic text-card-foreground/65">
-              Plan already prepared. Review routes, fix gaps, or print the guide.
+              This location has preloaded preparedness data and pre-mapped safety routes for all six hazards.
             </p>
           </div>
         ) : selected.ready ? (
@@ -497,12 +720,7 @@ export function SafetyLocationPanel() {
               Answer a few readiness questions so DisasterCompass can build your Compass Plan.
             </p>
             <button
-              onClick={() => {
-                setDraftLocationId(selected.id);
-                setSetupMode("manual");
-                setSetupStep("questions");
-                setAnswers(blankAnswers());
-              }}
+              onClick={() => startReadinessForExisting(selected.id)}
               className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:brightness-110"
             >
               Start readiness setup <ArrowRight className="h-3.5 w-3.5" />
@@ -513,32 +731,56 @@ export function SafetyLocationPanel() {
         {selected.ready && (
           <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
             <div className="space-y-4">
-              {/* Readiness score + gaps */}
+              {/* Score + hazard scores + gaps */}
               <div className="grid gap-3 sm:grid-cols-3">
                 <div className="rounded-xl border border-border bg-surface/40 p-4">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">
                     Readiness Score
                   </p>
-                  <p className="mt-1 text-3xl font-bold text-foreground">{selected.readinessScore}%</p>
+                  <p className="mt-1 text-3xl font-bold" style={{ color: readinessColor(selected.readinessScore) }}>
+                    {selected.readinessScore}%
+                  </p>
+                  <p className="text-[11px] font-semibold" style={{ color: readinessColor(selected.readinessScore) }}>
+                    {readinessLabel(selected.readinessScore)}
+                  </p>
                 </div>
                 <div className="rounded-xl border border-border bg-surface/40 p-4 sm:col-span-2">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">
-                    Readiness Gaps
+                    Hazard Readiness
                   </p>
-                  {selected.gaps.length === 0 ? (
-                    <p className="mt-1 text-sm text-card-foreground/70">No open gaps.</p>
-                  ) : (
-                    <ul className="mt-1 space-y-1">
-                      {selected.gaps.map((g) => (
-                        <li key={g} className="flex items-start gap-1.5 text-sm text-card-foreground/80">
-                          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[color:var(--severity-moderate)]" />
-                          {g}
+                  <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+                    {DISASTERS.map(({ id, label, Icon }) => {
+                      const s = selected.hazardScores[id];
+                      return (
+                        <li key={id} className="flex items-center justify-between gap-2">
+                          <span className="inline-flex items-center gap-1.5 text-card-foreground/80">
+                            <Icon className="h-3 w-3" /> {label}
+                          </span>
+                          <span className="font-semibold tabular-nums" style={{ color: readinessColor(s) }}>
+                            {s === null ? "Not Assessed" : `${s}%`}
+                          </span>
                         </li>
-                      ))}
-                    </ul>
-                  )}
+                      );
+                    })}
+                  </ul>
                 </div>
               </div>
+
+              {selected.gaps.length > 0 && (
+                <div className="rounded-xl border border-border bg-surface/40 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">
+                    Open Gaps
+                  </p>
+                  <ul className="mt-1 grid gap-1 sm:grid-cols-2">
+                    {selected.gaps.map((g) => (
+                      <li key={g} className="flex items-start gap-1.5 text-sm text-card-foreground/80">
+                        <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[color:var(--severity-moderate)]" />
+                        {g}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               {/* Disaster selector */}
               <div>
@@ -558,8 +800,7 @@ export function SafetyLocationPanel() {
                             : "border-border bg-background text-foreground hover:bg-surface"
                         }`}
                       >
-                        <Icon className="h-3.5 w-3.5" />
-                        {label}
+                        <Icon className="h-3.5 w-3.5" /> {label}
                       </button>
                     );
                   })}
@@ -586,15 +827,22 @@ export function SafetyLocationPanel() {
                 onClick={printGuide}
                 className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-foreground px-3 py-2 text-xs font-semibold text-white hover:brightness-110"
               >
-                <Printer className="h-3.5 w-3.5" />
-                Print Safety Guide
+                <Printer className="h-3.5 w-3.5" /> Print Safety Guide
               </button>
+              {!selected.preloaded && (
+                <button
+                  onClick={() => startReadinessForExisting(selected.id)}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-xs font-semibold hover:bg-surface"
+                >
+                  Re-run onboarding
+                </button>
+              )}
             </div>
           </div>
         )}
       </div>
 
-      {/* Setup modal */}
+      {/* Setup wizard modal */}
       {setupMode && (
         <SetupModal
           mode={setupMode}
@@ -603,15 +851,20 @@ export function SafetyLocationPanel() {
           draftType={draftType}
           draftArea={draftArea}
           answers={answers}
+          skipped={skipped}
+          wizardIndex={wizardIndex}
+          draftLocation={draftLoc}
           onChangeName={setDraftName}
           onChangeType={setDraftType}
           onChangeArea={setDraftArea}
           onChangeAnswers={setAnswers}
+          onChangeSkipped={setSkipped}
+          onChangeWizardIndex={setWizardIndex}
           onCancel={cancelSetup}
-          onNextFromName={createDraftAndStartQuestions}
-          onFinishQuestions={finishOnboarding}
+          onNextFromName={createDraftAndStartWizard}
+          onGoReview={goToReview}
+          onGeneratePlan={generatePlan}
           onClose={closeAfterResults}
-          resultLocation={draftLocationId ? locations.find((l) => l.id === draftLocationId) ?? null : null}
         />
       )}
     </section>
@@ -629,52 +882,84 @@ function Field({ label, value, accent }: { label: string; value: string; accent?
   );
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Wizard modal
+// ─────────────────────────────────────────────────────────────────────────────
+
 interface SetupModalProps {
   mode: "device" | "manual";
-  step: "name" | "questions" | "results";
+  step: SetupStep;
   draftName: string;
   draftType: string;
   draftArea: string;
-  answers: OnboardingAnswers;
+  answers: AllAnswers;
+  skipped: SkipMap;
+  wizardIndex: number;
+  draftLocation: SavedLocation | null;
   onChangeName: (s: string) => void;
   onChangeType: (s: string) => void;
   onChangeArea: (s: string) => void;
-  onChangeAnswers: (a: OnboardingAnswers) => void;
+  onChangeAnswers: (a: AllAnswers) => void;
+  onChangeSkipped: (s: SkipMap) => void;
+  onChangeWizardIndex: (i: number) => void;
   onCancel: () => void;
   onNextFromName: () => void;
-  onFinishQuestions: () => void;
+  onGoReview: () => void;
+  onGeneratePlan: () => void;
   onClose: () => void;
-  resultLocation: SavedLocation | null;
 }
 
 function SetupModal(p: SetupModalProps) {
+  const totalSteps = 9; // name(=created) + 7 sections + review + generated; we count user-visible
+  const stepLabel = (() => {
+    if (p.step === "name") return "Set up location";
+    if (p.step === "wizard") {
+      const section = SECTIONS[p.wizardIndex];
+      return `Step ${p.wizardIndex + 1} of ${totalSteps} · ${section.title}`;
+    }
+    if (p.step === "review") return `Step 8 of ${totalSteps} · Review Score`;
+    return `Step 9 of ${totalSteps} · Compass Plan`;
+  })();
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={p.onCancel}>
       <div
-        className="max-h-[88vh] w-full max-w-2xl overflow-auto rounded-2xl border border-border bg-card shadow-2xl"
+        className="max-h-[90vh] w-full max-w-2xl overflow-auto rounded-2xl border border-border bg-card shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border px-5 py-3">
-          <div>
+          <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-card-foreground/55">
-              {p.mode === "device" ? "Use My Location" : "Enter Manually"} · Readiness mode
+              {p.mode === "device" ? "Use My Location" : "Enter Manually"} · Readiness Onboarding
             </p>
-            <p className="text-sm font-semibold">
-              {p.step === "name" && "Name your safety location"}
-              {p.step === "questions" && "Readiness questionnaire"}
-              {p.step === "results" && "Your Compass Plan is ready"}
-            </p>
+            <p className="text-sm font-semibold">{stepLabel}</p>
           </div>
           <button onClick={p.onCancel} className="rounded-md p-1 text-card-foreground/60 hover:bg-surface">
             <X className="h-4 w-4" />
           </button>
         </div>
 
+        {/* Progress bar */}
+        {p.step !== "name" && <ProgressBar step={p.step} wizardIndex={p.wizardIndex} totalSteps={totalSteps} />}
+
         <div className="space-y-4 p-5">
           {p.step === "name" && <NameStep {...p} />}
-          {p.step === "questions" && <QuestionsStep {...p} />}
-          {p.step === "results" && <ResultsStep {...p} />}
+          {p.step === "wizard" && <WizardStep {...p} />}
+          {p.step === "review" && <ReviewStep {...p} />}
+          {p.step === "generated" && <GeneratedStep {...p} />}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ProgressBar({ step, wizardIndex, totalSteps }: { step: SetupStep; wizardIndex: number; totalSteps: number }) {
+  const current = step === "wizard" ? wizardIndex + 1 : step === "review" ? 8 : 9;
+  const pct = Math.round((current / totalSteps) * 100);
+  return (
+    <div className="px-5 pt-3">
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-card-foreground/10">
+        <div className="h-full rounded-full bg-[color:var(--severity-low)] transition-all" style={{ width: `${pct}%` }} />
       </div>
     </div>
   );
@@ -686,16 +971,12 @@ function NameStep(p: SetupModalProps) {
       {p.mode === "device" && (
         <div className="rounded-lg border border-border bg-surface/40 p-3 text-sm">
           <p className="font-semibold text-foreground">Detected location</p>
-          <p className="text-xs text-card-foreground/65">
-            {p.draftArea || "Detecting…"}
-          </p>
+          <p className="text-xs text-card-foreground/65">{p.draftArea || "Detecting…"}</p>
         </div>
       )}
 
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] font-semibold uppercase tracking-wide text-card-foreground/55">
-          Location name
-        </span>
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-card-foreground/55">Location name</span>
         <input
           value={p.draftName}
           onChange={(e) => p.onChangeName(e.target.value)}
@@ -704,11 +985,7 @@ function NameStep(p: SetupModalProps) {
         />
         <div className="mt-1 flex flex-wrap gap-1.5">
           {NAME_PRESETS.map((n) => (
-            <button
-              key={n}
-              onClick={() => p.onChangeName(n)}
-              className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] hover:bg-surface"
-            >
+            <button key={n} onClick={() => p.onChangeName(n)} className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] hover:bg-surface">
               {n}
             </button>
           ))}
@@ -717,9 +994,7 @@ function NameStep(p: SetupModalProps) {
 
       {p.mode === "manual" && (
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-card-foreground/55">
-            Address or area
-          </span>
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-card-foreground/55">Address or area</span>
           <input
             value={p.draftArea}
             onChange={(e) => p.onChangeArea(e.target.value)}
@@ -731,17 +1006,13 @@ function NameStep(p: SetupModalProps) {
       )}
 
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] font-semibold uppercase tracking-wide text-card-foreground/55">
-          Location type
-        </span>
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-card-foreground/55">Location type</span>
         <select
           value={p.draftType}
           onChange={(e) => p.onChangeType(e.target.value)}
           className="rounded-md border border-border bg-background px-2 py-1.5 text-sm"
         >
-          {LOCATION_TYPES.map((t) => (
-            <option key={t}>{t}</option>
-          ))}
+          {LOCATION_TYPES.map((t) => <option key={t}>{t}</option>)}
         </select>
       </label>
 
@@ -754,112 +1025,226 @@ function NameStep(p: SetupModalProps) {
           disabled={!p.draftName.trim()}
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-60"
         >
-          {p.mode === "device" ? "Create My Compass Plan" : "Continue"}
-          <ArrowRight className="h-3.5 w-3.5" />
+          Start readiness onboarding <ArrowRight className="h-3.5 w-3.5" />
         </button>
       </div>
     </>
   );
 }
 
-function QuestionsStep(p: SetupModalProps) {
-  const a = p.answers;
-  const set = (patch: Partial<OnboardingAnswers>) => p.onChangeAnswers({ ...a, ...patch });
+function WizardStep(p: SetupModalProps) {
+  const section = SECTIONS[p.wizardIndex];
+  const isSkipped = p.skipped[section.id];
+  const sectionAnswers = p.answers[section.id] ?? {};
+
+  function setAnswer(qKey: string, value: Answer) {
+    p.onChangeAnswers({
+      ...p.answers,
+      [section.id]: { ...sectionAnswers, [qKey]: value },
+    });
+    if (isSkipped) {
+      p.onChangeSkipped({ ...p.skipped, [section.id]: false });
+    }
+  }
+
+  function yesAll() {
+    const next: SectionAnswers = {};
+    for (const q of section.questions) next[q.key] = "yes";
+    p.onChangeAnswers({ ...p.answers, [section.id]: next });
+    p.onChangeSkipped({ ...p.skipped, [section.id]: false });
+  }
+  function noAll() {
+    const next: SectionAnswers = {};
+    for (const q of section.questions) next[q.key] = "no";
+    p.onChangeAnswers({ ...p.answers, [section.id]: next });
+    p.onChangeSkipped({ ...p.skipped, [section.id]: false });
+  }
+  function skipSection() {
+    const cleared: SectionAnswers = {};
+    for (const q of section.questions) cleared[q.key] = null;
+    p.onChangeAnswers({ ...p.answers, [section.id]: cleared });
+    p.onChangeSkipped({ ...p.skipped, [section.id]: true });
+    // Auto-advance
+    if (p.wizardIndex < SECTIONS.length - 1) p.onChangeWizardIndex(p.wizardIndex + 1);
+    else p.onGoReview();
+  }
+
+  const isLast = p.wizardIndex === SECTIONS.length - 1;
+  const canBack = p.wizardIndex > 0;
 
   return (
     <>
-      <Section title="Household / Site Profile">
-        <label className="flex items-center justify-between gap-2 text-sm">
-          <span>How many people are usually here?</span>
-          <select
-            value={a.people}
-            onChange={(e) => set({ people: e.target.value })}
-            className="rounded-md border border-border bg-background px-2 py-1 text-sm"
-          >
-            <option>1-3</option>
-            <option>4-6</option>
-            <option>7-15</option>
-            <option>15+</option>
-          </select>
-        </label>
-        <Toggle label="Elderly people present" value={a.elderly} onChange={(v) => set({ elderly: v })} />
-        <Toggle label="Toddlers or children" value={a.children} onChange={(v) => set({ children: v })} />
-        <Toggle label="Pets" value={a.pets} onChange={(v) => set({ pets: v })} />
-        <Toggle label="Medical needs" value={a.medical} onChange={(v) => set({ medical: v })} />
-        <Toggle label="Power-dependent medical equipment" value={a.powerMedical} onChange={(v) => set({ powerMedical: v })} />
-        <Toggle label="Accessibility needs" value={a.accessibility} onChange={(v) => set({ accessibility: v })} />
-        <Toggle label="Vehicle available" value={a.vehicle} onChange={(v) => set({ vehicle: v })} />
-        <Toggle label="Backup transportation arranged" value={a.backupTransport} onChange={(v) => set({ backupTransport: v })} />
-      </Section>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-base font-bold text-foreground">{section.title}</h3>
+        {isSkipped && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--severity-moderate)]/15 px-2 py-0.5 text-[11px] font-semibold text-[color:var(--severity-moderate)]">
+            <AlertTriangle className="h-3 w-3" /> Not assessed · review before printing final guide
+          </span>
+        )}
+      </div>
 
-      <Section title="Preparedness Basics">
-        <Toggle label="Go-bag ready" value={a.goBag} onChange={(v) => set({ goBag: v })} />
-        <Toggle label="Emergency contacts printed" value={a.contactsPrinted} onChange={(v) => set({ contactsPrinted: v })} />
-        <Toggle label="Backup power plan" value={a.backupPower} onChange={(v) => set({ backupPower: v })} />
-        <Toggle label="Family or group drill practiced" value={a.drillPracticed} onChange={(v) => set({ drillPracticed: v })} />
-        <Toggle label="Communication plan ready" value={a.commsPlan} onChange={(v) => set({ commsPlan: v })} />
-        <Toggle label="Shelter destination known" value={a.shelterKnown} onChange={(v) => set({ shelterKnown: v })} />
-      </Section>
+      <div className="flex flex-wrap gap-1.5">
+        <button onClick={yesAll} className="inline-flex items-center gap-1 rounded-full bg-[color:var(--severity-low)]/15 px-3 py-1 text-[11px] font-semibold text-[color:var(--severity-low)] hover:brightness-110">
+          <Check className="h-3 w-3" /> Yes to All
+        </button>
+        <button onClick={noAll} className="inline-flex items-center gap-1 rounded-full bg-[color:var(--severity-moderate)]/15 px-3 py-1 text-[11px] font-semibold text-[color:var(--severity-moderate)] hover:brightness-110">
+          <XCircle className="h-3 w-3" /> No to All
+        </button>
+        <button onClick={skipSection} className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-3 py-1 text-[11px] font-semibold text-card-foreground/75 hover:bg-surface">
+          <SkipForward className="h-3 w-3" /> Skip This Section
+        </button>
+      </div>
 
-      <Section title="Hazard-Specific Readiness">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">Flood</p>
-        <Toggle label="Know higher-ground route" value={a.floodHigherGround} onChange={(v) => set({ floodHigherGround: v })} />
-        <Toggle label="Avoid low roads and underpasses" value={a.floodAvoidLowRoads} onChange={(v) => set({ floodAvoidLowRoads: v })} />
-        <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">Extreme Heat</p>
-        <Toggle label="Cooling location known" value={a.heatCooling} onChange={(v) => set({ heatCooling: v })} />
-        <Toggle label="Backup power or charging available" value={a.heatBackupPower} onChange={(v) => set({ heatBackupPower: v })} />
-        <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">Hurricane</p>
-        <Toggle label="Shelter route known" value={a.hurricaneShelter} onChange={(v) => set({ hurricaneShelter: v })} />
-        <Toggle label="Pet or accessibility shelter needs handled" value={a.hurricanePetAccess} onChange={(v) => set({ hurricanePetAccess: v })} />
-        <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">Wildfire</p>
-        <Toggle label="Primary exit known" value={a.wildfirePrimaryExit} onChange={(v) => set({ wildfirePrimaryExit: v })} />
-        <Toggle label="Backup exit known" value={a.wildfireBackupExit} onChange={(v) => set({ wildfireBackupExit: v })} />
-        <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">Earthquake</p>
-        <Toggle label="Drop, Cover, Hold On practiced" value={a.earthquakeDropCover} onChange={(v) => set({ earthquakeDropCover: v })} />
-        <Toggle label="Outdoor assembly area known" value={a.earthquakeAssembly} onChange={(v) => set({ earthquakeAssembly: v })} />
-      </Section>
+      <ul className="space-y-2">
+        {section.questions.map((q) => {
+          const v = sectionAnswers[q.key];
+          return (
+            <li key={q.key} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-surface/30 px-3 py-2">
+              <span className="text-sm text-foreground">{q.q}</span>
+              <div className="flex gap-1.5">
+                <button
+                  onClick={() => setAnswer(q.key, "yes")}
+                  className={`rounded-md px-3 py-1 text-xs font-semibold transition-colors ${
+                    v === "yes"
+                      ? "bg-[color:var(--severity-low)] text-white"
+                      : "border border-border bg-background text-card-foreground/80 hover:bg-surface"
+                  }`}
+                >
+                  Yes
+                </button>
+                <button
+                  onClick={() => setAnswer(q.key, "no")}
+                  className={`rounded-md px-3 py-1 text-xs font-semibold transition-colors ${
+                    v === "no"
+                      ? "bg-[color:var(--severity-moderate)] text-white"
+                      : "border border-border bg-background text-card-foreground/80 hover:bg-surface"
+                  }`}
+                >
+                  No
+                </button>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
 
-      <div className="flex justify-end gap-2 pt-2">
-        <button onClick={p.onCancel} className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium hover:bg-surface">
-          Cancel
+      <div className="flex items-center justify-between gap-2 pt-2">
+        <button
+          onClick={() => canBack && p.onChangeWizardIndex(p.wizardIndex - 1)}
+          disabled={!canBack}
+          className="inline-flex items-center gap-1 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium hover:bg-surface disabled:opacity-50"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" /> Back
         </button>
         <button
-          onClick={p.onFinishQuestions}
+          onClick={() => (isLast ? p.onGoReview() : p.onChangeWizardIndex(p.wizardIndex + 1))}
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:brightness-110"
         >
-          Generate Route Plans <ArrowRight className="h-3.5 w-3.5" />
+          {isLast ? "Review Score" : "Next"} <ArrowRight className="h-3.5 w-3.5" />
         </button>
       </div>
     </>
   );
 }
 
-function ResultsStep(p: SetupModalProps) {
-  const loc = p.resultLocation;
-  if (!loc) return null;
+function ReviewStep(p: SetupModalProps) {
+  const { overall, hazardScores, gaps } = useMemo(
+    () => computeScores(p.answers, p.skipped),
+    [p.answers, p.skipped],
+  );
+  const skippedHazards = HAZARD_SECTION_IDS.filter((d) => p.skipped[d]);
+  const fixNow = topFixNow(gaps);
+
   return (
     <>
-      <div className="rounded-xl border border-[color:var(--severity-low)]/40 bg-[color:var(--severity-low)]/5 p-4">
-        <p className="text-sm font-semibold text-foreground">{loc.name} · Plan Ready</p>
-        <p className="mt-1 text-xs text-card-foreground/70">
-          Readiness score: <b>{loc.readinessScore}%</b>
-        </p>
+      <div className="rounded-xl border border-border bg-surface/30 p-4">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">Overall Readiness</p>
+        <div className="flex items-baseline gap-3">
+          <p className="text-3xl font-bold" style={{ color: readinessColor(overall) }}>{overall}%</p>
+          <p className="text-sm font-semibold" style={{ color: readinessColor(overall) }}>{readinessLabel(overall)}</p>
+        </div>
       </div>
 
       <div>
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">Open gaps</p>
-        {loc.gaps.length === 0 ? (
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">Hazard Readiness</p>
+        <ul className="mt-2 grid gap-1.5 sm:grid-cols-2">
+          {DISASTERS.map(({ id, label, Icon }) => {
+            const s = hazardScores[id];
+            return (
+              <li key={id} className="flex items-center justify-between rounded-md border border-border bg-surface/30 px-3 py-2 text-sm">
+                <span className="inline-flex items-center gap-1.5">
+                  <Icon className="h-3.5 w-3.5" /> {label}
+                </span>
+                <span className="font-semibold tabular-nums" style={{ color: readinessColor(s) }}>
+                  {s === null ? "Not Assessed" : `${s}%`}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
+      {skippedHazards.length > 0 && (
+        <div className="rounded-md border border-[color:var(--severity-moderate)]/40 bg-[color:var(--severity-moderate)]/5 p-3 text-xs text-[color:var(--severity-moderate)]">
+          <b>Not assessed:</b>{" "}
+          {skippedHazards.map((d) => DISASTERS.find((x) => x.id === d)?.label).join(", ")} · review before printing the final guide.
+        </div>
+      )}
+
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">Open Gaps ({gaps.length})</p>
+        {gaps.length === 0 ? (
           <p className="mt-1 text-sm text-card-foreground/70">No open gaps. Nicely done.</p>
         ) : (
           <ul className="mt-1 space-y-1 text-sm">
-            {loc.gaps.map((g) => (
+            {gaps.map((g) => (
               <li key={g} className="flex items-start gap-1.5">
-                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 text-[color:var(--severity-moderate)]" />
-                {g}
+                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 text-[color:var(--severity-moderate)]" />{g}
               </li>
             ))}
           </ul>
         )}
+      </div>
+
+      {fixNow.length > 0 && (
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">Top Fix-Now Actions</p>
+          <ol className="mt-1 list-decimal space-y-1 pl-5 text-sm">
+            {fixNow.map((g) => <li key={g}>{g}</li>)}
+          </ol>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between gap-2 pt-2">
+        <button
+          onClick={() => p.onChangeWizardIndex(SECTIONS.length - 1)}
+          className="inline-flex items-center gap-1 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium hover:bg-surface"
+          // Send the user back into the wizard at the last section so they can adjust
+          // via Back further; for now we expose a single "Back" to the wizard.
+        >
+          <ArrowLeft className="h-3.5 w-3.5" /> Back
+        </button>
+        <button
+          onClick={p.onGeneratePlan}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:brightness-110"
+        >
+          <Sparkles className="h-3.5 w-3.5" /> Generate Compass Plan
+        </button>
+      </div>
+    </>
+  );
+}
+
+function GeneratedStep(p: SetupModalProps) {
+  const loc = p.draftLocation;
+  if (!loc) return null;
+  return (
+    <>
+      <div className="rounded-xl border border-[color:var(--severity-low)]/40 bg-[color:var(--severity-low)]/5 p-4">
+        <p className="text-sm font-semibold text-foreground">{loc.name} · {readinessLabel(loc.readinessScore)}</p>
+        <p className="mt-1 text-xs text-card-foreground/70">
+          Readiness score: <b>{loc.readinessScore}%</b>
+        </p>
       </div>
 
       <div>
@@ -873,6 +1258,19 @@ function ResultsStep(p: SetupModalProps) {
         </ul>
       </div>
 
+      {loc.gaps.length > 0 && (
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/55">Open gaps</p>
+          <ul className="mt-1 space-y-1 text-sm">
+            {loc.gaps.map((g) => (
+              <li key={g} className="flex items-start gap-1.5">
+                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 text-[color:var(--severity-moderate)]" />{g}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className="flex justify-end pt-2">
         <button
           onClick={p.onClose}
@@ -882,31 +1280,5 @@ function ResultsStep(p: SetupModalProps) {
         </button>
       </div>
     </>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-xl border border-border bg-surface/30 p-3">
-      <p className="text-sm font-bold text-foreground">{title}</p>
-      <div className="mt-2 space-y-1.5">{children}</div>
-    </div>
-  );
-}
-
-function Toggle({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <label className="flex cursor-pointer items-center justify-between gap-3 rounded-md px-1 py-1 text-sm hover:bg-surface/50">
-      <span>{label}</span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={value}
-        onClick={() => onChange(!value)}
-        className={`relative h-5 w-9 rounded-full transition-colors ${value ? "bg-[color:var(--severity-low)]" : "bg-card-foreground/20"}`}
-      >
-        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all ${value ? "left-[18px]" : "left-0.5"}`} />
-      </button>
-    </label>
   );
 }
