@@ -401,17 +401,8 @@ export function RespondQuickAction() {
             {hasRealLocation ? "Calculating safe route…" : "Waiting for your location to compute a safe route."}
           </p>
         )}
-              <p className="text-xs text-amber-700">
-                Showing last known route from {formatTime(cachedRoute.savedAt)}. Reconnect for live updates.
-              </p>
-            )}
-          </div>
-        ) : (
-          <p className="text-sm text-foreground/60">
-            {hasRealLocation ? "Calculating safe route…" : "Waiting for your location to compute a safe route."}
-          </p>
-        )}
       </section>
+
 
 
 
