@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SolutionRouteImport } from './routes/solution'
+import { Route as PresentationRouteImport } from './routes/presentation'
 import { Route as SheltersRoutesRouteImport } from './routes/shelters-routes'
 import { Route as ReportRouteImport } from './routes/report'
 import { Route as MethodologyRouteImport } from './routes/methodology'
@@ -22,6 +23,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const SolutionRoute = SolutionRouteImport.update({
   id: '/solution',
   path: '/solution',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PresentationRoute = PresentationRouteImport.update({
+  id: '/presentation',
+  path: '/presentation',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SheltersRoutesRoute = SheltersRoutesRouteImport.update({
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/compass': typeof CompassRoute
   '/map': typeof MapRoute
   '/methodology': typeof MethodologyRoute
+  '/presentation': typeof PresentationRoute
   '/report': typeof ReportRoute
   '/shelters-routes': typeof SheltersRoutesRoute
   '/solution': typeof SolutionRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/compass': typeof CompassRoute
   '/map': typeof MapRoute
   '/methodology': typeof MethodologyRoute
+  '/presentation': typeof PresentationRoute
   '/report': typeof ReportRoute
   '/shelters-routes': typeof SheltersRoutesRoute
   '/solution': typeof SolutionRoute
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/compass': typeof CompassRoute
   '/map': typeof MapRoute
   '/methodology': typeof MethodologyRoute
+  '/presentation': typeof PresentationRoute
   '/report': typeof ReportRoute
   '/shelters-routes': typeof SheltersRoutesRoute
   '/solution': typeof SolutionRoute
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
     | '/compass'
     | '/map'
     | '/methodology'
+    | '/presentation'
     | '/report'
     | '/shelters-routes'
     | '/solution'
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/compass'
     | '/map'
     | '/methodology'
+    | '/presentation'
     | '/report'
     | '/shelters-routes'
     | '/solution'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/compass'
     | '/map'
     | '/methodology'
+    | '/presentation'
     | '/report'
     | '/shelters-routes'
     | '/solution'
@@ -142,6 +154,7 @@ export interface RootRouteChildren {
   CompassRoute: typeof CompassRoute
   MapRoute: typeof MapRoute
   MethodologyRoute: typeof MethodologyRoute
+  PresentationRoute: typeof PresentationRoute
   ReportRoute: typeof ReportRoute
   SheltersRoutesRoute: typeof SheltersRoutesRoute
   SolutionRoute: typeof SolutionRoute
@@ -154,6 +167,13 @@ declare module '@tanstack/react-router' {
       path: '/solution'
       fullPath: '/solution'
       preLoaderRoute: typeof SolutionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/presentation': {
+      id: '/presentation'
+      path: '/presentation'
+      fullPath: '/presentation'
+      preLoaderRoute: typeof PresentationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shelters-routes': {
@@ -222,6 +242,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompassRoute: CompassRoute,
   MapRoute: MapRoute,
   MethodologyRoute: MethodologyRoute,
+  PresentationRoute: PresentationRoute,
   ReportRoute: ReportRoute,
   SheltersRoutesRoute: SheltersRoutesRoute,
   SolutionRoute: SolutionRoute,

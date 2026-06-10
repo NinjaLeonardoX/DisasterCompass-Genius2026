@@ -11,22 +11,11 @@ import {
   Sparkles,
   Activity,
   CheckCircle2,
-  ChevronDown,
   Menu,
   X,
   Presentation,
 } from "lucide-react";
 import dcLogo from "@/assets/disaster-compass-logo.png.asset.json";
-
-// Methodology sub-sections deep-link into the phase anchors on /methodology.
-const methodologyLinks = [
-  { label: "Prepare", hash: "prepare" },
-  { label: "Respond", hash: "respond" },
-  { label: "Recover", hash: "recover" },
-] as const;
-
-// TODO: replace with the uploaded presentation link once available.
-const PRESENTATION_URL = "#";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -43,7 +32,6 @@ export const Route = createFileRoute("/")({
 });
 
 function LandingPage() {
-  const [methodOpen, setMethodOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -76,57 +64,19 @@ function LandingPage() {
 
             {/* Desktop nav */}
             <nav className="hidden items-center gap-7 text-sm font-medium text-slate-600 md:flex">
-              <a href="#features" className="hover:text-slate-900">
-                Features
-              </a>
-
-              {/* Methodology dropdown */}
-              <div
-                className="relative"
-                onMouseEnter={() => setMethodOpen(true)}
-                onMouseLeave={() => setMethodOpen(false)}
-              >
-                <button
-                  type="button"
-                  onClick={() => setMethodOpen((v) => !v)}
-                  aria-expanded={methodOpen}
-                  aria-haspopup="true"
-                  className="inline-flex items-center gap-1 hover:text-slate-900"
-                >
-                  Methodology
-                  <ChevronDown className={`h-4 w-4 transition ${methodOpen ? "rotate-180" : ""}`} />
-                </button>
-                {methodOpen && (
-                  <div className="absolute left-1/2 top-full z-50 w-44 -translate-x-1/2 pt-3">
-                    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-xl shadow-black/10">
-                      {methodologyLinks.map((m) => (
-                        <Link
-                          key={m.hash}
-                          to="/methodology"
-                          hash={m.hash}
-                          onClick={() => setMethodOpen(false)}
-                          className="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                        >
-                          {m.label}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <Link to="/solution" className="hover:text-slate-900">
-                Solution
+              <Link to="/methodology" className="hover:text-slate-900">
+                Methodology
               </Link>
-              <a
-                href={PRESENTATION_URL}
-                target="_blank"
-                rel="noreferrer"
+              <Link to="/solution" className="hover:text-slate-900">
+                Our Solution
+              </Link>
+              <Link
+                to="/presentation"
                 className="inline-flex items-center gap-1.5 hover:text-slate-900"
               >
                 <Presentation className="h-4 w-4" />
                 Presentation
-              </a>
+              </Link>
             </nav>
 
             <div className="flex items-center gap-3">
@@ -154,44 +104,28 @@ function LandingPage() {
           {/* Mobile menu */}
           {mobileOpen && (
             <div className="border-t border-slate-200 bg-white px-6 py-4 text-slate-700 md:hidden">
-              <a
-                href="#features"
+              <Link
+                to="/methodology"
                 onClick={() => setMobileOpen(false)}
                 className="block py-2 text-sm font-medium hover:text-slate-900"
               >
-                Features
-              </a>
-              <p className="pt-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Methodology
-              </p>
-              {methodologyLinks.map((m) => (
-                <Link
-                  key={m.hash}
-                  to="/methodology"
-                  hash={m.hash}
-                  onClick={() => setMobileOpen(false)}
-                  className="block py-2 pl-3 text-sm hover:text-slate-900"
-                >
-                  {m.label}
-                </Link>
-              ))}
+              </Link>
               <Link
                 to="/solution"
                 onClick={() => setMobileOpen(false)}
                 className="block py-2 text-sm font-medium hover:text-slate-900"
               >
-                Solution
+                Our Solution
               </Link>
-              <a
-                href={PRESENTATION_URL}
-                target="_blank"
-                rel="noreferrer"
+              <Link
+                to="/presentation"
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-2 py-2 text-sm font-medium hover:text-slate-900"
               >
                 <Presentation className="h-4 w-4" />
                 Presentation
-              </a>
+              </Link>
               <Link
                 to="/compass"
                 onClick={() => setMobileOpen(false)}
