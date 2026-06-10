@@ -209,7 +209,7 @@ export const SCOPE_META: ScopeMeta[] = [
   {
     id: "household",
     label: "Household",
-    place: "Rivera family",
+    place: "your household",
     blurb: "your household profile and the gaps to close before the warning.",
     context: false,
   },
