@@ -626,6 +626,7 @@ export function SafetyLocationPanel() {
     setDraftName("Home");
     setDraftType("Home");
     setDraftArea("");
+    setDraftGeo(null);
     setSetupStep("name");
   }
   function cancelSetup() {
@@ -635,6 +636,9 @@ export function SafetyLocationPanel() {
     setSkipped(blankSkipped());
     setWizardIndex(0);
     setDraftLocationId(null);
+    setDraftGeo(null);
+    setGenProgress(0);
+    setGenStatus("");
   }
 
   function createDraftAndStartWizard() {
