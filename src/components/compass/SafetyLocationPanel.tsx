@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "../LocationContext";
+import { forwardGeocode, type GeocodeResult } from "@/lib/geocoding";
 import {
   MapPin,
   LocateFixed,
@@ -75,6 +76,8 @@ interface SavedLocation {
   type: string;
   area: string;
   ready: boolean;
+  /** Geocoded coordinates so picking this location drives the rest of the app. */
+  geo?: GeocodeResult;
   preloaded?: boolean;
   answers: AllAnswers;
   skipped: SkipMap;
@@ -295,6 +298,17 @@ const SJFU: SavedLocation = {
   type: "Campus",
   area: "3690 East Ave, Pittsford, NY",
   ready: true,
+  geo: {
+    lat: 43.0913,
+    lng: -77.524,
+    displayName: "St. John Fisher University, 3690 East Ave, Pittsford, NY",
+    city: "Pittsford",
+    county: "Monroe County",
+    state: "New York",
+    stateCode: "NY",
+    country: "United States",
+    countryCode: "us",
+  },
   preloaded: true,
   answers: allYesAnswers(),
   skipped: blankSkipped(),
@@ -445,7 +459,7 @@ type SetupMode = null | "device" | "manual";
 type SetupStep = "name" | "wizard" | "review" | "generated";
 
 export function SafetyLocationPanel() {
-  const { confirmLocation } = useLocation();
+  const { confirmLocation, setManualLocation } = useLocation();
   const [locations, setLocations] = useState<SavedLocation[]>([MY_ADDRESS, SJFU]);
   const [selectedId, setSelectedId] = useState<string>(MY_ADDRESS.id);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -469,10 +483,13 @@ export function SafetyLocationPanel() {
     [selected, selectedDisaster],
   );
 
-  // Confirm location whenever the active selection is ready (preloaded or user-generated).
+  // Confirm + broadcast the active selection whenever it's ready (preloaded or
+  // user-generated) so the rollup, snapshots, and risk map all follow this pick.
   useEffect(() => {
-    if (selected.ready) confirmLocation();
-  }, [selected.ready, selected.id, confirmLocation]);
+    if (!selected.ready) return;
+    confirmLocation();
+    setManualLocation(selected.geo ? { name: selected.name, resolved: selected.geo } : null);
+  }, [selected.ready, selected.id, selected.geo, selected.name, confirmLocation, setManualLocation]);
 
   function startDeviceFlow() {
     setSetupMode("device");
@@ -542,11 +559,12 @@ export function SafetyLocationPanel() {
 
   function generatePlan() {
     if (!draftLocationId) return;
+    const locId = draftLocationId;
     const { overall, hazardScores, gaps } = computeScores(answers, skipped);
     const routes = genericRoutes(draftName, draftArea);
     setLocations((ls) =>
       ls.map((l) =>
-        l.id === draftLocationId
+        l.id === locId
           ? {
               ...l,
               ready: true,
@@ -561,6 +579,21 @@ export function SafetyLocationPanel() {
       ),
     );
     setSetupStep("generated");
+
+    // Resolve the typed address to coordinates so the rest of the app (rollup,
+    // snapshots, risk map) follows this location. The confirm effect picks up
+    // `geo` once it lands; if geocoding fails we still confirm via `ready`.
+    const area = draftArea.trim();
+    if (area) {
+      forwardGeocode(area)
+        .then((geo) => {
+          if (!geo) return;
+          setLocations((ls) => ls.map((l) => (l.id === locId ? { ...l, geo } : l)));
+        })
+        .catch(() => {
+          /* offline / geocode failure — keep the readiness plan without geo */
+        });
+    }
   }
 
   function closeAfterResults() {

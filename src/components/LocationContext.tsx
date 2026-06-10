@@ -20,6 +20,12 @@ import { reverseGeocode, type GeocodeResult } from "@/lib/geocoding";
 
 export type LocationSource = "device" | "saved" | "seed";
 
+/** A location pushed in directly by the Safety Location panel (preset or geocoded address). */
+export interface ManualLocation {
+  name: string;
+  resolved: GeocodeResult;
+}
+
 interface LocationContextValue {
   household: Household;
   source: LocationSource;
@@ -39,6 +45,8 @@ interface LocationContextValue {
   requestLocation: () => void;
   useSeed: () => void;
   selectAddress: (id: string | null) => void;
+  /** Push a location chosen in the Safety Location panel so the whole app follows it. */
+  setManualLocation: (loc: ManualLocation | null) => void;
   /** Force a refresh of the saved-addresses list cache. */
   refreshAddresses: () => void;
 }
@@ -74,9 +82,11 @@ export function LocationProvider({ children }: { children: ReactNode }) {
   const [deviceResolved, setDeviceResolved] = useState<GeocodeResult | null>(null);
   const [addrsTick, setAddrsTick] = useState(0);
   const [locationConfirmed, setLocationConfirmed] = useState(false);
+  const [manualLocation, setManualLocationState] = useState<ManualLocation | null>(null);
 
   const confirmLocation = useCallback(() => setLocationConfirmed(true), []);
   const resetLocation = useCallback(() => setLocationConfirmed(false), []);
+  const setManualLocation = useCallback((loc: ManualLocation | null) => setManualLocationState(loc), []);
 
   // Hydrate active saved address on mount and whenever the saved-list changes.
   useEffect(() => {
@@ -125,26 +135,61 @@ export function LocationProvider({ children }: { children: ReactNode }) {
     setAddrsTick((n) => n + 1);
   }, []);
 
+  const useSeed = useCallback(() => {
+    clear();
+    selectAddress(null);
+    setManualLocationState(null);
+  }, [clear, selectAddress]);
+
   const value = useMemo<LocationContextValue>(() => {
-    const base = { locationConfirmed, confirmLocation, resetLocation };
-    // Priority: saved address > device geolocation > seed fallback.
+    const base = {
+      locationConfirmed,
+      confirmLocation,
+      resetLocation,
+      setManualLocation,
+      requestLocation: request,
+      useSeed,
+      selectAddress,
+      refreshAddresses,
+      status,
+    };
+    // Priority: manual panel pick > saved address > device geolocation > seed.
+    if (manualLocation) {
+      const r = manualLocation.resolved;
+      const synthetic: SavedAddress = {
+        id: "manual",
+        name: manualLocation.name,
+        address: r.displayName ?? manualLocation.name,
+        lat: r.lat,
+        lng: r.lng,
+        displayName: r.displayName ?? undefined,
+        city: r.city,
+        county: r.county,
+        state: r.state,
+        stateCode: r.stateCode,
+        country: r.country,
+        countryCode: r.countryCode,
+        savedAt: "",
+      };
+      return {
+        ...base,
+        household: householdFromSaved(synthetic),
+        source: "saved",
+        error: null,
+        accuracyMeters: null,
+        activeAddress: synthetic,
+        resolved: r,
+      };
+    }
     if (activeAddress) {
       return {
         ...base,
         household: householdFromSaved(activeAddress),
         source: "saved",
-        status,
         error: null,
         accuracyMeters: null,
         activeAddress,
         resolved: resolvedFromSaved(activeAddress),
-        requestLocation: request,
-        useSeed: () => {
-          clear();
-          selectAddress(null);
-        },
-        selectAddress,
-        refreshAddresses,
       };
     }
     if (coords) {
@@ -162,38 +207,22 @@ export function LocationProvider({ children }: { children: ReactNode }) {
         ...base,
         household,
         source: "device",
-        status,
         error,
         accuracyMeters: coords.accuracyMeters,
         activeAddress: null,
         resolved: deviceResolved,
-        requestLocation: request,
-        useSeed: () => {
-          clear();
-          selectAddress(null);
-        },
-        selectAddress,
-        refreshAddresses,
       };
     }
     return {
       ...base,
       household: RIVERA_HOUSEHOLD,
       source: "seed",
-      status,
       error,
       accuracyMeters: null,
       activeAddress: null,
       resolved: null,
-      requestLocation: request,
-      useSeed: () => {
-        clear();
-        selectAddress(null);
-      },
-      selectAddress,
-      refreshAddresses,
     };
-  }, [activeAddress, coords, deviceResolved, status, error, request, clear, selectAddress, refreshAddresses, locationConfirmed, confirmLocation, resetLocation]);
+  }, [manualLocation, activeAddress, coords, deviceResolved, status, error, request, useSeed, selectAddress, refreshAddresses, locationConfirmed, confirmLocation, resetLocation, setManualLocation]);
 
   return <LocationContext.Provider value={value}>{children}</LocationContext.Provider>;
 }
@@ -215,6 +244,7 @@ export function useLocation(): LocationContextValue {
       requestLocation: () => {},
       useSeed: () => {},
       selectAddress: () => {},
+      setManualLocation: () => {},
       refreshAddresses: () => {},
     };
   }
