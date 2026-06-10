@@ -11,7 +11,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { HouseholdCard } from "../compass/HouseholdCard";
-import { SafetyLocationPanel } from "../compass/SafetyLocationPanel";
+
 import { VolunteerMatchCard } from "../compass/VolunteerMatchCard";
 import { usePhase } from "../PhaseContext";
 import {
@@ -93,8 +93,6 @@ export function PreparePhase() {
         </p>
       </div>
 
-      {/* Safety location + printout — kept next to the risk map so the flow stays in one place */}
-      <SafetyLocationPanel />
 
       {/* 1 · RISK MAP (lead element) — only after a real location is set */}
       {hasLocation ? (

@@ -5,6 +5,7 @@ import { PreparePhase } from "../components/phases/PreparePhase";
 import { RespondPhase } from "../components/phases/RespondPhase";
 import { RecoverPhase } from "../components/phases/RecoverPhase";
 import { usePhase } from "../components/PhaseContext";
+import { useLocation } from "../components/LocationContext";
 
 export const Route = createFileRoute("/compass")({
   head: () => ({
@@ -22,33 +23,53 @@ export const Route = createFileRoute("/compass")({
 
 function CompassPage() {
   const { activePhase } = usePhase();
+  const { source } = useLocation();
+  const hasLocation = source !== "seed";
+
   return (
     <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 sm:py-10">
       <div className="space-y-10">
-        {activePhase !== "prepare" && <SafetyLocationPanel />}
+        {/* Safety Location always sits at the very top */}
+        <SafetyLocationPanel />
 
-        <LifecycleDashboard />
+        {hasLocation ? (
+          <>
+            <LifecycleDashboard />
 
+            <div className="border-t border-border/60 pt-8">
+              {activePhase === "prepare" && <PreparePhase />}
+              {activePhase === "respond" && <RespondPhase />}
+              {activePhase === "recover" && <RecoverPhase />}
+            </div>
 
-        <div className="border-t border-border/60 pt-8">
-          {activePhase === "prepare" && <PreparePhase />}
-          {activePhase === "respond" && <RespondPhase />}
-          {activePhase === "recover" && <RecoverPhase />}
-        </div>
-
-        <footer className="rounded-2xl border border-border/60 bg-white p-5 text-center text-sm text-card-foreground/75 shadow-sm">
-          <p className="font-semibold text-card-foreground">Data → Rules → Action</p>
-          <p className="mt-1 text-xs">
-            <span className="font-medium">Data:</span> household needs, hazards, shelters, routes, volunteers
-            &nbsp;·&nbsp;
-            <span className="font-medium">Rules:</span> GO / STAY / WAIT, route scoring, volunteer matching, recovery priority
-            &nbsp;·&nbsp;
-            <span className="font-medium">Action:</span> safe route, volunteer help, recovery packet
-          </p>
-          <p className="mt-2 text-[11px] italic text-card-foreground/55">
-            AI explains. Rules decide. Humans approve.
-          </p>
-        </footer>
+            <footer className="rounded-2xl border border-border/60 bg-white p-5 text-center text-sm text-card-foreground/75 shadow-sm">
+              <p className="font-semibold text-card-foreground">Data → Rules → Action</p>
+              <p className="mt-1 text-xs">
+                <span className="font-medium">Data:</span> household needs, hazards, shelters, routes, volunteers
+                &nbsp;·&nbsp;
+                <span className="font-medium">Rules:</span> GO / STAY / WAIT, route scoring, volunteer matching, recovery priority
+                &nbsp;·&nbsp;
+                <span className="font-medium">Action:</span> safe route, volunteer help, recovery packet
+              </p>
+              <p className="mt-2 text-[11px] italic text-card-foreground/55">
+                AI explains. Rules decide. Humans approve.
+              </p>
+            </footer>
+          </>
+        ) : (
+          <section className="rounded-2xl border border-dashed border-border bg-white p-8 text-center shadow-sm">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[color:var(--severity-low)]">
+              Location required
+            </p>
+            <h2 className="mt-2 text-2xl font-bold tracking-tight">
+              Set your location to activate DisasterCompass
+            </h2>
+            <p className="mx-auto mt-2 max-w-xl text-sm text-card-foreground/70">
+              Prepare, Respond, and Recover all depend on where you are. Use the panel above to share
+              your location or enter an address — the rest of the system will appear once it's set.
+            </p>
+          </section>
+        )}
       </div>
     </main>
   );
