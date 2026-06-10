@@ -33,6 +33,9 @@ type Column = { icon: typeof Compass; label: string; detail: string };
 type Slide = {
   eyebrow: string;
   title: string;
+  cover?: boolean;
+  kicker?: string;
+  tagline?: string;
   lead?: string;
   stats?: { value: string; label: string }[];
   note?: string;
@@ -47,6 +50,14 @@ type Slide = {
 };
 
 const slides: Slide[] = [
+  // 0 — Cover
+  {
+    cover: true,
+    eyebrow: "",
+    kicker: "Prepare · Respond · Recover",
+    title: "Calm decisions in the first 60 minutes.",
+    tagline: "A Community Disaster Action Planner — go, stay, or wait, with the safest route.",
+  },
   // 1 — Context
   {
     eyebrow: "Context — Why action planning matters",
@@ -130,6 +141,41 @@ const decisionStyles: Record<string, string> = {
 
 /** A single templated slide — branded header, content, and footer. */
 function SlideView({ slide, index, total }: { slide: Slide; index: number; total: number }) {
+  if (slide.cover) {
+    return (
+      <div className="slide relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#0f1a2e] px-8 text-center text-white">
+        {/* Ambient background */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute -top-24 left-1/2 h-[460px] w-[460px] -translate-x-1/2 rounded-full bg-[#16A34A] opacity-15 blur-3xl" />
+          <div className="absolute -bottom-32 -right-24 h-[380px] w-[380px] rounded-full bg-[#2a3b55] opacity-50 blur-3xl" />
+        </div>
+
+        <div className="relative flex flex-col items-center">
+          {slide.kicker && (
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-[#5EE6A1] backdrop-blur">
+              {slide.kicker}
+            </span>
+          )}
+
+          <div className="mt-8 rounded-2xl bg-white px-7 py-5 shadow-2xl shadow-black/40">
+            <img src={dcLogo.url} alt="DisasterCompass" className="h-16 w-auto" />
+          </div>
+
+          <h2 className="mt-9 max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+            {slide.title}
+          </h2>
+          {slide.tagline && (
+            <p className="mt-5 max-w-xl text-base text-white/70 sm:text-lg">{slide.tagline}</p>
+          )}
+        </div>
+
+        <div className="absolute inset-x-0 bottom-6 text-[11px] font-medium uppercase tracking-[0.2em] text-white/40">
+          DisasterCompass · 2026
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="slide relative flex h-full w-full flex-col overflow-hidden bg-[#0f1a2e] text-white">
       {/* Ambient background */}
