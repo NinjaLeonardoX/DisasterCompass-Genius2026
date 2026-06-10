@@ -31,7 +31,7 @@ export function CoordinatorPanel({ volunteerApproved }: Props) {
 
   const households: { name: string; status: string; tone: PillTone }[] = [
     {
-      name: "Rivera",
+      name: "Your household",
       status: volunteerApproved ? "En Route" : "Needs Transport",
       tone: volunteerApproved ? "low" : "moderate",
     },
