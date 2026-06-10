@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { ReadinessScope } from "@/data/prepare";
 
 export type Phase = "prepare" | "respond" | "recover";
@@ -17,10 +17,43 @@ interface PhaseContextValue {
 
 const PhaseContext = createContext<PhaseContextValue | null>(null);
 
-export function PhaseProvider({ children }: { children: ReactNode }) {
-  const [activePhase, setActivePhase] = useState<Phase>("respond");
-  const [scope, setScope] = useState<ReadinessScope>("household");
+const SCOPE_KEY = "dc.scope";
+const SCOPES: ReadinessScope[] = ["household", "community", "town", "state", "national"];
 
+function isScope(v: unknown): v is ReadinessScope {
+  return typeof v === "string" && (SCOPES as string[]).includes(v);
+}
+
+export function PhaseProvider({ children }: { children: ReactNode }) {
+  // Default to Prepare — the dashboard landing phase.
+  const [activePhase, setActivePhaseState] = useState<Phase>("prepare");
+  const [scope, setScopeState] = useState<ReadinessScope>("household");
+
+  // Restore the lens (but not phase) from sessionStorage after mount.
+  useEffect(() => {
+    try {
+      const s = sessionStorage.getItem(SCOPE_KEY);
+      if (isScope(s)) setScopeState(s);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const setActivePhase = (p: Phase) => {
+    setActivePhaseState(p);
+  };
+
+  const setScope = (s: ReadinessScope) => {
+    setScopeState(s);
+    try {
+      sessionStorage.setItem(SCOPE_KEY, s);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  // The binary mode is derived from the rollup scope: household = resident,
+  // every wider level = community (used by the Respond/Recover coordinator views).
   const mode: Mode = scope === "household" ? "resident" : "community";
   const setMode = (m: Mode) => setScope(m === "resident" ? "household" : "community");
 
