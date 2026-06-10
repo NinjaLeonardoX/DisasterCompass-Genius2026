@@ -175,7 +175,6 @@ export function RespondQuickAction() {
         selectedRouteId={selectedRouteId}
         onSelectRoute={setSelectedRouteId}
         locationAware={hasRealLocation}
-        showDemoLayers={false}
         destinations={
           destinations.length > 0
             ? destinations.map((d) => ({ id: d.id, name: d.name, lat: d.lat, lng: d.lng }))
