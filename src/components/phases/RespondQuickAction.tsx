@@ -1,11 +1,35 @@
-import { useEffect, useState } from "react";
-import { AlertTriangle, ShieldCheck, Siren, MapPin, Loader2, Check } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { AlertTriangle, ShieldCheck, Siren, MapPin, Loader2, Check, Navigation, WifiOff } from "lucide-react";
 import { MapPanel } from "../compass/MapPanel";
 import { WeatherCard } from "../WeatherCard";
 import { useLocation } from "../LocationContext";
 import { useEvacuationRoutes } from "@/lib/queries/evacuation";
 import { fetchAlertsByPoint } from "@/lib/nwsAlerts";
 import { readSOSRecipient, formatSOSMessage } from "@/routes/iq";
+import type { RouteOption } from "@/types";
+
+const ROUTE_CACHE_KEY = "dc.respond.lastRoute.v1";
+const LOC_CACHE_KEY = "dc.respond.lastLocation.v1";
+
+interface CachedRoute {
+  route: RouteOption;
+  destinationName?: string;
+  savedAt: number;
+}
+interface CachedLoc {
+  lat: number;
+  lng: number;
+  accuracyMeters: number | null;
+  savedAt: number;
+}
+
+function formatTime(ts: number) {
+  try {
+    return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  } catch {
+    return "—";
+  }
+}
 
 
 
