@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { CheckCircle2, ArrowRight, PackageCheck, Users } from "lucide-react";
+import { CheckCircle2, ArrowRight, PackageCheck, Users, MapPin } from "lucide-react";
 import { getRecoveryChecklist } from "@/lib/recovery";
 import { WhyThisPopover } from "../WhyThisPopover";
 import { usePhase } from "../PhaseContext";
+import { RollupPanel } from "../RollupPanel";
+import { useLocation } from "../LocationContext";
 
 const STEPS = [
   {
@@ -34,8 +36,15 @@ const NETWORK = [
 export function RecoverPhase() {
   const [idx, setIdx] = useState(0);
   const { mode } = usePhase();
+  const { household, activeAddress, resolved, source } = useLocation();
   const step = STEPS[Math.min(idx, STEPS.length - 1)];
   const done = idx >= STEPS.length;
+
+  const householdLabel =
+    activeAddress?.name ?? (source === "device" ? "Your household" : "Rivera Family");
+  const scopeLabel = resolved?.city
+    ? `${resolved.city}${resolved.state ? `, ${resolved.state}` : ""}`
+    : household.locationName;
 
   return (
     <div className="space-y-6">
@@ -48,6 +57,23 @@ export function RecoverPhase() {
           Start the recovery packet before details get lost.
         </p>
       </div>
+
+      <div className="dc-card flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 text-xs">
+        <span className="inline-flex items-center gap-1.5 font-medium text-card-foreground/75">
+          <MapPin className="h-3.5 w-3.5 text-[color:var(--severity-low)]" />
+          Recovery scope: <span className="font-semibold text-foreground">{scopeLabel}</span>
+        </span>
+        <span className="text-card-foreground/55">
+          {source === "saved"
+            ? `Saved household · ${householdLabel}`
+            : source === "device"
+              ? "Following your device location"
+              : "Demo scope — set your address to personalize"}
+        </span>
+      </div>
+
+      <RollupPanel />
+
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Current action queue */}
