@@ -179,6 +179,23 @@
   }
 }
 
+/* Live Respond map: a blinking "LIVE" dot so the Compass Action Plan map reads
+   as a real-time feed and never looks frozen/stuck. */
+@utility dc-live-dot {
+  animation: dc-live-dot 1.3s ease-in-out infinite;
+}
+@keyframes dc-live-dot {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.5);
+  }
+  50% {
+    opacity: 0.4;
+    box-shadow: 0 0 0 5px rgba(22, 163, 74, 0);
+  }
+}
+
 /* Calm risk map: desaturate the base tiles so Prepare reads clearly muted and
    distinct from the high-contrast Respond alert map. */
 .prepare-risk-map {

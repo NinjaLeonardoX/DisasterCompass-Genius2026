@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Map as MapIcon } from "lucide-react";
 import type { DisasterKind } from "./DisasterPicker";
 
@@ -5,7 +6,25 @@ interface Props {
   disaster: DisasterKind;
 }
 
+// The Respond map is a stylized live feed, not a tile map. To keep it from
+// reading as a frozen screenshot we tick a "last updated" counter that resets
+// every few seconds (simulating a poll) and animate the route + signals so the
+// map always looks like it is refreshing in real time.
+const REFRESH_SECONDS = 4;
+
 export function MapPanel({ disaster }: Props) {
+  const [secsAgo, setSecsAgo] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(
+      () => setSecsAgo((s) => (s + 1) % (REFRESH_SECONDS + 1)),
+      1000,
+    );
+    return () => clearInterval(id);
+  }, []);
+
+  const justRefreshed = secsAgo === 0;
+
   return (
     <section
       aria-label="Map"
@@ -15,6 +34,13 @@ export function MapPanel({ disaster }: Props) {
         <div className="flex items-center gap-2">
           <MapIcon className="h-4 w-4 text-[color:var(--severity-low)]" aria-hidden="true" />
           <h3 className="text-sm font-semibold">Neighborhood map</h3>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--severity-low)]/12 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[color:var(--severity-low)]">
+            <span className="dc-live-dot h-1.5 w-1.5 rounded-full bg-[color:var(--severity-low)]" aria-hidden="true" />
+            Live
+          </span>
+          <span className="text-[10px] font-medium tabular-nums text-card-foreground/55">
+            {justRefreshed ? "Re-checking routes…" : `Updated ${secsAgo}s ago`}
+          </span>
         </div>
         <ul className="flex flex-wrap items-center gap-3 text-[11px] font-medium text-card-foreground/70">
           <li className="inline-flex items-center gap-1.5">
@@ -94,7 +120,15 @@ export function MapPanel({ disaster }: Props) {
               strokeDasharray="6 6"
               fill="none"
               strokeLinecap="round"
-            />
+            >
+              {/* Blocked segment blinks so the rejection reads as a live alert */}
+              <animate
+                attributeName="stroke-opacity"
+                values="1;0.25;1"
+                dur="1.1s"
+                repeatCount="indefinite"
+              />
+            </path>
             {/* Route C — caution amber */}
             <path
               d="M70,260 C120,220 200,200 280,160"
@@ -104,15 +138,23 @@ export function MapPanel({ disaster }: Props) {
               strokeLinecap="round"
               opacity="0.85"
             />
-            {/* Route B — best green (thicker, glowing) */}
+            {/* Route B — best green (thicker, glowing). The glow pulses, a dash
+                pattern flows toward the shelter, and a live dot travels the
+                route so the safe path never looks frozen. */}
             <path
               d="M70,260 C100,200 180,140 330,90"
               stroke="#16A34A"
-              strokeOpacity="0.25"
               strokeWidth="12"
               fill="none"
               strokeLinecap="round"
-            />
+            >
+              <animate
+                attributeName="stroke-opacity"
+                values="0.18;0.4;0.18"
+                dur="2.4s"
+                repeatCount="indefinite"
+              />
+            </path>
             <path
               d="M70,260 C100,200 180,140 330,90"
               stroke="#16A34A"
@@ -120,12 +162,56 @@ export function MapPanel({ disaster }: Props) {
               fill="none"
               strokeLinecap="round"
             />
+            {/* Flowing dashes — direction of safe travel */}
+            <path
+              d="M70,260 C100,200 180,140 330,90"
+              stroke="#DCFCE7"
+              strokeWidth="2.5"
+              strokeDasharray="2 18"
+              fill="none"
+              strokeLinecap="round"
+            >
+              <animate
+                attributeName="stroke-dashoffset"
+                values="0;-20"
+                dur="0.9s"
+                repeatCount="indefinite"
+              />
+            </path>
+            {/* Live position dot traveling the route */}
+            <circle r="4" fill="#FFFFFF" stroke="#16A34A" strokeWidth="2">
+              <animateMotion
+                dur="2.8s"
+                repeatCount="indefinite"
+                keyPoints="0;1"
+                keyTimes="0;1"
+                path="M70,260 C100,200 180,140 330,90"
+              />
+            </circle>
             {/* Household marker (navy) */}
             <circle cx="70" cy="260" r="10" fill="#2a3b55" />
             <circle cx="70" cy="260" r="4" fill="#FFFFFF" />
-            {/* Volunteer marker (blue) */}
+            {/* Volunteer marker (blue) with a live ping ring */}
+            <circle cx="115" cy="245" r="7" fill="none" stroke="#38BDF8" strokeWidth="2">
+              <animate attributeName="r" values="7;15" dur="1.9s" repeatCount="indefinite" />
+              <animate
+                attributeName="stroke-opacity"
+                values="0.7;0"
+                dur="1.9s"
+                repeatCount="indefinite"
+              />
+            </circle>
             <circle cx="115" cy="245" r="7" fill="#38BDF8" stroke="#FFFFFF" strokeWidth="2" />
-            {/* Shelter (green star-ish) */}
+            {/* Shelter (destination) with a pulsing arrival ring */}
+            <circle cx="330" cy="90" r="11" fill="none" stroke="#16A34A" strokeWidth="2">
+              <animate attributeName="r" values="11;22" dur="1.8s" repeatCount="indefinite" />
+              <animate
+                attributeName="stroke-opacity"
+                values="0.6;0"
+                dur="1.8s"
+                repeatCount="indefinite"
+              />
+            </circle>
             <circle cx="330" cy="90" r="11" fill="#16A34A" />
             <circle cx="330" cy="90" r="5" fill="#FFFFFF" />
           </svg>
