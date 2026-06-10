@@ -3,13 +3,13 @@ import {
   Compass,
   ShieldCheck,
   LifeBuoy,
-  AlertTriangle,
   ArrowRight,
   Sparkles,
   Activity,
   CheckCircle2,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
+import heroEvacuation from "@/assets/hero-evacuation.png.asset.json";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
