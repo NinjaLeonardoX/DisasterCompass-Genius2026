@@ -570,7 +570,7 @@ function topFixNow(gaps: string[]): string[] {
 // ─────────────────────────────────────────────────────────────────────────────
 
 type SetupMode = null | "device" | "manual";
-type SetupStep = "name" | "wizard" | "review" | "generated";
+type SetupStep = "name" | "wizard" | "review" | "generating" | "generated";
 
 export function SafetyLocationPanel() {
   const { confirmLocation, setManualLocation } = useLocation();
