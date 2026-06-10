@@ -848,7 +848,7 @@ export type SOSRecipient = { title: string; name: string; organization: string; 
 
 export const DEFAULT_SOS_RECIPIENT: SOSRecipient = {
   title: "Chief",
-  name: "Milo",
+  name: "William & Miguel",
   organization: "Firestation 80",
   phone: "",
 };
