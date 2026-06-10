@@ -13,11 +13,11 @@ import { SiteHeader } from "../components/SiteHeader";
 export const Route = createFileRoute("/methodology")({
   head: () => ({
     meta: [
-      { title: "Methodology — How DisasterCompass decides" },
+      { title: "Methodology — How Disaster Compass decides" },
       {
         name: "description",
         content:
-          "How DisasterCompass turns a disaster alert into a household action plan using deterministic, explainable rules — not machine learning.",
+          "How Disaster Compass turns a disaster alert into a household action plan using deterministic, explainable rules — not machine learning.",
       },
     ],
   }),
@@ -84,12 +84,12 @@ function MethodologyPage() {
       <SiteHeader />
       <PageShell
         title="Methodology"
-        description="How DisasterCompass decides."
+        description="How Disaster Compass decides."
         showStepIndicator={false}
       >
         <div className="space-y-8">
           <p className="max-w-3xl text-base text-foreground/75">
-            DisasterCompass turns a disaster alert into a household action plan using deterministic,
+            Disaster Compass turns a disaster alert into a household action plan using deterministic,
             explainable rules — not machine learning. Every recommendation traces to a specific
             rule, so it's auditable and student-explainable.
           </p>
@@ -157,7 +157,7 @@ function MethodologyPage() {
               <h2 className="text-lg font-semibold tracking-tight text-foreground">Safety</h2>
             </div>
             <p className="mt-3 text-sm text-card-foreground/80">
-              Routes are suggested/estimated — never “guaranteed safe.” DisasterCompass complements
+              Routes are suggested/estimated — never “guaranteed safe.” Disaster Compass complements
               and never replaces 911, FEMA, the Red Cross, or local officials.{" "}
               <strong className="font-semibold text-foreground">In an emergency, call 911.</strong>
             </p>

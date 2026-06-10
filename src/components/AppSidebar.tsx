@@ -46,7 +46,7 @@ export function AppSidebar() {
         <Link to="/compass" className="flex h-full items-center">
           <img
             src={dcLogo.url}
-            alt="DisasterCompass"
+            alt="Disaster Compass"
             className={`${collapsed ? "h-7 w-7 object-cover object-left" : "h-8 w-auto"}`}
           />
         </Link>

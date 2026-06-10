@@ -8,7 +8,7 @@ import { useLocation } from "../components/LocationContext";
 export const Route = createFileRoute("/compass")({
   head: () => ({
     meta: [
-      { title: "DisasterCompass — One family. Three moments. One clear plan." },
+      { title: "Disaster Compass — One family. Three moments. One clear plan." },
       {
         name: "description",
         content:
@@ -76,7 +76,7 @@ function CompassLayout() {
               Location required
             </p>
             <h2 className="mt-2 text-2xl font-bold tracking-tight">
-              Set your location to activate DisasterCompass
+              Set your location to activate Disaster Compass
             </h2>
             <p className="mx-auto mt-2 max-w-xl text-sm text-card-foreground/70">
               Prepare, Respond, and Recover all depend on where you are. Use the panel above to share

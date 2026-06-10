@@ -15,11 +15,11 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
   head: () => ({
     meta: [
-      { title: "DisasterCompass — Calm decisions in the first 60 minutes" },
+      { title: "Disaster Compass — Calm decisions in the first 60 minutes" },
       {
         name: "description",
         content:
-          "DisasterCompass turns flood, fire, and storm signals into one clear action plan — safest route, who needs help, and what to do next.",
+          "Disaster Compass turns flood, fire, and storm signals into one clear action plan — safest route, who needs help, and what to do next.",
       },
     ],
   }),
@@ -194,7 +194,7 @@ function LandingPage() {
           <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-8 text-xs text-white/40 sm:flex-row">
             <div className="flex items-center gap-2">
               <Compass className="h-4 w-4 text-[#16A34A]" />
-              <span>DisasterCompass · 2026</span>
+              <span>Disaster Compass · 2026</span>
             </div>
             <span>For demonstration only. Not an official emergency service.</span>
           </div>

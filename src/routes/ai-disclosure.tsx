@@ -5,8 +5,8 @@ import { PageShell } from "../components/PageShell";
 export const Route = createFileRoute("/ai-disclosure")({
   head: () => ({
     meta: [
-      { title: "AI Use Disclosure — DisasterCompass" },
-      { name: "description", content: "How AI was used to build DisasterCompass." },
+      { title: "AI Use Disclosure — Disaster Compass" },
+      { name: "description", content: "How AI was used to build Disaster Compass." },
     ],
   }),
   component: AIDisclosurePage,
@@ -40,7 +40,7 @@ function AIDisclosurePage() {
     >
       <div className="space-y-8">
         <p className="max-w-3xl text-base text-foreground/75">
-          DisasterCompass was built by a two-student team during the official competition window. We
+          Disaster Compass was built by a two-student team during the official competition window. We
           used AI tools to assist development; all architecture, data design, and final decisions
           were made by us, and no code or designs were copied.
         </p>
@@ -107,7 +107,7 @@ function AIDisclosurePage() {
             </h2>
           </div>
           <p className="mt-3 text-sm text-card-foreground/80">
-            DisasterCompass complements — it does not replace — emergency services.{" "}
+            Disaster Compass complements — it does not replace — emergency services.{" "}
             <strong className="font-semibold text-foreground">Call 911 in an emergency.</strong>
           </p>
         </section>

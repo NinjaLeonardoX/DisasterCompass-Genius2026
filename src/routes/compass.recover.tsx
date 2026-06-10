@@ -4,7 +4,7 @@ import { RecoverPhase } from "../components/phases/RecoverPhase";
 export const Route = createFileRoute("/compass/recover")({
   head: () => ({
     meta: [
-      { title: "Recover — DisasterCompass" },
+      { title: "Recover — Disaster Compass" },
       { name: "description", content: "Recovery Launchpad for first responders and households after the event." },
     ],
   }),

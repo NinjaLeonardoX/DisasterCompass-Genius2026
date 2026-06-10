@@ -18,10 +18,10 @@ import dcLogo from "@/assets/disaster-compass-logo.png.asset.json";
 export const Route = createFileRoute("/presentation")({
   head: () => ({
     meta: [
-      { title: "Presentation — DisasterCompass" },
+      { title: "Presentation — Disaster Compass" },
       {
         name: "description",
-        content: "A short slide deck introducing DisasterCompass.",
+        content: "A short slide deck introducing Disaster Compass.",
       },
     ],
   }),
@@ -76,7 +76,7 @@ const slides: Slide[] = [
   {
     eyebrow: "Strategy — What we built",
     title: "From alert to safest next action.",
-    lead: "DisasterCompass is a Community Disaster Action Planner. Its core output is a single decision:",
+    lead: "Disaster Compass is a Community Disaster Action Planner. Its core output is a single decision:",
     decision: ["GO", "STAY", "WAIT"],
     positioning: ["Not another alert app", "Not a checklist", "Not just a map"],
     footer:
@@ -128,7 +128,7 @@ const slides: Slide[] = [
       "Recovery checklist",
     ],
     footer:
-      "DisasterCompass helps communities prepare earlier, respond faster, and recover clearer.",
+      "Disaster Compass helps communities prepare earlier, respond faster, and recover clearer.",
     close: "We turn official information into local action.",
   },
   // 6 — Closing
@@ -137,7 +137,7 @@ const slides: Slide[] = [
     eyebrow: "",
     kicker: "Thank you",
     title: "We turn official information into local action.",
-    tagline: "DisasterCompass · Community Disaster Action Planner",
+    tagline: "Disaster Compass · Community Disaster Action Planner",
   },
 ];
 
@@ -166,7 +166,7 @@ function SlideView({ slide, index, total }: { slide: Slide; index: number; total
           )}
 
           <div className="mt-8 rounded-2xl bg-white px-7 py-5 shadow-2xl shadow-black/40">
-            <img src={dcLogo.url} alt="DisasterCompass" className="h-16 w-auto" />
+            <img src={dcLogo.url} alt="Disaster Compass" className="h-16 w-auto" />
           </div>
 
           <h2 className="mt-9 max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
@@ -178,7 +178,7 @@ function SlideView({ slide, index, total }: { slide: Slide; index: number; total
         </div>
 
         <div className="absolute inset-x-0 bottom-6 text-[11px] font-medium uppercase tracking-[0.2em] text-white/40">
-          DisasterCompass · 2026
+          Disaster Compass · 2026
         </div>
       </div>
     );
@@ -195,7 +195,7 @@ function SlideView({ slide, index, total }: { slide: Slide; index: number; total
       {/* Template header */}
       <div className="relative flex items-center justify-between border-b border-white/10 px-8 pb-4 pt-6 sm:px-12">
         <div className="rounded-md bg-white px-2.5 py-1.5 shadow-sm">
-          <img src={dcLogo.url} alt="DisasterCompass" className="h-7 w-auto" />
+          <img src={dcLogo.url} alt="Disaster Compass" className="h-7 w-auto" />
         </div>
         <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#5EE6A1] sm:text-xs">
           <Compass className="h-3.5 w-3.5" />
@@ -346,7 +346,7 @@ function SlideView({ slide, index, total }: { slide: Slide; index: number; total
 
       {/* Template footer */}
       <div className="relative flex items-center justify-between border-t border-white/10 px-8 py-3.5 text-[11px] font-medium text-white/40 sm:px-12">
-        <span>DisasterCompass · Community Disaster Action Planner</span>
+        <span>Disaster Compass · Community Disaster Action Planner</span>
         <span>
           {index + 1} / {total}
         </span>

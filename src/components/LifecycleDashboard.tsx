@@ -53,7 +53,7 @@ export function LifecycleDashboard() {
             statusLabel="Needs Support Before Impact"
             statusTone="amber"
             Icon={Radar}
-            tooltip="Preparedness is not just a checklist. DisasterCompass finds who may struggle before the warning becomes urgent."
+            tooltip="Preparedness is not just a checklist. Disaster Compass finds who may struggle before the warning becomes urgent."
             tagline="Preparedness = rehearsal before the siren."
             actions={[
               "Pre-match transport support",
@@ -102,7 +102,7 @@ export function LifecycleDashboard() {
             statusLabel="Recovery Packet Ready"
             statusTone="navy"
             Icon={LifeBuoy}
-            tooltip="Recovery starts while details are still fresh. DisasterCompass turns recovery into one guided next-action queue."
+            tooltip="Recovery starts while details are still fresh. Disaster Compass turns recovery into one guided next-action queue."
             tagline="Recovery = guided next steps, not a forgotten checklist."
             actions={[
               "Confirm everyone is safe",

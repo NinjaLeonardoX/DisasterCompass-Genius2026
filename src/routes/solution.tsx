@@ -6,11 +6,11 @@ import { SiteHeader } from "../components/SiteHeader";
 export const Route = createFileRoute("/solution")({
   head: () => ({
     meta: [
-      { title: "Solution — DisasterCompass" },
+      { title: "Solution — Disaster Compass" },
       {
         name: "description",
         content:
-          "The architecture and implementation of DisasterCompass: a rules-based, transparent disaster action planner.",
+          "The architecture and implementation of Disaster Compass: a rules-based, transparent disaster action planner.",
       },
     ],
   }),
@@ -129,7 +129,7 @@ function SolutionPage() {
       <SiteHeader />
       <PageShell
         title="Solution"
-        description="How DisasterCompass is architected and implemented — a rules-based, transparent action planner."
+        description="How Disaster Compass is architected and implemented — a rules-based, transparent action planner."
         showStepIndicator={false}
       >
         <div className="space-y-12">

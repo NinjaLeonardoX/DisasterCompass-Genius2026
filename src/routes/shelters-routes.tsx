@@ -8,7 +8,7 @@ import { RouteLegend } from "../components/RouteLegend";
 export const Route = createFileRoute("/shelters-routes")({
   head: () => ({
     meta: [
-      { title: "Shelters & Routes — DisasterCompass" },
+      { title: "Shelters & Routes — Disaster Compass" },
       {
         name: "description",
         content:

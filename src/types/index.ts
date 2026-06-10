@@ -1,4 +1,4 @@
-// DisasterCompass domain types.
+// Disaster Compass domain types.
 // All data is in-memory and typed — no backend, DB, or live APIs.
 
 export type DisasterType = "flood" | "earthquake" | "wildfire" | "hurricane" | "heat";

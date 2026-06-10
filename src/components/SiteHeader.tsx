@@ -29,7 +29,7 @@ export function SiteHeader() {
         <Link to="/" className="flex items-center">
           <img
             src={dcLogo.url}
-            alt="DisasterCompass — Community Disaster Action Planner"
+            alt="Disaster Compass — Community Disaster Action Planner"
             className="h-14 w-auto"
           />
         </Link>

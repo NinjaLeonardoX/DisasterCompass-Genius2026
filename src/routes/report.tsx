@@ -10,7 +10,7 @@ import type { CoordinatorStatus } from "@/types";
 export const Route = createFileRoute("/report")({
   head: () => ({
     meta: [
-      { title: "Report a Community Signal — DisasterCompass" },
+      { title: "Report a Community Signal — Disaster Compass" },
       { name: "description", content: "Submit a community disaster signal." },
     ],
   }),
