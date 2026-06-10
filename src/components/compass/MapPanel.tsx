@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { Map as MapIcon, ChevronDown, ChevronUp } from "lucide-react";
+import { Map as MapIcon } from "lucide-react";
+
 import type { RouteOption } from "@/types";
 import type { MapDestination } from "../MapPanel";
 import type { DisasterKind } from "./DisasterPicker";
