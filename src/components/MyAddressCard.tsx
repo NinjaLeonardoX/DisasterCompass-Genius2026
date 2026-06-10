@@ -337,11 +337,9 @@ export function MyAddressCard() {
       {showDeviceModal && resolved && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-          onClick={() => !savingHousehold && setPendingDevice(false)}
         >
           <div
             className="w-full max-w-md rounded-2xl border border-border bg-card p-5 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-3 flex items-center gap-2">
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[color:var(--severity-low)]/15 text-[color:var(--severity-low)]">
