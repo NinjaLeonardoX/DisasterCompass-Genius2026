@@ -41,62 +41,69 @@
 :root {
   --radius: 0.875rem;
   /* DisasterCompass civic palette — light base, navy surfaces */
-  --background: #F8FAFC;          /* dc-bg */
-  --foreground: #2a3b55;          /* dc-navy */
+  --background: #f8fafc; /* dc-bg */
+  --foreground: #2a3b55; /* dc-navy */
 
-  --surface: #2a3b55;             /* dark navy header */
-  --surface-foreground: #F8FAFC;
+  --surface: #2a3b55; /* dark navy header */
+  --surface-foreground: #f8fafc;
 
-  --card: #FFFFFF;
+  --card: #ffffff;
   --card-foreground: #2a3b55;
 
-  --popover: #FFFFFF;
+  --popover: #ffffff;
   --popover-foreground: #2a3b55;
 
   /* Primary = navy (official/trust) */
   --primary: #2a3b55;
-  --primary-foreground: #FFFFFF;
+  --primary-foreground: #ffffff;
 
-  --secondary: #F1F5F9;
+  --secondary: #f1f5f9;
   --secondary-foreground: #2a3b55;
 
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;    /* dc-muted */
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b; /* dc-muted */
 
-  --accent: #E2E8F0;
+  --accent: #e2e8f0;
   --accent-foreground: #2a3b55;
 
-  --destructive: #DC2626;
-  --destructive-foreground: #FFFFFF;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
 
-  --border: #E2E8F0;              /* dc-border */
-  --input: #E2E8F0;
-  --ring: #38BDF8;                /* dc-blue focus ring */
+  --border: #e2e8f0; /* dc-border */
+  --input: #e2e8f0;
+  --ring: #38bdf8; /* dc-blue focus ring */
 
   /* Severity (icon + label always paired) */
-  --severity-critical: #DC2626;
-  --severity-high: #DC2626;
-  --severity-moderate: #F59E0B;   /* dc-amber */
-  --severity-low: #16A34A;        /* dc-green */
+  --severity-critical: #dc2626;
+  --severity-high: #dc2626;
+  --severity-moderate: #f59e0b; /* dc-amber */
+  --severity-low: #16a34a; /* dc-green */
 }
 
 @layer base {
   * {
     border-color: var(--color-border);
   }
-  html, body {
+  html,
+  body {
     min-height: 100%;
   }
   body {
     color: var(--color-foreground);
-    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      "Segoe UI",
+      Roboto,
+      sans-serif;
     -webkit-font-smoothing: antialiased;
-    background-color: #F8FAFC;
+    background-color: #f8fafc;
     background-image:
       radial-gradient(circle at 8% 6%, rgba(56, 189, 248, 0.18), transparent 32%),
       radial-gradient(circle at 92% 4%, rgba(22, 163, 74, 0.16), transparent 30%),
       radial-gradient(circle at 50% 100%, rgba(42, 59, 85, 0.05), transparent 45%),
-      linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 50%, #EEF7F1 100%);
+      linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #eef7f1 100%);
     background-attachment: fixed;
   }
   :focus-visible {
@@ -134,14 +141,16 @@
     0 2px 8px rgba(42, 59, 85, 0.05);
 }
 @utility dc-hover-lift {
-  transition: transform 200ms ease, box-shadow 200ms ease;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease;
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 22px 60px -28px rgba(42, 59, 85, 0.25);
   }
 }
 @utility dc-card {
-  background: #FFFFFF;
+  background: #ffffff;
   border: 1px solid rgba(226, 232, 240, 0.85);
   border-radius: 1.25rem;
   box-shadow: 0 8px 30px rgba(42, 59, 85, 0.06);
@@ -154,14 +163,27 @@
 }
 @utility dc-hero-surface {
   background:
-    radial-gradient(circle at 100% 0%, rgba(22, 163, 74, 0.10), transparent 45%),
-    radial-gradient(circle at 0% 100%, rgba(56, 189, 248, 0.06), transparent 50%),
-    #FFFFFF;
+    radial-gradient(circle at 100% 0%, rgba(22, 163, 74, 0.1), transparent 45%),
+    radial-gradient(circle at 0% 100%, rgba(56, 189, 248, 0.06), transparent 50%), #ffffff;
 }
 @utility dc-pulse {
   animation: dc-pulse 2.2s ease-in-out infinite;
 }
 @keyframes dc-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.45); }
-  50% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+  }
+}
+
+/* Calm risk map: desaturate the base tiles so Prepare reads clearly muted and
+   distinct from the high-contrast Respond alert map. */
+.prepare-risk-map {
+  background: #eef2f7;
+}
+.prepare-risk-map .leaflet-tile-pane {
+  filter: grayscale(0.92) brightness(1.08) contrast(0.82) opacity(0.85);
 }

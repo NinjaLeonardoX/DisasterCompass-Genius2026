@@ -1,0 +1,193 @@
+import type { DisasterKind } from "@/components/compass/DisasterPicker";
+import type { DisasterType } from "@/types";
+
+// Seeded Prepare-phase data: hazard risk profile, calm-map geometry, and the
+// household readiness gaps. Shared by the overview Readiness Snapshot (Part A)
+// and the Readiness Radar screen (Part B) so both read from one source. No
+// backend, no live feeds — North Creek demo values only.
+
+export type Severity = "high" | "moderate" | "low";
+
+export const SEVERITY_META: Record<Severity, { label: string; bars: number; color: string }> = {
+  high: { label: "High", bars: 3, color: "var(--severity-critical)" },
+  moderate: { label: "Moderate", bars: 2, color: "var(--severity-moderate)" },
+  low: { label: "Low", bars: 1, color: "var(--severity-low)" },
+};
+
+/** Which calm-map zone (if any) visualizes this hazard. */
+export type HazardZone = "flood" | "fault" | "wui" | null;
+
+export interface HazardRisk {
+  id: string;
+  kind: DisasterKind;
+  disasterType: DisasterType;
+  /** Compact label used in the severity strip (e.g. "Quake"). */
+  shortLabel: string;
+  severity: Severity;
+  zone: HazardZone;
+  /** Flood + earthquake get the full pre-mapped readiness treatment. */
+  full: boolean;
+  destinationName: string;
+  destinationType: string;
+  routeLine: string;
+  firstAction: string;
+  /** Earthquake: the route only matters after shaking stops. */
+  postShaking?: boolean;
+}
+
+// Ordered to match the Part A severity strip: Flood · Heat · Hurricane · Wildfire · Quake.
+export const HAZARD_RISKS: HazardRisk[] = [
+  {
+    id: "flood",
+    kind: "Flood",
+    disasterType: "flood",
+    shortLabel: "Flood",
+    severity: "high",
+    zone: "flood",
+    full: true,
+    destinationName: "Hilltop Community Center",
+    destinationType: "Higher-ground shelter",
+    routeLine: "Route B · Hilltop Avenue",
+    firstAction: "Move to higher ground.",
+  },
+  {
+    id: "heat",
+    kind: "Extreme Heat",
+    disasterType: "heat",
+    shortLabel: "Heat",
+    severity: "moderate",
+    zone: null,
+    full: false,
+    destinationName: "Hilltop Cooling Center",
+    destinationType: "Cooling center",
+    routeLine: "Short cooling route · travel in cooler hours",
+    firstAction: "Get to a cooling center.",
+  },
+  {
+    id: "hurricane",
+    kind: "Hurricane",
+    disasterType: "hurricane",
+    shortLabel: "Hurricane",
+    severity: "moderate",
+    zone: null,
+    full: false,
+    destinationName: "Inland evacuation shelter",
+    destinationType: "Evacuation shelter outside the zone",
+    routeLine: "Inland route · leave before the deadline",
+    firstAction: "Evacuate before the deadline.",
+  },
+  {
+    id: "wildfire",
+    kind: "Wildfire",
+    disasterType: "wildfire",
+    shortLabel: "Wildfire",
+    severity: "low",
+    zone: "wui",
+    full: false,
+    destinationName: "Shelter away from the fire path",
+    destinationType: "Evacuation shelter",
+    routeLine: "Fastest safe exit · backup route ready",
+    firstAction: "Take the fastest safe exit.",
+  },
+  {
+    id: "earthquake",
+    kind: "Earthquake",
+    disasterType: "earthquake",
+    shortLabel: "Quake",
+    severity: "low",
+    zone: "fault",
+    full: true,
+    destinationName: "Lincoln Park",
+    destinationType: "Open assembly area off the fault line",
+    routeLine: "Post-shaking · only if your building is unsafe",
+    firstAction: "Drop, Cover, Hold On — do not go outside.",
+    postShaking: true,
+  },
+];
+
+export function getHazard(id: string): HazardRisk {
+  return HAZARD_RISKS.find((h) => h.id === id) ?? HAZARD_RISKS[0];
+}
+
+// ---- Seeded calm-map geometry (decorative risk zones, no routing) ----
+
+/** Fault-line proximity band on the east side of North Creek. */
+export const FAULT_LINE_BAND: [number, number][] = [
+  [40.0185, -105.2545],
+  [40.0345, -105.2495],
+  [40.0355, -105.2525],
+  [40.0195, -105.2575],
+];
+
+/** Wildland–urban interface edge along the NW hills. */
+export const WUI_EDGE: [number, number][] = [
+  [40.0345, -105.2775],
+  [40.0395, -105.269],
+  [40.04, -105.274],
+  [40.036, -105.282],
+];
+
+/** Post-shaking assembly area, sited off the fault line. */
+export const ASSEMBLY_POINT = { name: "Lincoln Park", lat: 40.0325, lng: -105.2655 };
+
+// ---- Readiness gaps (household profile → fixable prep items) ----
+
+export type GapFix = "volunteer" | "mark";
+
+export interface PrepareGap {
+  id: string;
+  label: string;
+  detail: string;
+  fixedLabel: string;
+  fix: GapFix;
+  /** Pre-closed in the seed so the demo opens at 60% readiness with 2 gaps left. */
+  closedByDefault: boolean;
+}
+
+export const PREPARE_GAPS: PrepareGap[] = [
+  {
+    id: "ride",
+    label: "No ride arranged",
+    detail: "Rivera has no vehicle. Pre-match a volunteer driver before any warning.",
+    fixedLabel: "Ride pre-assigned: Ana (truck · pet + accessibility)",
+    fix: "volunteer",
+    closedByDefault: false,
+  },
+  {
+    id: "power",
+    label: "No backup power plan",
+    detail: "Plan for outages: charged batteries, device backup, neighbor check-in.",
+    fixedLabel: "Backup power plan marked ready",
+    fix: "mark",
+    closedByDefault: false,
+  },
+  {
+    id: "gobag",
+    label: "Go-bag not confirmed",
+    detail: "Medications, documents, and pet supplies packed and reachable.",
+    fixedLabel: "Go-bag marked ready",
+    fix: "mark",
+    closedByDefault: true,
+  },
+  {
+    id: "shelter",
+    label: "Nearest suitable shelter not confirmed",
+    detail: "Needs a pet-friendly, accessible, high-elevation shelter.",
+    fixedLabel: "Confirmed: Hilltop Community Center",
+    fix: "mark",
+    closedByDefault: true,
+  },
+  {
+    id: "contacts",
+    label: "Emergency contacts not printed",
+    detail: "A printed copy survives a dead phone.",
+    fixedLabel: "Emergency contacts printed",
+    fix: "mark",
+    closedByDefault: true,
+  },
+];
+
+/** Seeded snapshot numbers for the Part A overview card (static, non-interactive). */
+export const SNAPSHOT_READINESS = 60;
+export const SNAPSHOT_OPEN_GAPS = PREPARE_GAPS.filter((g) => !g.closedByDefault).length;
+export const SNAPSHOT_TOP_GAP = PREPARE_GAPS.find((g) => !g.closedByDefault)?.label ?? "";
