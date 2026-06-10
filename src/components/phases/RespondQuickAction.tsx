@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, ShieldCheck, AlertCircle, LifeBuoy, Siren, MapPin, Loader2 } from "lucide-react";
+import { AlertTriangle, ShieldCheck, Siren, MapPin, Loader2 } from "lucide-react";
 import { MapPanel } from "../compass/MapPanel";
 import { WeatherCard } from "../WeatherCard";
 import { useLocation } from "../LocationContext";
@@ -37,23 +37,7 @@ const ACTIONS: ActionDef[] = [
     Icon: ShieldCheck,
     className:
       "bg-[color:var(--severity-low)] text-white hover:bg-[color:var(--severity-low)]/90 focus-visible:ring-[color:var(--severity-low)]",
-    message: "Marked safe.",
-  },
-  {
-    id: "stuck",
-    label: "I'm Stuck",
-    Icon: AlertCircle,
-    className:
-      "bg-[color:var(--severity-moderate)] text-white hover:bg-[color:var(--severity-moderate)]/90 focus-visible:ring-[color:var(--severity-moderate)]",
-    message: "Marked stuck. Help request created.",
-  },
-  {
-    id: "needs_help",
-    label: "I Need Help",
-    Icon: LifeBuoy,
-    className:
-      "bg-[color:var(--severity-critical)]/90 text-white hover:bg-[color:var(--severity-critical)] focus-visible:ring-[color:var(--severity-critical)]",
-    message: "Help request sent to coordinator.",
+    message: "Great — stay safe!",
   },
   {
     id: "sos",
