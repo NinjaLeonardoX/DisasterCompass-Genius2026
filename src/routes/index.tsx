@@ -49,24 +49,19 @@ function LandingPage() {
         <section className="mx-auto max-w-7xl px-6 pt-12 pb-4 lg:pt-20 lg:pb-6">
           <div className="grid items-start gap-14 lg:grid-cols-12">
             <div className="lg:col-span-6">
-              <div className="road-badge relative inline-flex items-center gap-2.5 rounded-full px-5 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/95">
-                <svg className="road-border-svg" aria-hidden xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-                  <rect className="road-asphalt" x="0" y="0" width="100%" height="100%" rx="999" ry="999" />
-                  <rect className="road-edge" x="0" y="0" width="100%" height="100%" rx="999" ry="999" />
-                  <rect className="road-lane" x="0" y="0" width="100%" height="100%" rx="999" ry="999" />
-                </svg>
+              <div className="road-badge inline-flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-white">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#16A34A] opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-[#16A34A]" />
                 </span>
-                <span className="relative">Prepare.</span>
+                <span>Prepare.</span>
                 <span className="relative inline-block hurricane-text">
                   Respond.
                   <span aria-hidden className="hurricane-spark hurricane-spark-1" />
                   <span aria-hidden className="hurricane-spark hurricane-spark-2" />
                   <span aria-hidden className="hurricane-spark hurricane-spark-3" />
                 </span>
-                <span className="relative">Recover.</span>
+                <span>Recover.</span>
               </div>
 
 
