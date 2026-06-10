@@ -64,7 +64,7 @@ function LandingPage() {
                 <span>Recover.</span>
               </div>
 
-              <p className="mt-4 text-sm font-semibold tracking-[0.15em] text-[#5EE6A1] uppercase">
+              <p className="mt-4 text-base font-semibold tracking-[0.15em] text-[#38bdf8] uppercase">
                 Right Direction. Right Location. Right Help.
               </p>
 
