@@ -6,6 +6,7 @@ import { HAZARD_RISKS, HAZARD_ROUTES, SEVERITY_META, type HazardRisk } from "@/d
 import { generateCompassPlan } from "@/lib/compass-plan.functions";
 import { lookupPlaceDetails } from "@/lib/place-lookup.functions";
 import { PlaceAutocomplete } from "./PlaceAutocomplete";
+import { loadStoredLocations, saveStoredLocations } from "@/lib/preparedLocations";
 
 const PrepareRiskMap = lazy(() => import("./PrepareRiskMap"));
 import { RouteTrainingPanel } from "./RouteTrainingPanel";
