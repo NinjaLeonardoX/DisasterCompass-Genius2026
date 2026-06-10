@@ -1,11 +1,6 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { ChevronDown, Info, type LucideIcon } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Phase } from "./PhaseContext";
 
 interface Props {
@@ -23,11 +18,17 @@ interface Props {
   onSelect: () => void;
   /** Tailwind background classes describing the cinematic photo-like layered scene. */
   visualClass: string;
+  /** Readiness Snapshot content rendered in the upper area of the card. */
+  snapshot?: ReactNode;
+  /** Render a muted, route-free risk-map texture behind the snapshot. */
+  riskTexture?: boolean;
 }
 
 const TONE: Record<Props["statusTone"], string> = {
-  amber: "bg-[color:var(--severity-moderate)]/20 text-[color:var(--severity-moderate)] ring-[color:var(--severity-moderate)]/40",
-  green: "bg-[color:var(--severity-low)]/20 text-[color:var(--severity-low)] ring-[color:var(--severity-low)]/40",
+  amber:
+    "bg-[color:var(--severity-moderate)]/20 text-[color:var(--severity-moderate)] ring-[color:var(--severity-moderate)]/40",
+  green:
+    "bg-[color:var(--severity-low)]/20 text-[color:var(--severity-low)] ring-[color:var(--severity-low)]/40",
   navy: "bg-white/15 text-white ring-white/30",
 };
 
@@ -44,6 +45,8 @@ export function LifecycleCard({
   active,
   onSelect,
   visualClass,
+  snapshot,
+  riskTexture = false,
 }: Props) {
   const [expanded, setExpanded] = useState(false);
   return (
@@ -70,6 +73,33 @@ export function LifecycleCard({
           backgroundSize: "44px 44px",
         }}
       />
+      {/* Muted, route-free risk-map texture (decorative only) */}
+      {riskTexture && (
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 400 340"
+          preserveAspectRatio="none"
+          className="absolute inset-0 h-full w-full opacity-[0.13]"
+        >
+          {/* contour lines */}
+          {[40, 90, 140, 190].map((y) => (
+            <path
+              key={y}
+              d={`M0,${y} C90,${y - 26} 150,${y + 24} 240,${y - 8} C320,${y - 32} 360,${y + 14} 400,${y - 4}`}
+              fill="none"
+              stroke="#FFFFFF"
+              strokeWidth="1.5"
+            />
+          ))}
+          {/* shaded risk zone (no route) */}
+          <path
+            d="M40,250 C120,225 170,290 250,260 C310,238 360,278 400,258 L400,340 L0,340 Z"
+            fill="#FFFFFF"
+            fillOpacity="0.5"
+          />
+        </svg>
+      )}
+
       {/* Subtle bottom legibility scrim — keeps phase color visible */}
       <div
         aria-hidden="true"
@@ -100,6 +130,8 @@ export function LifecycleCard({
             </Tooltip>
           </TooltipProvider>
         </div>
+
+        {snapshot && <div className="mt-5">{snapshot}</div>}
 
         <div className="mt-auto pt-10">
           <h3 className="text-3xl font-bold leading-tight tracking-tight">{title}</h3>
