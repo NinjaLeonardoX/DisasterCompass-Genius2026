@@ -587,7 +587,12 @@ export function SafetyLocationPanel() {
   const [wizardIndex, setWizardIndex] = useState(0); // 0..SECTIONS.length-1
 
   const [selectedDisaster, setSelectedDisaster] = useState<Disaster>("flood");
-  const [bodyTab, setBodyTab] = useState<"overview" | "people" | "routes" | "gaps">("overview");
+  const [bodyTab, setBodyTab] = useState<"overview" | "people" | "risk" | "routes" | "gaps">("overview");
+  const [riskHazardId, setRiskHazardId] = useState<string>("flood");
+  const [mapMounted, setMapMounted] = useState(false);
+  useEffect(() => setMapMounted(true), []);
+  const { activePhase } = usePhase();
+  const showRiskMap = activePhase === "prepare";
 
   const selected = locations.find((l) => l.id === selectedId) ?? SJFU;
   const currentRoute = useMemo(
