@@ -12,9 +12,9 @@ export function PreparePhase() {
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[color:var(--severity-low)]">
           Phase 1 · Before impact
         </p>
-        <h2 className="mt-1 text-2xl font-bold tracking-tight">Prepare</h2>
+        <h2 className="mt-1 text-2xl font-bold tracking-tight">Plan your safest route before disaster strikes.</h2>
         <p className="mt-1 text-sm text-[color:var(--muted-foreground)]">
-          One family. Three moments. One clear plan.
+          It is clear, easy, and directly explains the Prepare screen.
         </p>
       </div>
 
