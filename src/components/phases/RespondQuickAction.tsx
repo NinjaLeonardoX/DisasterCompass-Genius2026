@@ -89,9 +89,34 @@ export function RespondQuickAction() {
 
   const hasRealLocation = source === "device";
   const home: [number, number] = [household.lat, household.lng];
-  const destShelter = resolveDestinationShelter();
+
+  // Pick the nearest seed shelter as the destination. Falls back to the
+  // scenario's default destination (Hilltop) when no shelters are nearby.
+  const nearestShelter: Shelter | undefined = useMemo(() => {
+    if (SHELTERS.length === 0) return resolveDestinationShelter();
+    let best = SHELTERS[0];
+    let bestD = distanceKm(home, [best.lat, best.lng]);
+    for (const s of SHELTERS.slice(1)) {
+      const d = distanceKm(home, [s.lat, s.lng]);
+      if (d < bestD) {
+        best = s;
+        bestD = d;
+      }
+    }
+    return best;
+  }, [home[0], home[1]]);
+
+  const destShelter = nearestShelter ?? resolveDestinationShelter();
   const dest: [number, number] = destShelter ? [destShelter.lat, destShelter.lng] : home;
-  const { data: routes } = useRoutes(home, dest);
+
+  // Avoid attempting a live cross-country route (e.g. user in NY → seed
+  // shelter in Boulder); routing only makes sense within ~150 km.
+  const destReachable = destShelter
+    ? distanceKm(home, [destShelter.lat, destShelter.lng]) < 150
+    : false;
+  const routingDest: [number, number] = destReachable ? dest : home;
+  const { data: routes } = useRoutes(home, routingDest);
+  const mapRoutes = hasRealLocation && !destReachable ? [] : routes;
 
   const onAction = (a: ActionDef) => {
     setStatus(a.id);
@@ -163,19 +188,29 @@ export function RespondQuickAction() {
         )}
       </div>
 
+      {/* Live weather at the user's location */}
+      <WeatherCard lat={home[0]} lng={home[1]} />
+
       {/* Map */}
       <MapPanel
         disaster="Flood"
-        routes={routes}
+        routes={mapRoutes}
         selectedRouteId={selectedRouteId}
         onSelectRoute={setSelectedRouteId}
         locationAware={hasRealLocation}
         destinations={
-          hasRealLocation && destShelter
+          hasRealLocation && destReachable && destShelter
             ? [{ id: destShelter.id, name: destShelter.name, lat: destShelter.lat, lng: destShelter.lng }]
             : undefined
         }
       />
+
+      {hasRealLocation && !destReachable && (
+        <p className="rounded-xl border border-border bg-white px-4 py-2.5 text-center text-xs text-foreground/70 shadow-sm">
+          No seed shelter is within range of your live location — showing your area only.
+          Routes appear when you're within ~150 km of a configured shelter.
+        </p>
+      )}
 
       {/* Status confirmation */}
       {lastMessage && (
