@@ -178,7 +178,152 @@ export function RespondPhase() {
   );
 }
 
+type Recommendation = {
+  verdict: "GO" | "STAY" | "WAIT";
+  headline: string;
+  detail: string;
+  steps: string[];
+  tone: string;
+  Icon: typeof ArrowRight;
+};
+
+function buildRecommendation(disaster: DisasterKind, alerts: DisasterAlert[]): Recommendation {
+  const hasCritical = alerts.some((a) => a.severity === "critical" || a.severity === "high");
+  const hasAny = alerts.length > 0;
+
+  if (disaster === "Earthquake") {
+    return {
+      verdict: "STAY",
+      headline: "STAY — Drop, Cover, Hold On",
+      detail: "Do not run outside. Stay until shaking stops, then check for hazards before moving.",
+      steps: [
+        "Drop to hands and knees under a sturdy table or against an interior wall.",
+        "Cover your head and neck; hold on until shaking stops.",
+        "After shaking, check for gas leaks, injuries, and structural damage before exiting.",
+      ],
+      tone: "var(--severity-moderate)",
+      Icon: ShieldAlert,
+    };
+  }
+
+  if (disaster === "Flood" || disaster === "Hurricane" || disaster === "Wildfire") {
+    if (hasCritical || hasAny) {
+      return {
+        verdict: "GO",
+        headline: `GO — evacuate to the safest ${disaster === "Wildfire" ? "smoke-free area" : "higher ground"} now`,
+        detail: "An active alert is in your area. Take the recommended route below and grab your go-bag.",
+        steps: [
+          "Grab your go-bag, IDs, meds, phone + charger.",
+          "Follow the highest-scored route on the map (avoids blocked or flooded roads).",
+          "Notify a neighbor and your check-in contact when you leave and arrive.",
+        ],
+        tone: "var(--severity-high)",
+        Icon: ArrowRight,
+      };
+    }
+    return {
+      verdict: "WAIT",
+      headline: "WAIT — no active alert; stay ready",
+      detail: "Conditions are calm. Keep your plan and go-bag ready in case the situation changes.",
+      steps: [
+        "Confirm your go-bag and important documents are accessible.",
+        "Review your rehearsed route on the map.",
+        "Watch for new alerts; this page will update as they arrive.",
+      ],
+      tone: "var(--severity-low)",
+      Icon: Clock,
+    };
+  }
+
+  // Extreme Heat
+  if (hasCritical) {
+    return {
+      verdict: "GO",
+      headline: "GO — move to a cooling center now",
+      detail: "Heat is dangerous, especially for kids, elders, and people with medical needs.",
+      steps: [
+        "Drink water; avoid alcohol and caffeine.",
+        "Move to the nearest cooling center, library, or air-conditioned space.",
+        "Check on neighbors who are alone or medically vulnerable.",
+      ],
+      tone: "var(--severity-high)",
+      Icon: ArrowRight,
+    };
+  }
+  return {
+    verdict: "WAIT",
+    headline: "WAIT — stay cool and hydrated indoors",
+    detail: "Heat is elevated but not critical. Limit exertion and watch for symptoms.",
+    steps: [
+      "Drink water on a schedule; close blinds during peak sun.",
+      "Identify your nearest cooling center in case you need it.",
+      "Check on vulnerable household members and neighbors.",
+    ],
+    tone: "var(--severity-moderate)",
+    Icon: Clock,
+  };
+}
+
+function RecommendationBanner({ disaster, alerts }: { disaster: DisasterKind; alerts: DisasterAlert[] }) {
+  const rec = buildRecommendation(disaster, alerts);
+  const Icon = rec.Icon;
+  return (
+    <div
+      className="dc-card overflow-hidden border-l-4 p-5"
+      style={{ borderLeftColor: rec.tone }}
+    >
+      <div className="flex items-start gap-4">
+        <div
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
+          style={{ background: `color-mix(in oklab, ${rec.tone} 18%, transparent)`, color: rec.tone }}
+        >
+          <Icon className="h-6 w-6" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span
+              className="rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider"
+              style={{
+                background: `color-mix(in oklab, ${rec.tone} 18%, transparent)`,
+                color: rec.tone,
+              }}
+            >
+              Recommendation
+            </span>
+            <span
+              className="rounded-md px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-white"
+              style={{ background: rec.tone }}
+            >
+              {rec.verdict}
+            </span>
+            <span className="text-[11px] text-card-foreground/60">· {disaster}</span>
+          </div>
+          <h3 className="mt-2 text-lg font-bold tracking-tight">{rec.headline}</h3>
+          <p className="mt-1 text-sm text-card-foreground/75">{rec.detail}</p>
+          <ol className="mt-3 space-y-1.5 text-sm text-card-foreground/85">
+            {rec.steps.map((s, i) => (
+              <li key={i} className="flex gap-2">
+                <span
+                  className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
+                  style={{
+                    background: `color-mix(in oklab, ${rec.tone} 15%, transparent)`,
+                    color: rec.tone,
+                  }}
+                >
+                  {i + 1}
+                </span>
+                <span>{s}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const SEVERITY_VAR: Record<DisasterAlert["severity"], string> = {
+
   low: "var(--severity-low)",
   moderate: "var(--severity-moderate)",
   high: "var(--severity-moderate)",
