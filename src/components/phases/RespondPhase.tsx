@@ -61,22 +61,25 @@ export function RespondPhase() {
         <div className="space-y-6 lg:col-span-2">
           {disaster === "Flood" && (
             <div className="dc-card overflow-hidden">
-              <button
-                onClick={() => setScoresOpen((v) => !v)}
-                className="flex w-full items-center justify-between px-5 py-3 text-left"
-              >
+              <div className="flex w-full items-center justify-between px-5 py-3">
                 <div className="flex items-center gap-3">
-                  <h3 className="text-sm font-bold uppercase tracking-wider">Route scoring</h3>
+                  <button
+                    type="button"
+                    onClick={() => setScoresOpen((v) => !v)}
+                    className="flex items-center gap-3 text-left"
+                  >
+                    <h3 className="text-sm font-bold uppercase tracking-wider">Route scoring</h3>
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform ${scoresOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
                   <WhyThisPopover
                     data="Distance, elevation gain, flood exposure, blocked-road flags, shelter fit, accessibility."
                     rule="Weighted sum; flood + blocked-road force rejection regardless of distance."
                     fallback="If all routes < 60, escalate to coordinator for manual override."
                   />
                 </div>
-                <ChevronDown
-                  className={`h-4 w-4 transition-transform ${scoresOpen ? "rotate-180" : ""}`}
-                />
-              </button>
+              </div>
               {scoresOpen && (
                 <div className="border-t border-border/60">
                   <RouteScorePanel />
