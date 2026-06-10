@@ -7,7 +7,8 @@ import { NextBackNav } from "../components/NextBackNav";
 import { useScenario } from "../components/ScenarioContext";
 import { decideAction } from "@/lib/actions";
 import { scoreRoute, getBestRoute } from "@/lib/scoring";
-import { ROUTES, RIVERA_HOUSEHOLD } from "@/data/seed";
+import { ROUTES } from "@/data/seed";
+import { useHousehold } from "../components/LocationContext";
 import type { RouteOption } from "@/types";
 
 // MapPanel is imported lazily so Leaflet (which touches `window`) never loads
@@ -49,7 +50,8 @@ function MapPage() {
     );
   }
 
-  const decision = decideAction(selectedDisaster, RIVERA_HOUSEHOLD);
+  const household = useHousehold();
+  const decision = decideAction(selectedDisaster, household);
 
   // No routing during an earthquake — shelter in place.
   if (!decision.shouldShowRoute) {

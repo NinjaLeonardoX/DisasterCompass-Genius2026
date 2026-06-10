@@ -16,6 +16,7 @@ import { AppFooter } from "../components/AppFooter";
 import { AppSidebar } from "../components/AppSidebar";
 import { ScenarioProvider } from "../components/ScenarioContext";
 import { PhaseProvider } from "../components/PhaseContext";
+import { LocationProvider } from "../components/LocationContext";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useRouterState } from "@tanstack/react-router";
 
@@ -162,7 +163,9 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <ScenarioProvider>
         <PhaseProvider>
-          <AppChrome />
+          <LocationProvider>
+            <AppChrome />
+          </LocationProvider>
         </PhaseProvider>
       </ScenarioProvider>
     </QueryClientProvider>
