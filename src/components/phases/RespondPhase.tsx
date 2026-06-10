@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
-import { ChevronDown, Droplets, Activity, Sun } from "lucide-react";
+import { ChevronDown, Droplets, Activity, Sun, ArrowRight, ShieldAlert, Clock } from "lucide-react";
+
 import { ActionCard } from "../compass/ActionCard";
 import { MapPanel } from "../compass/MapPanel";
 import { RouteScorePanel } from "../compass/RouteScorePanel";
