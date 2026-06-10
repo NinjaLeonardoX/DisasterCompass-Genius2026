@@ -458,7 +458,43 @@ const MGH_LOC: SavedLocation = {
   gaps: ["Confirm backup generator transfer drill", "Refresh patient transport coordination"],
 };
 
-const PRELOADED_LOCATIONS: SavedLocation[] = [MIT_LOC, BU_LOC, MGH_LOC];
+const SJFU_ROUTES = buildRoutes({
+  flood: "Kearney Hall upper floors — campus high ground",
+  floodRoute: "E. River Rd → campus loop → Kearney Hall entrance",
+  quakeMuster: "Main Quad lawn — open outdoor assembly area",
+  quakeRoute: "Exit nearest building → Main Quad lawn",
+  cooling: "Lavery Library — air-conditioned commons",
+  coolingRoute: "Shaded campus path → Lavery Library entrance",
+  hurricane: "Student Life Center interior — reinforced shelter",
+  hurricaneRoute: "Campus loop → Student Life Center lower level",
+  wildfireExit: "Lavery Library indoor refuge — filtered HVAC",
+  wildfireRoute: "Campus loop → Lavery Library entrance",
+  warming: "Student Life Center warming commons",
+  winterRoute: "Covered walkway → Student Life Center",
+});
+
+const SJFU_LOC: SavedLocation = {
+  id: "sjfu",
+  name: "St. John Fisher University",
+  type: "Campus",
+  area: "3690 East Ave, Rochester, NY",
+  ready: true,
+  geo: {
+    lat: 43.1188, lng: -77.5180,
+    displayName: "St. John Fisher University, 3690 East Ave, Rochester, NY 14618",
+    city: "Rochester", county: "Monroe County", state: "New York",
+    stateCode: "NY", country: "United States", countryCode: "us",
+  },
+  preloaded: true,
+  answers: allYesAnswers(),
+  skipped: blankSkipped(),
+  routes: SJFU_ROUTES,
+  readinessScore: 93,
+  hazardScores: { flood: 91, earthquake: 92, heat: 95, hurricane: 90, wildfire: 94, winter: 89 },
+  gaps: ["Confirm winter storm shelter rotation", "Refresh resident assistant drill roster"],
+};
+
+const PRELOADED_LOCATIONS: SavedLocation[] = [SJFU_LOC, MIT_LOC, BU_LOC, MGH_LOC];
 
 
 const LOCATION_TYPES = ["Home", "School", "Campus", "Community Center", "Church", "Business", "Other"];
@@ -713,7 +749,7 @@ export function SafetyLocationPanel() {
     }
     return merged;
   });
-  const [selectedId, setSelectedId] = useState<string>(MIT_LOC.id);
+  const [selectedId, setSelectedId] = useState<string>(SJFU_LOC.id);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   // Persist every change so readiness percentage and answers survive reloads.
@@ -744,7 +780,7 @@ export function SafetyLocationPanel() {
   const { activePhase } = usePhase();
   const showRiskMap = activePhase === "prepare";
 
-  const selected: SavedLocation = locations.find((l) => l.id === selectedId) ?? MIT_LOC;
+  const selected: SavedLocation = locations.find((l) => l.id === selectedId) ?? SJFU_LOC;
   const currentRoute = useMemo(
     () => selected.routes.find((r) => r.disaster === selectedDisaster) ?? selected.routes[0],
     [selected, selectedDisaster],
