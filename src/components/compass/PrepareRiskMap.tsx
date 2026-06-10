@@ -80,7 +80,7 @@ export default function PrepareRiskMap({ selectedHazardId, onSelectHazard }: Pro
           pathOptions={{ color: "#ffffff", weight: 2, fillColor: "#475569", fillOpacity: 1 }}
         >
           <Tooltip permanent direction="top" offset={[0, -8]}>
-            🏠 {household.name}
+            🏠 {markerLabel}
           </Tooltip>
         </CircleMarker>
 
