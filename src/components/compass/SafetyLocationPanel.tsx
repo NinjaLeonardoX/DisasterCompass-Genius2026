@@ -978,7 +978,10 @@ function SetupModal(p: SetupModalProps) {
   })();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={p.onCancel}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      onKeyDownCapture={(e) => e.stopPropagation()}
+    >
       <div
         className="max-h-[90vh] w-full max-w-2xl overflow-auto rounded-2xl border border-border bg-white text-black shadow-2xl"
         onClick={(e) => e.stopPropagation()}
@@ -990,7 +993,7 @@ function SetupModal(p: SetupModalProps) {
             </p>
             <p className="text-sm font-semibold text-black">{stepLabel}</p>
           </div>
-          <button onClick={p.onCancel} className="rounded-md p-1 text-black hover:bg-gray-100">
+          <button type="button" className="rounded-md p-1 text-black hover:bg-gray-100" aria-label="Close setup">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -1074,7 +1077,7 @@ function NameStep(p: SetupModalProps) {
       </label>
 
       <div className="flex justify-end gap-2 pt-2">
-        <button onClick={p.onCancel} className="rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-black hover:bg-gray-100">
+        <button type="button" onClick={p.onCancel} className="rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-black hover:bg-gray-100">
           Cancel
         </button>
         <button
