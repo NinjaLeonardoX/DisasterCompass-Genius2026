@@ -1,46 +1,51 @@
-# Use real device geolocation as the household's "current location"
+# Top-of-page address entry + saved addresses + real rollup data
 
-## Goal
-The Prepare → Respond → Recover flow currently pins the Rivera household to North Creek, CO (40.024, -105.272). Replace that with the user's actual device location so all routes, risk maps, and "nearest shelter" logic recenter on them.
+## Move + expand the location card
+Move `LocationPermissionCard` to the very top of every phase (above the "Phase 1 · Before impact" header), and expand it into a `MyAddressCard` with three modes:
 
-## Approach (minimal, frontend-only)
+1. **Use my location** (existing browser geolocation)
+2. **Enter address manually** (text field → Nominatim forward geocode)
+3. **Pick a saved address** (dropdown of names + addresses from localStorage)
 
-### 1. New geolocation hook — `src/hooks/useDeviceLocation.ts`
-- Wraps `navigator.geolocation.getCurrentPosition` with permission states: `idle | prompting | granted | denied | unsupported | error`.
-- Returns `{ status, coords, error, request(), clear() }` where `coords = { lat, lng, accuracyMeters }`.
-- Caches the last grant in `sessionStorage` so refresh doesn't re-prompt.
-- SSR-safe (guards `typeof navigator`).
+When the user enters or picks an address, that address becomes "household #1" — the same `Household` object every screen already consumes via `useHousehold()` — with `locationName` set to the user-provided name (e.g. "Home", "Mom's place").
 
-### 2. Location context — `src/components/LocationContext.tsx`
-- Provides `{ household, source: 'device' | 'seed', requestLocation, useSeed }`.
-- Starts from seed (`RIVERA_HOUSEHOLD`) so first paint is never blank.
-- When the hook returns coords, returns a derived household: same name/members, but `lat/lng` from device and `locationName` reverse-geocoded to "Near {City, State}" via a free reverse-geocode (Nominatim, called once and cached).
-- Mounted under the existing `PhaseProvider` in `__root.tsx`.
+Includes:
+- Editable name field ("Save as: Home")
+- Save / Update / Delete buttons
+- Address validation (Zod: trimmed, 5–200 chars), Nominatim error toasts
+- "Use as my current household" toggle per saved address
 
-### 3. Prepare screen permission card
-- Add a compact card at the top of `PreparePhase.tsx`: "Use your real location" with Allow / Use demo location buttons, status pill, and accuracy line.
-- Hidden once `source === 'device'`.
+## Local persistence (no DB)
+Single localStorage key: `dc:saved-addresses:v1` → `Array<{ id, name, address, lat, lng, region, county, state, country, savedAt }>`. Plus `dc:active-address-id` pointing at the currently-selected saved address. No Supabase, no server — matches the user's "just local" requirement.
 
-### 4. Recenter downstream consumers
-Switch these reads from the seed constant to `useLocation().household`:
-- `MapPanel.tsx`, `PrepareRiskMap.tsx` — map center + household marker
-- `EvacuationCountdown.tsx`, `CommunityReadiness.tsx` — proximity calculations
-- `compass.tsx`, `action-plan.tsx`, `map.tsx`, `report.tsx`, `index.tsx` — route loaders that read household
-- `RecoverPhase.tsx` — recovery checklist anchor
+## Rollups: real data only, "no data" otherwise
+Resolve the entered address → `{ city, county, state }` via Nominatim, then fetch from real, CORS-friendly, no-key APIs:
 
-Routes/shelters/volunteers stay at their real Rochester coordinates from the landmark dataset; distances are recomputed against the new origin via the existing scoring lib (no scoring math changes).
+- **Community (your county)** → NWS `https://api.weather.gov/alerts/active?point=lat,lng` → active alerts at that exact point
+- **State (rollup)** → NWS `https://api.weather.gov/alerts/active?area={STATE}` → count + severity histogram
+- **National** → NWS `https://api.weather.gov/alerts/active` → top hazards nationwide
 
-### 5. Out of scope
-- No backend, no DB writes — purely client geolocation.
-- No editing of `realLandmarkScenarios.ts` (already Rochester-centered).
-- No changes to `actions.ts`/`matching.ts`/`scoring.ts` math.
-- No write back to seed.ts (keep as fallback).
+If a fetch returns 0 alerts or fails → render "No active signals reported for this area" with the source + timestamp. Never fabricate counts. (NWS is US-only — for non-US addresses the rollups show "Coverage unavailable outside US — NWS only".)
+
+A new `RollupPanel` component on Prepare renders the three tiers as cards (Community → State → National), each with: source link, fetched-at timestamp, signal count, top 3 alert headlines, or the explicit "no data" empty state.
+
+## Files
+- new: `src/lib/geocoding.ts` (Nominatim forward/reverse, throttled, cached)
+- new: `src/lib/nwsAlerts.ts` (typed fetch wrappers, error → null)
+- new: `src/lib/savedAddresses.ts` (localStorage CRUD + Zod schema)
+- new: `src/components/MyAddressCard.tsx` (replaces `LocationPermissionCard` usage)
+- new: `src/components/RollupPanel.tsx` (Community / State / National)
+- edited: `src/components/LocationContext.tsx` — accept manual address, expose `setManualAddress`, hydrate active address from localStorage
+- edited: `src/components/phases/PreparePhase.tsx` — render `MyAddressCard` at the very top and `RollupPanel` below the risk map
+- edited: `src/routes/__root.tsx` — render `MyAddressCard` once at the very top of `AppChrome` instead of per-phase, so it's persistent across Prepare/Respond/Recover
+
+## Out of scope
+- No backend / no auth (per user)
+- No editing of seed disaster scoring math
+- No payment, no AI; rollup fetches are unauthenticated public APIs
 
 ## Technical notes
-- Reverse geocode: `https://nominatim.openstreetmap.org/reverse?format=json&lat=&lon=` with a UA header; failures silently fall back to "Your location".
-- Permission denied → show inline "Using demo location (North Creek, CO)" badge so the dashboard still works.
-- All 4 screens (Prepare/Respond/Recover + Compass) stay functional whether granted, denied, or pending.
-
-## Files touched
-- new: `src/hooks/useDeviceLocation.ts`, `src/components/LocationContext.tsx`
-- edited: `src/routes/__root.tsx`, `src/components/phases/PreparePhase.tsx`, `MapPanel.tsx`, `PrepareRiskMap.tsx`, `EvacuationCountdown.tsx`, `CommunityReadiness.tsx`, and the 5 route files listed above (single-line import + hook swap each)
+- Nominatim usage policy: max 1 req/sec, send a descriptive `User-Agent`/referrer; we throttle in `geocoding.ts` and cache in-memory + localStorage per `addressNormalized`.
+- All fetches client-side (no SSR), wrapped in try/catch, with 8-second AbortController timeouts.
+- NWS responses are GeoJSON; we narrow to `features[].properties.{event, severity, headline, areaDesc, sent, ends}`.
+- Zod is already used elsewhere; address schema validated on submit + on load from localStorage.
