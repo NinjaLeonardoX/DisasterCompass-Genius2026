@@ -5,6 +5,7 @@ import { forwardGeocode, type GeocodeResult } from "@/lib/geocoding";
 import { HAZARD_RISKS, SEVERITY_META, type HazardRisk } from "@/data/prepare";
 
 const PrepareRiskMap = lazy(() => import("./PrepareRiskMap"));
+import { RouteTrainingPanel } from "./RouteTrainingPanel";
 import {
   MapPin,
   LocateFixed,
