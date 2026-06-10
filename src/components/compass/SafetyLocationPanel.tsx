@@ -639,21 +639,30 @@ export function SafetyLocationPanel() {
             setDraftArea(geo.displayName);
             const inferred = [geo.city, geo.state, geo.country].filter(Boolean).join(", ");
             if (!inferred) setDraftArea(geo.displayName || `${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+            // Persist immediately so it follows the user across Respond/Recover.
+            setManualLocation({ name: geo.city || geo.displayName || "Detected location", resolved: geo });
+            confirmLocation();
           } else {
-            setDraftGeo({
+            const fallback = {
               lat, lng,
               displayName: `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
               city: null, county: null, state: null, stateCode: null, country: null, countryCode: null,
-            });
+            };
+            setDraftGeo(fallback);
             setDraftArea(`${lat.toFixed(5)}, ${lng.toFixed(5)} (address lookup unavailable)`);
+            setManualLocation({ name: "Detected location", resolved: fallback });
+            confirmLocation();
           }
         } catch {
-          setDraftGeo({
+          const fallback = {
             lat, lng,
             displayName: `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
             city: null, county: null, state: null, stateCode: null, country: null, countryCode: null,
-          });
+          };
+          setDraftGeo(fallback);
           setDraftArea(`${lat.toFixed(5)}, ${lng.toFixed(5)} (address lookup failed)`);
+          setManualLocation({ name: "Detected location", resolved: fallback });
+          confirmLocation();
         }
       },
       (err) => {
