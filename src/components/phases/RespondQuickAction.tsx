@@ -113,12 +113,13 @@ export function RespondQuickAction() {
         />
         <div className="min-w-0">
           <p className="text-base font-extrabold uppercase tracking-wide text-[color:var(--severity-critical)]">
-            Active Alert
+            Active Alert · {alertEvent}
           </p>
           <p className="mt-1 text-sm font-medium text-foreground/85">
             Follow the safe route and avoid marked danger areas.
           </p>
         </div>
+
       </div>
 
       {/* Real-time location status */}
