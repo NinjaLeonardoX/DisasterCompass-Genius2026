@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { ChevronDown, Droplets, Activity, Sun } from "lucide-react";
+import { ChevronDown, Droplets, Activity, Sun, MapPin } from "lucide-react";
 import { ActionCard } from "../compass/ActionCard";
 import { MapPanel } from "../compass/MapPanel";
 import { RouteScorePanel } from "../compass/RouteScorePanel";
@@ -9,15 +9,22 @@ import { HouseholdCard } from "../compass/HouseholdCard";
 import { DisasterPicker, type DisasterKind } from "../compass/DisasterPicker";
 import { WhyThisPopover } from "../WhyThisPopover";
 import { WeatherCard } from "../WeatherCard";
+import { RollupPanel } from "../RollupPanel";
 import { usePhase } from "../PhaseContext";
-import { RIVERA_HOUSEHOLD } from "@/data/seed";
+import { useHousehold, useLocation } from "../LocationContext";
 
 export function RespondPhase() {
   const [disaster, setDisaster] = useState<DisasterKind>("Flood");
   const [volunteerApproved, setVolunteerApproved] = useState(false);
   const [scoresOpen, setScoresOpen] = useState(true);
   const { mode } = usePhase();
+  const household = useHousehold();
+  const { source, resolved } = useLocation();
   const actionRef = useRef<HTMLDivElement>(null);
+
+  const scopeLabel = resolved?.city
+    ? `${resolved.city}${resolved.state ? `, ${resolved.state}` : ""}`
+    : household.locationName;
 
   return (
     <div className="space-y-6">
@@ -92,7 +99,7 @@ export function RespondPhase() {
         </div>
 
         <div className="space-y-6">
-          <WeatherCard lat={RIVERA_HOUSEHOLD.lat} lng={RIVERA_HOUSEHOLD.lng} />
+          <WeatherCard lat={household.lat} lng={household.lng} />
           <HouseholdCard />
           {disaster === "Flood" && (
             <div className="space-y-2">
