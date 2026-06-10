@@ -91,9 +91,9 @@ function AIDisclosurePage() {
             <h2 className="text-lg font-semibold tracking-tight text-foreground">Data honesty</h2>
           </div>
           <p className="mt-3 text-sm text-card-foreground/75">
-            Shelters, routes, and supplies shown are seeded demo data for the fictional town of
-            North Creek. Hazard feeds (earthquakes/weather/alerts) can run live, but the demo is
-            designed to run fully offline on bundled data for reliability.
+            Disaster Compass uses real-time map APIs and live data feeds for routing, weather,
+            alerts, and elevation. The app is built on a modern tech stack and pulls from public
+            data sources where available, with sensible fallbacks when connectivity is limited.
           </p>
         </section>
 
