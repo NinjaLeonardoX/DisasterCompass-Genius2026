@@ -1,4 +1,5 @@
 import { Radar, Compass as CompassIcon, LifeBuoy, ArrowUpRight, Camera } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { LifecycleCard } from "./LifecycleCard";
 import { usePhase } from "./PhaseContext";
 import { useLocation } from "./LocationContext";
@@ -21,6 +22,11 @@ import {
 
 export function LifecycleDashboard() {
   const { activePhase, setActivePhase } = usePhase();
+  const navigate = useNavigate();
+  const goPhase = (p: "prepare" | "respond" | "recover") => {
+    setActivePhase(p);
+    navigate({ to: `/compass/${p}` });
+  };
 
   return (
     <section aria-label="Lifecycle dashboard" className="space-y-5">
