@@ -15,19 +15,23 @@ export const Route = createFileRoute("/ai-disclosure")({
 const tools: { name: string; did: string }[] = [
   {
     name: "Lovable",
-    did: "generated the initial UI components and page layout (the visual shell).",
+    did: "UI and project scaffolding, edge functions, data operations to Supabase, and various functionalities.",
   },
   {
     name: "Claude Code",
-    did: "implemented the TypeScript: shared types, the seeded North Creek data, the four rules engines (action / scoring / matching / recovery), the react-leaflet map integration, and the optional live-API data layer.",
+    did: "Complex TypeScript implementation, shared types, rules engines (action / scoring / matching / recovery), react-leaflet map integration, and live-API data layer.",
   },
   {
     name: "ChatGPT",
-    did: "assisted with focused code snippets and prose.",
+    did: "Advised on architecture, provided focused code snippets, and assisted with prose.",
   },
   {
     name: "Claude",
-    did: "assisted with planning, architecture, and coordinating the build.",
+    did: "Assisted with planning, architecture, and coordinating the build.",
+  },
+  {
+    name: "FlowScholar",
+    did: "Task management, task assignment, and understanding workflows with minimal AI assistance.",
   },
 ];
 
