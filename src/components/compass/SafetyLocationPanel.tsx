@@ -1580,11 +1580,11 @@ function NameStep(p: SetupModalProps) {
               type="button"
               onClick={runAiLookup}
               disabled={aiLoading}
-              className="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--severity-moderate)]/40 bg-[color:var(--severity-moderate)]/10 px-2.5 py-1 text-[11px] font-semibold text-[color:var(--severity-moderate)] hover:brightness-95 disabled:opacity-60"
-              title="Use AI to fill address, type, and coordinates"
+              className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary px-2.5 py-1 text-[11px] font-semibold text-primary-foreground hover:brightness-95 disabled:opacity-60"
+              title="Look up the address, type, and coordinates"
             >
               <Sparkles className={`h-3.5 w-3.5 ${aiLoading ? "animate-pulse" : ""}`} />
-              {aiLoading ? "Generating…" : "Generate with AI"}
+              {aiLoading ? "Retrieving…" : "Retrieve Address"}
             </button>
           </div>
           <PlaceAutocomplete
@@ -1594,7 +1594,7 @@ function NameStep(p: SetupModalProps) {
             placeholder="Try a school, hospital, business, or address…"
           />
           <span className="text-[11px] text-black/60">
-            Pick a result, or type a name and tap <span className="font-semibold">Generate with AI</span> to auto-fill address and type.
+            Pick a result, or type a name and tap <span className="font-semibold">Retrieve Address</span> to auto-fill address and type.
           </span>
           {aiError && <span className="text-[11px] font-medium text-[color:var(--severity-high)]">{aiError}</span>}
           {aiNote && !aiError && <span className="text-[11px] font-medium text-[color:var(--severity-low)]">{aiNote}</span>}
