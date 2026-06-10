@@ -266,7 +266,24 @@ export function RecoverPhase() {
           detectedLocation={scopeLabel}
           onClose={() => setOpenForm(null)}
           onSubmit={(n) => {
-            setNeeds((prev) => [{ ...n, id: `n${Date.now()}`, status: "Posted" }, ...prev]);
+            setDraftNeed(n);
+            setOpenForm("broadcast");
+          }}
+        />
+      )}
+      {openForm === "broadcast" && draftNeed && (
+        <BroadcastBeacon
+          draft={draftNeed}
+          onCancel={() => {
+            setDraftNeed(null);
+            setOpenForm(null);
+          }}
+          onPost={(channels) => {
+            setNeeds((prev) => [
+              { ...draftNeed, id: `n${Date.now()}`, status: "Posted", channels },
+              ...prev,
+            ]);
+            setDraftNeed(null);
             setOpenForm(null);
           }}
         />
