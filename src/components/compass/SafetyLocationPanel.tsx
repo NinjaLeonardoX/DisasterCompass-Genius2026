@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "../LocationContext";
 import {
   MapPin,
   LocateFixed,
@@ -444,6 +445,7 @@ type SetupMode = null | "device" | "manual";
 type SetupStep = "name" | "wizard" | "review" | "generated";
 
 export function SafetyLocationPanel() {
+  const { confirmLocation } = useLocation();
   const [locations, setLocations] = useState<SavedLocation[]>([MY_ADDRESS, SJFU]);
   const [selectedId, setSelectedId] = useState<string>(MY_ADDRESS.id);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -466,6 +468,11 @@ export function SafetyLocationPanel() {
     () => selected.routes.find((r) => r.disaster === selectedDisaster) ?? selected.routes[0],
     [selected, selectedDisaster],
   );
+
+  // Confirm location whenever the active selection is ready (preloaded or user-generated).
+  useEffect(() => {
+    if (selected.ready) confirmLocation();
+  }, [selected.ready, selected.id, confirmLocation]);
 
   function startDeviceFlow() {
     setSetupMode("device");
