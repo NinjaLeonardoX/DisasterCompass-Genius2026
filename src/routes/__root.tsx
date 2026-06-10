@@ -16,9 +16,11 @@ import { AppFooter } from "../components/AppFooter";
 import { AppSidebar } from "../components/AppSidebar";
 import { ScenarioProvider } from "../components/ScenarioContext";
 import { PhaseProvider } from "../components/PhaseContext";
+import { LocationProvider } from "../components/LocationContext";
+import { MyAddressCard } from "../components/MyAddressCard";
+import { Toaster } from "../components/ui/sonner";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useRouterState } from "@tanstack/react-router";
-
 
 function NotFoundComponent() {
   return (
@@ -98,16 +100,40 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "Disaster Compass — Community disaster signal map" },
-      { name: "description", content: "DisasterCompass is a community disaster signal map and resilience dashboard." },
-      { property: "og:description", content: "DisasterCompass is a community disaster signal map and resilience dashboard." },
-      { name: "twitter:description", content: "DisasterCompass is a community disaster signal map and resilience dashboard." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3969376c-7c3e-47d0-9848-278202b959e8/id-preview-19d8ef5a--35dbcabd-3974-4554-9d8f-020b22eafb72.lovable.app-1781043932306.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3969376c-7c3e-47d0-9848-278202b959e8/id-preview-19d8ef5a--35dbcabd-3974-4554-9d8f-020b22eafb72.lovable.app-1781043932306.png" },
+      {
+        name: "description",
+        content: "Disaster Compass is a community disaster signal map and resilience dashboard.",
+      },
+      {
+        property: "og:description",
+        content: "Disaster Compass is a community disaster signal map and resilience dashboard.",
+      },
+      {
+        name: "twitter:description",
+        content: "Disaster Compass is a community disaster signal map and resilience dashboard.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3969376c-7c3e-47d0-9848-278202b959e8/id-preview-19d8ef5a--35dbcabd-3974-4554-9d8f-020b22eafb72.lovable.app-1781043932306.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3969376c-7c3e-47d0-9848-278202b959e8/id-preview-19d8ef5a--35dbcabd-3974-4554-9d8f-020b22eafb72.lovable.app-1781043932306.png",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", type: "image/png", href: "/__l5e/assets-v1/60c3f676-91b0-4d0d-a6e8-5301953635a1/favicon.png" },
-      { rel: "apple-touch-icon", href: "/__l5e/assets-v1/60c3f676-91b0-4d0d-a6e8-5301953635a1/favicon.png" },
+      {
+        rel: "icon",
+        type: "image/png",
+        href: "/__l5e/assets-v1/60c3f676-91b0-4d0d-a6e8-5301953635a1/favicon.png",
+      },
+      {
+        rel: "apple-touch-icon",
+        href: "/__l5e/assets-v1/60c3f676-91b0-4d0d-a6e8-5301953635a1/favicon.png",
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -130,11 +156,13 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+// Static marketing pages render outside the app sidebar chrome.
+const STATIC_PATHS = new Set<string>(["/", "/methodology", "/solution", "/presentation"]);
+
 function AppChrome() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isLanding = pathname === "/";
 
-  if (isLanding) {
+  if (STATIC_PATHS.has(pathname)) {
     return <Outlet />;
   }
 
@@ -146,14 +174,15 @@ function AppChrome() {
           <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-slate-200 bg-white px-4 text-slate-900 shadow-[0_8px_30px_-12px_rgba(42,59,85,0.25)] sm:px-6">
             <SidebarTrigger className="text-slate-700 hover:bg-slate-100" />
           </header>
+
           <Outlet />
           <AppFooter />
         </div>
       </div>
+      <Toaster />
     </SidebarProvider>
   );
 }
-
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
@@ -162,7 +191,9 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <ScenarioProvider>
         <PhaseProvider>
-          <AppChrome />
+          <LocationProvider>
+            <AppChrome />
+          </LocationProvider>
         </PhaseProvider>
       </ScenarioProvider>
     </QueryClientProvider>

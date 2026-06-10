@@ -8,11 +8,10 @@ import { RouteLegend } from "../components/RouteLegend";
 export const Route = createFileRoute("/shelters-routes")({
   head: () => ({
     meta: [
-      { title: "Shelters & Routes — DisasterCompass" },
+      { title: "Shelters & Routes — Disaster Compass" },
       {
         name: "description",
-        content:
-          "Evacuation routes and shelter locations with advisory risk scoring.",
+        content: "Evacuation routes and shelter locations with advisory risk scoring.",
       },
     ],
   }),
@@ -130,7 +129,11 @@ function SheltersRoutesPage() {
       >
         <Phone className="h-5 w-5 shrink-0" aria-hidden="true" />
         <p className="text-sm">
-          <strong>Life-threatening emergency?</strong> Call <a href="tel:911" className="underline font-semibold">911</a> immediately.
+          <strong>Life-threatening emergency?</strong> Call{" "}
+          <a href="tel:911" className="underline font-semibold">
+            911
+          </a>{" "}
+          immediately.
         </p>
       </div>
 
@@ -188,8 +191,8 @@ function SheltersRoutesPage() {
         >
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-300" aria-hidden="true" />
           <p className="text-sm">
-            Routes are advisory only and not guaranteed safe. Conditions change
-            rapidly — always follow official local guidance and evacuation orders.
+            Routes are advisory only and not guaranteed safe. Conditions change rapidly — always
+            follow official local guidance and evacuation orders.
           </p>
         </div>
 

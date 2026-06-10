@@ -130,6 +130,59 @@ export const WUI_EDGE: [number, number][] = [
 /** Post-shaking assembly area, sited off the fault line. */
 export const ASSEMBLY_POINT = { name: "Lincoln Park", lat: 40.0325, lng: -105.2655 };
 
+/**
+ * Pre-mapped route per hazard, expressed as deltas from the household origin
+ * (lat, lng). The route is drawn home → … → destination on the Prepare risk
+ * map when that hazard is selected. Works for any address because we add the
+ * deltas to the live household coordinates.
+ */
+export interface HazardRoute {
+  offsets: [number, number][];
+  destinationName: string;
+  destinationKind: string;
+  color: string;
+  note: string;
+}
+
+export const HAZARD_ROUTES: Record<string, HazardRoute> = {
+  flood: {
+    offsets: [[0, 0], [0.0025, 0.0025], [0.0055, 0.0065], [0.0085, 0.0115], [0.0095, 0.0135]],
+    destinationName: "Higher-ground shelter",
+    destinationKind: "Hilltop Community Center",
+    color: "#0EA5E9",
+    note: "Avoids low-lying roads · uphill route",
+  },
+  heat: {
+    offsets: [[0, 0], [-0.0015, 0.0035], [-0.0028, 0.0072]],
+    destinationName: "Cooling center",
+    destinationKind: "Public library / community center",
+    color: "#F59E0B",
+    note: "Short shaded route · travel in cooler hours",
+  },
+  hurricane: {
+    offsets: [[0, 0], [0.0035, -0.0055], [0.0075, -0.0125], [0.0125, -0.021], [0.016, -0.027]],
+    destinationName: "Inland evacuation shelter",
+    destinationKind: "Outside the storm zone",
+    color: "#7C3AED",
+    note: "Inland · leave before the deadline",
+  },
+  wildfire: {
+    offsets: [[0, 0], [-0.0035, 0.0035], [-0.007, 0.0085], [-0.0095, 0.013]],
+    destinationName: "Evacuation shelter",
+    destinationKind: "Away from the fire path",
+    color: "#EA580C",
+    note: "Fastest safe exit · backup route ready",
+  },
+  earthquake: {
+    offsets: [[0, 0], [0.0012, 0.0028], [0.003, 0.005]],
+    destinationName: "Lincoln Park",
+    destinationKind: "Open assembly area off the fault line",
+    color: "#0F766E",
+    note: "Post-shaking only · if your building is unsafe",
+  },
+};
+
+
 // ---- Readiness gaps (household profile → fixable prep items) ----
 
 export type GapFix = "volunteer" | "mark";
@@ -148,7 +201,7 @@ export const PREPARE_GAPS: PrepareGap[] = [
   {
     id: "ride",
     label: "No ride arranged",
-    detail: "Rivera has no vehicle. Pre-match a volunteer driver before any warning.",
+    detail: "No vehicle available. Pre-match a volunteer driver before any warning.",
     fixedLabel: "Ride pre-assigned: Ana (truck · pet + accessibility)",
     fix: "volunteer",
     closedByDefault: false,
@@ -191,3 +244,125 @@ export const PREPARE_GAPS: PrepareGap[] = [
 export const SNAPSHOT_READINESS = 60;
 export const SNAPSHOT_OPEN_GAPS = PREPARE_GAPS.filter((g) => !g.closedByDefault).length;
 export const SNAPSHOT_TOP_GAP = PREPARE_GAPS.find((g) => !g.closedByDefault)?.label ?? "";
+
+// ---- Rollup scale: Household → Community → Town → State → National ----
+
+export type ReadinessScope = "household" | "community" | "town" | "state" | "national";
+
+export interface ScopeMeta {
+  id: ReadinessScope;
+  label: string;
+  place: string;
+  blurb: string;
+  /** State + national are situational-awareness aggregates, not actionable. */
+  context: boolean;
+}
+
+export const SCOPE_META: ScopeMeta[] = [
+  {
+    id: "household",
+    label: "Household",
+    place: "your household",
+    blurb: "your household profile and the gaps to close before the warning.",
+    context: false,
+  },
+  {
+    id: "community",
+    label: "Community",
+    place: "your block",
+    blurb: "your neighboring households and who still needs pre-disaster support.",
+    context: false,
+  },
+  {
+    id: "town",
+    label: "City",
+    place: "North Creek",
+    blurb: "the whole city — households, shelters, and transport.",
+    context: false,
+  },
+  {
+    id: "state",
+    label: "State",
+    place: "Colorado",
+    blurb: "statewide readiness, aggregated for situational awareness.",
+    context: true,
+  },
+  {
+    id: "national",
+    label: "National",
+    place: "United States",
+    blurb: "the national picture, for situational awareness.",
+    context: true,
+  },
+];
+
+export function getScopeMeta(id: ReadinessScope): ScopeMeta {
+  return SCOPE_META.find((s) => s.id === id) ?? SCOPE_META[0];
+}
+
+/** Readiness color by percentage — shared by rings and bars. */
+export function readinessColor(value: number): string {
+  if (value >= 80) return "var(--severity-low)";
+  if (value >= 50) return "var(--severity-moderate)";
+  return "var(--severity-critical)";
+}
+
+export interface CommunityMember {
+  name: string;
+  readiness: number;
+  note: string;
+}
+
+// Five households on a typical block. "Need support" = readiness < 80.
+export const COMMUNITY_MEMBERS: CommunityMember[] = [
+  { name: "Household 1", readiness: 60, note: "Ride + backup-power gaps still open." },
+  { name: "Household 2", readiness: 100, note: "Rehearsed — sheltering plan with high-ground relatives." },
+  { name: "Household 3", readiness: 90, note: "Go-bag ready; confirming a check-in contact." },
+  { name: "Household 4", readiness: 100, note: "Go-bag packed, shelter confirmed." },
+  { name: "Household 5", readiness: 70, note: "Medication resupply plan still pending." },
+];
+
+export interface TownStat {
+  label: string;
+  value: string;
+}
+
+export interface RollupData {
+  readiness: number;
+  stats: TownStat[];
+  note: string;
+}
+
+export const TOWN_READINESS: RollupData = {
+  readiness: 72,
+  stats: [
+    { label: "Households ready", value: "3 of 5" },
+    { label: "Shelters prep-confirmed", value: "2 of 3" },
+    { label: "Drivers pre-matched", value: "1" },
+    { label: "Open support requests", value: "2" },
+  ],
+  note: "North Creek is mostly rehearsed. Two households still need pre-disaster support, and one shelter needs an accessibility upgrade, before the next warning.",
+};
+
+// State + national are seeded situational-awareness aggregates (not live data).
+export const STATE_READINESS: RollupData = {
+  readiness: 64,
+  stats: [
+    { label: "Counties prepared", value: "41 of 64" },
+    { label: "Shelters confirmed", value: "180+" },
+    { label: "Households reached", value: "1.2M" },
+    { label: "Open support requests", value: "230" },
+  ],
+  note: "Statewide readiness aggregates county programs across Colorado. Demo figures for situational awareness — not live data.",
+};
+
+export const NATIONAL_READINESS: RollupData = {
+  readiness: 58,
+  stats: [
+    { label: "States reporting", value: "44 of 50" },
+    { label: "Shelter network", value: "5,400+" },
+    { label: "Households reached", value: "18M" },
+    { label: "Programs active", value: "320" },
+  ],
+  note: "National rollup across participating states. Demo figures for situational awareness — not live data.",
+};

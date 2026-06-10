@@ -1,7 +1,10 @@
-import { Users, Baby, PawPrint, Car, Stethoscope, Accessibility, UserRound } from "lucide-react";
+import type { ReactNode } from "react";
+import { Users, Baby, PawPrint, Car, Stethoscope, Accessibility, UserRound, MapPin } from "lucide-react";
+import { useLocation } from "@/components/LocationContext";
 
 interface Props {
   onGeneratePlan?: () => void;
+  riskMap?: ReactNode;
 }
 
 const ATTRS = [
@@ -14,18 +17,32 @@ const ATTRS = [
   { Icon: Accessibility, label: "Accessibility needs" },
 ];
 
-export function HouseholdCard({ onGeneratePlan }: Props) {
+export function HouseholdCard({ onGeneratePlan, riskMap }: Props) {
+  const { household, activeAddress, resolved, source } = useLocation();
+
+  const title = activeAddress?.name ?? "Your household";
+
+  const placeLine =
+    activeAddress?.displayName ??
+    resolved?.displayName ??
+    (resolved?.city
+      ? `${resolved.city}${resolved.state ? `, ${resolved.state}` : ""}`
+      : household.locationName);
+
   return (
     <section className="dc-card dc-hover-lift p-5 text-card-foreground">
       <div className="flex items-start justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-card-foreground/55">
             Household
           </p>
-          <h2 className="mt-1 text-xl font-bold tracking-tight">Rivera Family</h2>
+          <h2 className="mt-1 truncate text-xl font-bold tracking-tight">{title}</h2>
+          <p className="mt-0.5 inline-flex items-center gap-1 text-xs text-card-foreground/65">
+            <MapPin className="h-3 w-3" /> <span className="truncate">{placeLine}</span>
+          </p>
         </div>
         <span className="inline-flex items-center rounded-full border border-border bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[color:var(--muted-foreground)]">
-          Profile
+          {source === "seed" ? "Demo" : "Live"}
         </span>
       </div>
       <ul className="mt-4 flex flex-wrap gap-1.5">
@@ -44,6 +61,14 @@ export function HouseholdCard({ onGeneratePlan }: Props) {
           </li>
         ))}
       </ul>
+      {source === "seed" && (
+        <p className="mt-3 text-[11px] italic text-card-foreground/55">
+          Household composition is illustrative. Set your address above to anchor the plan to your real location.
+        </p>
+      )}
+      {riskMap ? (
+        <div className="mt-5 border-t border-border/60 pt-5">{riskMap}</div>
+      ) : null}
       <button
         type="button"
         onClick={onGeneratePlan}

@@ -2,26 +2,24 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Compass,
   ShieldCheck,
-  MapPin,
-  Route as RouteIcon,
-  Users,
-  AlertTriangle,
+  LifeBuoy,
   ArrowRight,
   Sparkles,
   Activity,
   CheckCircle2,
 } from "lucide-react";
-import dcLogo from "@/assets/disaster-compass-logo.png.asset.json";
+import { SiteHeader } from "@/components/SiteHeader";
+import heroEvacuation from "@/assets/hero-evacuation.png.asset.json";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
   head: () => ({
     meta: [
-      { title: "DisasterCompass — Calm decisions in the first 60 minutes" },
+      { title: "Disaster Compass — Calm decisions in the first 60 minutes" },
       {
         name: "description",
         content:
-          "DisasterCompass turns flood, fire, and storm signals into one clear action plan — safest route, who needs help, and what to do next.",
+          "Disaster Compass turns flood, fire, and storm signals into one clear action plan — safest route, who needs help, and what to do next.",
       },
     ],
   }),
@@ -45,38 +43,28 @@ function LandingPage() {
       </div>
 
       <div className="relative">
-        {/* NAV */}
-        <header className="flex w-full items-center justify-between bg-white px-6 py-4">
-          <Link to="/" className="flex items-center">
-            <img
-              src={dcLogo.url}
-              alt="DisasterCompass — Community Disaster Action Planner"
-              className="h-14 w-auto"
-            />
-          </Link>
-          <nav className="hidden items-center gap-8 text-sm text-slate-600 md:flex">
-            <a href="#features" className="hover:text-slate-900">Features</a>
-          </nav>
-          <Link
-            to="/compass"
-            className="group inline-flex items-center gap-2 rounded-full bg-[#16A34A] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-black/20 transition hover:brightness-110"
-          >
-            Go to App
-            <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-          </Link>
-        </header>
+        <SiteHeader />
 
         {/* HERO */}
         <section className="mx-auto max-w-7xl px-6 pt-12 pb-4 lg:pt-20 lg:pb-6">
-          <div className="grid items-center gap-14 lg:grid-cols-12">
-            <div className="lg:col-span-7">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white/80 backdrop-blur">
+          <div className="grid items-start gap-14 lg:grid-cols-12">
+            <div className="lg:col-span-6">
+              <div className="road-badge inline-flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-white">
                 <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#16A34A] opacity-60" />
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#16A34A] opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-[#16A34A]" />
                 </span>
-                Prepare. Respond. Recover.
+                <span>Prepare.</span>
+                <span className="relative inline-block hurricane-text">
+                  Respond.
+                  <span aria-hidden className="hurricane-spark hurricane-spark-1" />
+                  <span aria-hidden className="hurricane-spark hurricane-spark-2" />
+                  <span aria-hidden className="hurricane-spark hurricane-spark-3" />
+                </span>
+                <span>Recover.</span>
               </div>
+
+
 
               <h1 className="mt-6 text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
                 Ready before the warning.{" "}
@@ -87,10 +75,9 @@ function LandingPage() {
               </h1>
 
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/70">
-                When disaster strikes, families freeze. Disaster Compass gives
-                every household one clear action — go, stay, or wait — with the
-                safest route and a neighbor to help those who can't leave alone,
-                then guides them through recovery. Built for floods,
+                When disaster strikes, families freeze. Disaster Compass gives every household one
+                clear action — go, stay, or wait — with the safest route and a neighbor to help
+                those who can't leave alone, then guides them through recovery. Built for floods,
                 earthquakes, wildfires, hurricanes, and extreme heat.
               </p>
 
@@ -106,7 +93,7 @@ function LandingPage() {
                   href="#features"
                   className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white/90 backdrop-blur transition hover:bg-white/10"
                 >
-                  See features
+                  How it works
                 </a>
               </div>
 
@@ -126,120 +113,88 @@ function LandingPage() {
               </div>
             </div>
 
-            {/* Compass card preview */}
-            <div className="lg:col-span-5">
-              <div className="relative">
-                <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-[#16A34A]/20 to-transparent blur-2xl" />
-                <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#2a3b55]/70 p-6 shadow-2xl shadow-black/40 backdrop-blur-xl">
-                  <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center gap-2 rounded-full bg-red-500/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-red-300 ring-1 ring-red-500/30">
-                      <AlertTriangle className="h-3 w-3" />
-                      Flood Warning
-                    </span>
-                    <span className="text-[11px] text-white/50">Demo · North Creek</span>
-                  </div>
-
-                  <div className="mt-5">
-                    <p className="text-xs uppercase tracking-[0.2em] text-white/50">Recommended action</p>
-                    <h3 className="mt-2 text-3xl font-bold leading-tight">
-                      Go to higher ground
-                    </h3>
-                    <p className="mt-1 text-sm text-white/60">
-                      Hilltop Community Center · 3.0 mi · ETA 35 min
-                    </p>
-                  </div>
-
-                  <div className="mt-5 flex items-center gap-2">
-                    <span className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#16A34A] px-3 text-xs font-bold text-white">
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                      GO — Route B
-                    </span>
-                    <span className="inline-flex h-9 items-center rounded-lg bg-white/10 px-3 text-xs font-medium text-white/80 ring-1 ring-white/10">
-                      Route A rejected (flooded bridge)
-                    </span>
-                  </div>
-
-                  <div className="mt-6 grid grid-cols-3 gap-3 border-t border-white/10 pt-5">
-                    {[
-                      { label: "Route B Score", value: "91", tone: "text-[#5EE6A1]" },
-                      { label: "Households", value: "5", tone: "text-white" },
-                      { label: "Need Help", value: "2", tone: "text-amber-300" },
-                    ].map((s) => (
-                      <div key={s.label}>
-                        <p className="text-[10px] uppercase tracking-wider text-white/40">
-                          {s.label}
-                        </p>
-                        <p className={`mt-1 text-2xl font-bold ${s.tone}`}>{s.value}</p>
-                      </div>
-                    ))}
-                  </div>
+            {/* Hero image */}
+            <div className="lg:col-span-6">
+              <div className="relative w-full">
+                <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-[#16A34A]/25 to-transparent blur-2xl" />
+                <div className="relative w-full overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-black/50 ring-1 ring-white/5">
+                  <img
+                    src={heroEvacuation.url}
+                    alt="A family follows a glowing green evacuation route to safety as floodwaters rise at dusk"
+                    className="block h-auto w-full object-contain"
+                    loading="eager"
+                  />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0f1a2e]/70 via-transparent to-transparent" />
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-
-        {/* FEATURES */}
+        {/* SYSTEMS */}
         <section id="features" className="mx-auto max-w-7xl px-6 pt-4 pb-12 lg:pt-6 lg:pb-16">
           <div className="max-w-2xl">
             <p className="text-xs uppercase tracking-[0.25em] text-[#16A34A]">The system</p>
             <h2 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
-              One plan. Six panels. Zero guesswork.
+              One plan. Three systems. Zero guesswork.
             </h2>
             <p className="mt-4 text-lg text-white/60">
-              Every panel answers a question a panicked family is already
-              asking. Nothing more.
+              Prepare before. Respond during. Recover after — one continuous flow that carries every
+              household from readiness to recovery.
             </p>
           </div>
 
-          <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {features.map((f) => (
+          <div className="mt-14 grid gap-6 md:grid-cols-3">
+            {systems.map((s) => (
               <div
-                key={f.title}
-                className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-6 transition hover:border-white/20 hover:bg-white/[0.06]"
+                key={s.name}
+                className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.01] p-8 transition duration-300 hover:-translate-y-1.5 hover:border-[#16A34A]/40 hover:shadow-[0_30px_60px_-25px_rgba(22,163,74,0.55)]"
               >
-                <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#16A34A]/15 ring-1 ring-[#16A34A]/30">
-                  <f.icon className="h-5 w-5 text-[#16A34A]" />
+                {/* Corner glow on hover */}
+                <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[#16A34A]/25 opacity-0 blur-3xl transition duration-500 group-hover:opacity-100" />
+                {/* Top sheen line */}
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#16A34A]/70 to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
+
+                <div className="relative flex items-start justify-between">
+                  <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#16A34A]/15 ring-1 ring-[#16A34A]/30 transition duration-300 group-hover:scale-105 group-hover:bg-[#16A34A]/25">
+                    <s.icon className="h-7 w-7 text-[#5EE6A1]" />
+                  </span>
+                  <span className="text-6xl font-black leading-none text-white/[0.06] transition duration-300 group-hover:text-white/10">
+                    {s.step}
+                  </span>
                 </div>
-                <h3 className="mt-5 text-lg font-semibold text-white">{f.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/60">
-                  {f.desc}
-                </p>
+
+                <div className="relative mt-6">
+                  <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/60">
+                    {s.when}
+                  </span>
+                  <h3 className="mt-3 text-2xl font-bold text-white">{s.name}</h3>
+                  <p className="text-sm font-medium text-[#5EE6A1]">{s.sub}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-white/60">{s.desc}</p>
+                </div>
+
+                <div className="relative mt-5 flex flex-wrap gap-2">
+                  {s.points.map((p) => (
+                    <span
+                      key={p}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-3 py-1 text-xs text-white/75 ring-1 ring-white/10"
+                    >
+                      <CheckCircle2 className="h-3 w-3 text-[#16A34A]" />
+                      {p}
+                    </span>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
         </section>
 
 
-        {/* CTA */}
-        <section className="mx-auto max-w-7xl px-6 pb-32">
-          <div className="relative overflow-hidden rounded-3xl border border-[#16A34A]/30 bg-[#16A34A]/[0.06] p-12 text-center sm:p-20">
-            <div className="absolute inset-0 -z-0 bg-[radial-gradient(circle_at_50%_0%,rgba(22,163,74,0.18),transparent_60%)]" />
-            <div className="relative">
-              <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">
-                See it before you need it.
-              </h2>
-              <p className="mx-auto mt-4 max-w-xl text-white/70">
-                Open the live North Creek demo and walk through the first 60
-                minutes of a flood event.
-              </p>
-              <Link
-                to="/compass"
-                className="group mt-8 inline-flex items-center gap-2 rounded-full bg-white px-7 py-4 text-sm font-semibold text-[#1e293b] shadow-2xl shadow-black/40 transition hover:bg-white/90"
-              >
-                Launch Compass Plan
-                <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-              </Link>
-            </div>
-          </div>
-        </section>
-
         <footer className="border-t border-white/10">
           <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-8 text-xs text-white/40 sm:flex-row">
             <div className="flex items-center gap-2">
               <Compass className="h-4 w-4 text-[#16A34A]" />
-              <span>DisasterCompass · 2026</span>
+              <span>Disaster Compass · 2026</span>
             </div>
             <span>For demonstration only. Not an official emergency service.</span>
           </div>
@@ -249,36 +204,32 @@ function LandingPage() {
   );
 }
 
-const features = [
+const systems = [
   {
-    icon: Compass,
-    title: "Compass Plan",
-    desc: "One screen, one action. The most important thing to do, right now, in plain language.",
-  },
-  {
-    icon: MapPin,
-    title: "Safe Route Map",
-    desc: "Live flood, fire, and blocked-road layers. Color-coded routes you can trust at a glance.",
-  },
-  {
-    icon: RouteIcon,
-    title: "Route Scores",
-    desc: "Every path scored on safety, time, and elevation — with the math shown openly.",
-  },
-  {
-    icon: Users,
-    title: "Volunteer Match",
-    desc: "Neighbors with capacity matched to neighbors who need transport, medicine, or eyes-on.",
-  },
-  {
+    step: "01",
+    when: "Before",
     icon: ShieldCheck,
-    title: "Coordinator View",
-    desc: "A calm operations layer for block captains and emergency staff — shared, not siloed.",
+    name: "Prepare",
+    sub: "Readiness Radar",
+    desc: "Pre-solve risk, destination, route, and gaps so the plan is ready before the warning ever arrives.",
+    points: ["Household risk profile", "Community readiness", "Hazard awareness"],
   },
   {
-    icon: Sparkles,
-    title: "AI Disclosure",
-    desc: "Every signal source, model weight, and fallback shown inline. Trust by construction.",
+    step: "02",
+    when: "During",
+    icon: Compass,
+    name: "Respond",
+    sub: "Compass Action Plan",
+    desc: "One clear action — GO, STAY, or WAIT — with the safest route and a neighbor for those who can't leave alone.",
+    points: ["GO / STAY / WAIT", "Safe route map", "Volunteer match"],
+  },
+  {
+    step: "03",
+    when: "After",
+    icon: LifeBuoy,
+    name: "Recover",
+    sub: "Recovery Launchpad",
+    desc: "Guided steps for damage, assistance, cleanup, and wellbeing — clear and calm, never overwhelming.",
+    points: ["Recovery checklist", "Assistance steps", "Wellbeing"],
   },
 ];
-

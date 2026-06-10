@@ -1,4 +1,6 @@
 import type { DisasterKind } from "./DisasterPicker";
+import { useLocation } from "@/components/LocationContext";
+
 
 interface Community {
   name: string;
@@ -53,16 +55,26 @@ function readinessTone(score: number) {
 
 export function CommunityReadiness({ disaster }: { disaster: DisasterKind }) {
   const list = COMMUNITIES[disaster];
+  const { resolved, source } = useLocation();
+  const scope = resolved?.city
+    ? `${resolved.city}${resolved.state ? `, ${resolved.state}` : ""}`
+    : null;
   return (
     <div className="mt-4 border-t border-border pt-4">
       <div className="flex items-baseline justify-between">
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-card-foreground/55">
           Communities most likely to be hit
+          {scope && <span className="ml-1 normal-case tracking-normal text-card-foreground/45">· near {scope}</span>}
         </p>
         <p className="text-[11px] text-card-foreground/45">
           Readiness = shelter access · transport · vulnerable residents
         </p>
       </div>
+      {source === "seed" && (
+        <p className="mt-1 text-[11px] italic text-card-foreground/55">
+          Illustrative example — set your address above to anchor this to your real area.
+        </p>
+      )}
       <ul className="mt-3 space-y-2">
         {list.map((c) => {
           const tone = readinessTone(c.readiness);

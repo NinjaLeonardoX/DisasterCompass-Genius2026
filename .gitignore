@@ -16,6 +16,11 @@ dist-ssr
 .nitro
 *.local
 
+# Local env files with live-data keys (commit only .env.example)
+.env
+.env.*
+!.env.example
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars

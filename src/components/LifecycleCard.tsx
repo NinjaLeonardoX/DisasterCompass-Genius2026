@@ -25,11 +25,9 @@ interface Props {
 }
 
 const TONE: Record<Props["statusTone"], string> = {
-  amber:
-    "bg-[color:var(--severity-moderate)]/20 text-[color:var(--severity-moderate)] ring-[color:var(--severity-moderate)]/40",
-  green:
-    "bg-[color:var(--severity-low)]/20 text-[color:var(--severity-low)] ring-[color:var(--severity-low)]/40",
-  navy: "bg-white/15 text-white ring-white/30",
+  amber: "bg-[color:var(--severity-moderate)] text-white ring-white/40 shadow-sm",
+  green: "bg-[color:var(--severity-low)] text-white ring-white/40 shadow-sm",
+  navy: "bg-slate-900/80 text-white ring-white/30 shadow-sm",
 };
 
 export function LifecycleCard({
@@ -54,11 +52,11 @@ export function LifecycleCard({
       type="button"
       onClick={onSelect}
       className={[
-        "group dc-hover-lift relative flex flex-col overflow-hidden rounded-3xl text-left text-white transition-all",
-        "min-h-[340px] border",
+        "group dc-hover-lift relative flex flex-col overflow-hidden rounded-3xl text-left text-white transition-all duration-300 ease-out hover:scale-[1.03]",
+        "min-h-[340px] border cursor-pointer",
         active
           ? "border-[color:var(--severity-low)]/70 ring-2 ring-[color:var(--severity-low)]/60 shadow-[0_24px_70px_-20px_rgba(22,163,74,0.55)]"
-          : "border-white/10 shadow-[0_18px_55px_rgba(15,26,46,0.35)]",
+          : "border-white/10 shadow-[0_18px_55px_rgba(15,26,46,0.35)] hover:shadow-[0_24px_70px_-20px_rgba(15,26,46,0.55)]",
       ].join(" ")}
     >
       {/* Cinematic visual layer */}
@@ -131,11 +129,15 @@ export function LifecycleCard({
           </TooltipProvider>
         </div>
 
-        {snapshot && <div className="mt-5">{snapshot}</div>}
+        {snapshot && (
+          <div className="mt-5 rounded-xl bg-slate-950/35 p-3 ring-1 ring-white/10 backdrop-blur-sm">
+            {snapshot}
+          </div>
+        )}
 
         <div className="mt-auto pt-10">
           <h3 className="text-3xl font-bold leading-tight tracking-tight">{title}</h3>
-          <p className="mt-1 text-sm text-white/70">{subtitle}</p>
+          <p className="mt-1 text-sm font-medium text-white/85">{subtitle}</p>
 
           <div
             role="button"
@@ -153,17 +155,17 @@ export function LifecycleCard({
           </div>
 
           {expanded && (
-            <ul className="mt-3 space-y-1.5 rounded-xl bg-white/8 p-3 text-xs text-white/85 ring-1 ring-white/10 backdrop-blur">
+            <ul className="mt-3 space-y-1.5 rounded-xl bg-slate-950/55 p-3 text-xs text-white ring-1 ring-white/15 backdrop-blur">
               {actions.map((a) => (
                 <li key={a} className="flex items-start gap-2">
-                  <span className="mt-1 h-1 w-1 rounded-full bg-[color:var(--severity-low)]" />
+                  <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[color:var(--severity-low)]" />
                   {a}
                 </li>
               ))}
             </ul>
           )}
 
-          <p className="mt-4 text-[11px] italic text-white/55">{tagline}</p>
+          <p className="mt-4 text-[11px] italic text-white/80">{tagline}</p>
         </div>
       </div>
     </button>

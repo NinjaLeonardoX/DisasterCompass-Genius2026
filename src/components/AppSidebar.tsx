@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Radar, Compass as CompassIcon, LifeBuoy, BookOpen, Info } from "lucide-react";
+import { Radar, Compass as CompassIcon, LifeBuoy, BookOpen, Info, Brain } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -22,15 +22,22 @@ const PHASES: { id: Phase; label: string; sub: string; Icon: typeof Radar }[] = 
 ];
 
 const REFS = [
+  { to: "/iq", label: "IQ Engine", Icon: Brain },
   { to: "/methodology", label: "Methodology", Icon: BookOpen },
   { to: "/ai-disclosure", label: "AI Disclosure", Icon: Info },
 ] as const;
+
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { activePhase, setActivePhase, mode, setMode } = usePhase();
+  const { setActivePhase } = usePhase();
+  const phaseRoutes: Record<Phase, "/compass/prepare" | "/compass/respond" | "/compass/recover"> = {
+    prepare: "/compass/prepare",
+    respond: "/compass/respond",
+    recover: "/compass/recover",
+  };
 
   return (
     <Sidebar
@@ -41,43 +48,19 @@ export function AppSidebar() {
         <Link to="/compass" className="flex h-full items-center">
           <img
             src={dcLogo.url}
-            alt="DisasterCompass"
+            alt="Disaster Compass"
             className={`${collapsed ? "h-7 w-7 object-cover object-left" : "h-8 w-auto"}`}
           />
         </Link>
       </SidebarHeader>
 
       <SidebarContent className="bg-[color:var(--surface)]">
-        {/* Mode toggle */}
-        {!collapsed && (
-          <div className="px-3 pt-3">
-            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
-              Mode
-            </p>
-            <div className="flex rounded-lg bg-white/5 p-0.5 ring-1 ring-white/10">
-              {(["resident", "community"] as const).map((m) => (
-                <button
-                  key={m}
-                  onClick={() => setMode(m)}
-                  className={[
-                    "flex-1 rounded-md px-2 py-1.5 text-[11px] font-semibold capitalize transition-colors",
-                    mode === m
-                      ? "bg-[color:var(--severity-low)] text-white shadow-sm"
-                      : "text-slate-300 hover:text-white",
-                  ].join(" ")}
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
               {PHASES.map(({ id, label, sub, Icon }) => {
-                const active = activePhase === id && pathname === "/compass";
+                const to = phaseRoutes[id];
+                const active = pathname === to || (id === "prepare" && pathname === "/compass");
                 return (
                   <SidebarMenuItem key={id}>
                     <SidebarMenuButton
@@ -92,7 +75,7 @@ export function AppSidebar() {
                       data-active={active}
                     >
                       <Link
-                        to="/compass"
+                        to={to}
                         onClick={() => setActivePhase(id)}
                         className="flex items-start gap-2.5"
                       >
