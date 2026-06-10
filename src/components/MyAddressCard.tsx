@@ -343,7 +343,7 @@ export function MyAddressCard() {
               </span>
               <div>
                 <p className="text-sm font-semibold text-black">You're here</p>
-                <p className="text-xs text-black/70">
+                <p className="text-xs text-black">
                   {accuracyMeters != null && `±${Math.round(accuracyMeters)} m accuracy`}
                 </p>
               </div>
@@ -353,13 +353,13 @@ export function MyAddressCard() {
               <p className="text-sm font-medium text-black">
                 {resolved.displayName ?? "Your current location"}
               </p>
-              <p className="mt-0.5 text-xs text-black/70">
+              <p className="mt-0.5 text-xs text-black">
                 {resolved.lat.toFixed(5)}, {resolved.lng.toFixed(5)}
               </p>
             </div>
 
             <label className="mb-4 flex flex-col gap-1">
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-black/80">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-black">
                 Save my location as household
               </span>
               <input
@@ -368,7 +368,7 @@ export function MyAddressCard() {
                 maxLength={60}
                 placeholder="Home"
                 autoFocus
-                className="rounded-md border border-border bg-white px-2 py-1.5 text-sm text-black placeholder:text-black/40"
+                className="rounded-md border border-border bg-white px-2 py-1.5 text-sm text-black placeholder:text-black/60"
               />
             </label>
 
