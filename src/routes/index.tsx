@@ -151,18 +151,16 @@ function LandingPage() {
               </div>
 
               <h1 className="mt-6 text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
-                Ready before the warning.{" "}
+                One family. Three moments.{" "}
                 <span className="bg-gradient-to-r from-[#16A34A] to-[#5EE6A1] bg-clip-text text-transparent">
-                  Clear and calm
-                </span>{" "}
-                when it hits. Supported after.
+                  One clear plan.
+                </span>
               </h1>
 
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/70">
-                When disaster strikes, families freeze. Disaster Compass gives every household one
-                clear action — go, stay, or wait — with the safest route and a neighbor to help
-                those who can't leave alone, then guides them through recovery. Built for floods,
-                earthquakes, wildfires, hurricanes, and extreme heat.
+                Before the flood, fire, or storm warning: build your family's action plan. Know
+                exactly where to go, the safest route, and who can help those who can't leave
+                alone. Then walk through recovery step by step.
               </p>
 
               <div className="mt-9 flex flex-wrap items-center gap-3">
