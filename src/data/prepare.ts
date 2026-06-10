@@ -148,7 +148,7 @@ export const PREPARE_GAPS: PrepareGap[] = [
   {
     id: "ride",
     label: "No ride arranged",
-    detail: "Rivera has no vehicle. Pre-match a volunteer driver before any warning.",
+    detail: "No vehicle available. Pre-match a volunteer driver before any warning.",
     fixedLabel: "Ride pre-assigned: Ana (truck · pet + accessibility)",
     fix: "volunteer",
     closedByDefault: false,
