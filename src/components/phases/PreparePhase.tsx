@@ -32,7 +32,7 @@ import {
 import { decideAction } from "@/lib/actions";
 import { getBestRoute, scoreRoute } from "@/lib/scoring";
 import { ROUTES } from "@/data/seed";
-import { useHousehold } from "../LocationContext";
+import { useHousehold, useLocation } from "../LocationContext";
 import { RollupPanel } from "../RollupPanel";
 
 // Prepare leads with the calm risk map. Leaflet touches `window`, so the map is
