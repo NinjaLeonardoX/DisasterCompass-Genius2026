@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Polygon, Polyline, CircleMarker, Tooltip } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { FLOOD_POLYGON, MAP_CENTER, MAP_ZOOM } from "@/data/seed";
 import { useHousehold, useLocation } from "@/components/LocationContext";
+import { fetchDirection } from "@/lib/api/routing.functions";
 import {
   FAULT_LINE_BAND,
   HAZARD_RISKS,
@@ -13,10 +15,11 @@ import {
 
 // Client-only CALM risk map for the Prepare phase. Tiles are desaturated
 // (see .prepare-risk-map in styles.css), hazard zones are shaded by severity,
-// and the selected hazard's PRE-MAPPED rehearsal route is drawn from the
-// household origin to its destination (derived from HAZARD_ROUTES offsets so
-// it works for any saved address). Lazy imported (see PreparePhase) so
-// Leaflet's `window` access never runs in SSR.
+// and the selected hazard's rehearsal route is drawn from the household
+// origin to its destination. The polyline geometry comes from the
+// OpenRouteService directions API when available so it follows real roads
+// rather than a straight line; if routing is unavailable we fall back to the
+// hand-mapped offset waypoints from HAZARD_ROUTES.
 
 const ZONE_GEOMETRY: Record<Exclude<HazardZone, null>, [number, number][]> = {
   flood: FLOOD_POLYGON,
@@ -39,10 +42,39 @@ export default function PrepareRiskMap({ selectedHazardId, onSelectHazard }: Pro
 
   const selectedHazard = HAZARD_RISKS.find((h) => h.id === selectedHazardId);
   const route = HAZARD_ROUTES[selectedHazardId];
-  const routeCoords: [number, number][] | null = route
+  const seedCoords: [number, number][] | null = route
     ? route.offsets.map(([dLat, dLng]) => [center[0] + dLat, center[1] + dLng])
     : null;
-  const destination = routeCoords ? routeCoords[routeCoords.length - 1] : null;
+  const destination = seedCoords ? seedCoords[seedCoords.length - 1] : null;
+
+  // Live road-following geometry from OpenRouteService. Falls back to the
+  // seed waypoints when the API key is absent or the request fails.
+  const [liveCoords, setLiveCoords] = useState<[number, number][] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLiveCoords(null);
+    if (!destination) return;
+    const start: [number, number] = [center[1], center[0]]; // ORS expects [lng, lat]
+    const dest: [number, number] = [destination[1], destination[0]];
+    fetchDirection({ data: { start, dest } })
+      .then((res) => {
+        if (cancelled || !res) return;
+        const coords = res.features?.[0]?.geometry?.coordinates;
+        if (!coords || coords.length === 0) return;
+        // ORS returns [lng, lat] — convert to [lat, lng] for Leaflet.
+        setLiveCoords(coords.map(([lng, lat]) => [lat, lng] as [number, number]));
+      })
+      .catch(() => {
+        // swallow — fallback polyline is already shown
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedHazardId, center[0], center[1]]);
+
+  const routeCoords = liveCoords ?? seedCoords;
 
   return (
     <div className="relative">
@@ -82,19 +114,19 @@ export default function PrepareRiskMap({ selectedHazardId, onSelectHazard }: Pro
           );
         })}
 
-        {/* Pre-mapped rehearsal route for the selected hazard */}
-        {routeCoords && (
+        {/* Rehearsal route for the selected hazard (real roads when available) */}
+        {routeCoords && route && (
           <Polyline
             positions={routeCoords}
             pathOptions={{
-              color: route!.color,
+              color: route.color,
               weight: 5,
               opacity: 0.95,
-              dashArray: "8 6",
+              dashArray: liveCoords ? undefined : "8 6",
               lineCap: "round",
             }}
           >
-            <Tooltip>{`${selectedHazard?.shortLabel} · ${route!.note}`}</Tooltip>
+            <Tooltip>{`${selectedHazard?.shortLabel} · ${route.note}`}</Tooltip>
           </Polyline>
         )}
 
@@ -127,7 +159,6 @@ export default function PrepareRiskMap({ selectedHazardId, onSelectHazard }: Pro
           </Tooltip>
         </CircleMarker>
       </MapContainer>
-
     </div>
   );
 }

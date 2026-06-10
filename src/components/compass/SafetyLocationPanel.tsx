@@ -249,67 +249,6 @@ const SECTIONS: Section[] = [
 
 const HAZARD_SECTION_IDS: Disaster[] = ["flood", "earthquake", "heat", "hurricane", "wildfire", "winter"];
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Seeded SJFU plan
-// ─────────────────────────────────────────────────────────────────────────────
-
-const SJFU_ROUTES: RoutePlan[] = [
-  {
-    disaster: "flood",
-    label: "Flood",
-    firstAction: "Move to higher ground immediately",
-    destination: "Lavery Library (upper floors) · on-campus high ground",
-    safeRoute: "East Ave → Campus Dr → Lavery Library entrance",
-    avoid: "Irondequoit Creek crossings, low underpasses on East Ave",
-    why: "Lavery Library sits above the local floodplain and is the closest sheltered upper-floor space.",
-  },
-  {
-    disaster: "earthquake",
-    label: "Earthquake",
-    firstAction: "Drop, Cover, Hold On — then go to outdoor assembly",
-    destination: "Polisseni Track & Field — open outdoor assembly area",
-    safeRoute: "Exit nearest building → walk around brick facades → Polisseni Field",
-    avoid: "Brick facades, glass atriums, parking structures",
-    why: "Open field clear of falling debris; pre-designated campus muster point.",
-  },
-  {
-    disaster: "heat",
-    label: "Extreme Heat",
-    firstAction: "Move indoors to a cooled common area; hydrate",
-    destination: "Campus Center — air-conditioned commons",
-    safeRoute: "Shaded walkway via Kearney Hall → Campus Center",
-    avoid: "Athletic fields, asphalt lots, midday direct sun",
-    why: "Always-cooled common space with charging stations and water access.",
-  },
-  {
-    disaster: "hurricane",
-    label: "Hurricane",
-    firstAction: "Shelter in place in an interior ground-floor room",
-    destination: "Student Wellness Center — interior corridors",
-    safeRoute: "Cross via covered walkways → Student Wellness Center",
-    avoid: "Quad open spaces, windowed lounges, tree-lined paths",
-    why: "Reinforced interior space rated for high-wind shelter; pet-friendly room available.",
-  },
-  {
-    disaster: "wildfire",
-    label: "Wildfire",
-    firstAction: "Evacuate via primary exit; check air quality alerts",
-    destination: "Off-campus shelter via I-490 W",
-    safeRoute: "Campus Dr → East Ave → I-490 W toward downtown Rochester",
-    avoid: "Wooded perimeter trails, Ellison Park access roads",
-    why: "Primary highway exit clears campus quickly; backup is Fairport Rd south.",
-  },
-  {
-    disaster: "winter",
-    label: "Winter Storm",
-    firstAction: "Walk indoors via the main walkway to the campus warming center",
-    destination: "Campus Warming & Charging Center — Campus Center commons",
-    safeRoute: "Winter Safe Route — Main Walkway / Main Road → Campus Center",
-    avoid: "Icy bridge path, steep service road, exposed outer walkway, unplowed parking edge",
-    why: "Winter route avoids icy bridges and exposed paths; warming center keeps power and heat.",
-  },
-];
-
 function allYesAnswers(): AllAnswers {
   const out = {} as AllAnswers;
   for (const s of SECTIONS) {
@@ -335,45 +274,192 @@ function blankSkipped(): SkipMap {
   };
 }
 
-const MY_ADDRESS: SavedLocation = {
-  id: "my-address",
-  name: "My Address",
-  type: "Home",
-  area: "",
-  ready: false,
-  answers: blankAnswers(),
-  skipped: blankSkipped(),
-  routes: [],
-  readinessScore: 0,
-  hazardScores: { flood: null, earthquake: null, heat: null, hurricane: null, wildfire: null, winter: null },
-  gaps: [],
-};
+// ─────────────────────────────────────────────────────────────────────────────
+// Seeded Boston-area locations
+// ─────────────────────────────────────────────────────────────────────────────
 
-const SJFU: SavedLocation = {
-  id: "sjfu",
-  name: "St. John Fisher University",
+function buildRoutes(opts: {
+  flood: string;
+  floodRoute: string;
+  quakeMuster: string;
+  quakeRoute: string;
+  cooling: string;
+  coolingRoute: string;
+  hurricane: string;
+  hurricaneRoute: string;
+  wildfireExit: string;
+  wildfireRoute: string;
+  warming: string;
+  winterRoute: string;
+}): RoutePlan[] {
+  return [
+    {
+      disaster: "flood",
+      label: "Flood",
+      firstAction: "Move to higher ground immediately",
+      destination: opts.flood,
+      safeRoute: opts.floodRoute,
+      avoid: "Charles River esplanade, Storrow Dr underpasses, Back Bay low blocks",
+      why: "Upper floors above the local floodplain; the safe route avoids river-adjacent low roads.",
+    },
+    {
+      disaster: "earthquake",
+      label: "Earthquake",
+      firstAction: "Drop, Cover, Hold On — then go to outdoor assembly",
+      destination: opts.quakeMuster,
+      safeRoute: opts.quakeRoute,
+      avoid: "Brick facades, glass atriums, parking structures, overhead signage",
+      why: "Open ground clear of falling debris; pre-designated muster point.",
+    },
+    {
+      disaster: "heat",
+      label: "Extreme Heat",
+      firstAction: "Move indoors to a cooled common area; hydrate",
+      destination: opts.cooling,
+      safeRoute: opts.coolingRoute,
+      avoid: "Asphalt lots, athletic fields, direct sun between 11am–4pm",
+      why: "Always-cooled common space with charging stations and water access.",
+    },
+    {
+      disaster: "hurricane",
+      label: "Hurricane",
+      firstAction: "Shelter in place in an interior ground-floor room",
+      destination: opts.hurricane,
+      safeRoute: opts.hurricaneRoute,
+      avoid: "Coastal blocks, windowed lounges, tree-lined paths, Storrow/Memorial Dr",
+      why: "Reinforced interior space rated for high-wind shelter.",
+    },
+    {
+      disaster: "wildfire",
+      label: "Wildfire / Smoke",
+      firstAction: "Move indoors with HVAC on recirculate; check AQI alerts",
+      destination: opts.wildfireExit,
+      safeRoute: opts.wildfireRoute,
+      avoid: "Outdoor exertion, open windows, idle traffic in tunnels",
+      why: "Indoor refuge with filtered air; backup is an inland evacuation route.",
+    },
+    {
+      disaster: "winter",
+      label: "Winter Storm",
+      firstAction: "Walk indoors via covered paths to the warming center",
+      destination: opts.warming,
+      safeRoute: opts.winterRoute,
+      avoid: "Icy bridges, unplowed side streets, exposed waterfront walkways",
+      why: "Warming center keeps power and heat; covered route avoids icy exposure.",
+    },
+  ];
+}
+
+const MIT_ROUTES = buildRoutes({
+  flood: "Stata Center (Bldg 32) upper floors — on-campus high ground",
+  floodRoute: "Mass Ave → Vassar St → Stata Center entrance",
+  quakeMuster: "Kresge Oval — open outdoor assembly area",
+  quakeRoute: "Exit nearest building → Killian Court → Kresge Oval",
+  cooling: "Stratton Student Center (W20) — air-conditioned commons",
+  coolingRoute: "Shaded walk via Infinite Corridor → Student Center",
+  hurricane: "Building 7 interior corridors — reinforced shelter",
+  hurricaneRoute: "Infinite Corridor → Lobby 7 interior rooms",
+  wildfireExit: "MIT Medical (E23) indoor refuge — filtered HVAC",
+  wildfireRoute: "Mass Ave → Main St → MIT Medical entrance",
+  warming: "Stratton Student Center warming commons",
+  winterRoute: "Infinite Corridor (indoor) → W20 commons",
+});
+
+const BU_ROUTES = buildRoutes({
+  flood: "Mugar Memorial Library upper floors — on-campus high ground",
+  floodRoute: "Commonwealth Ave → Bay State Rd → Mugar Library",
+  quakeMuster: "BU Beach (Charles River side lawn) — open assembly",
+  quakeRoute: "Exit nearest building → BU Beach lawn",
+  cooling: "George Sherman Union (GSU) — air-conditioned commons",
+  coolingRoute: "Shaded sidewalk via Comm Ave → GSU",
+  hurricane: "GSU interior ground-floor rooms — reinforced shelter",
+  hurricaneRoute: "Comm Ave interior walk → GSU lower level",
+  wildfireExit: "FitRec Center indoor refuge — filtered HVAC",
+  wildfireRoute: "Comm Ave → Babcock St → FitRec entrance",
+  warming: "GSU warming commons — power & heat",
+  winterRoute: "Covered walkway via Comm Ave → GSU",
+});
+
+const MGH_ROUTES = buildRoutes({
+  flood: "Lunder Building upper floors — hospital high ground",
+  floodRoute: "Fruit St → Lunder Bldg main entrance (avoid Storrow underpass)",
+  quakeMuster: "MGH front lawn — open assembly area off Cambridge St",
+  quakeRoute: "Exit nearest wing → MGH front lawn",
+  cooling: "Yawkey Center main lobby — climate-controlled commons",
+  coolingRoute: "Indoor connector → Yawkey Center lobby",
+  hurricane: "Ellison Building interior corridors — reinforced shelter",
+  hurricaneRoute: "Internal corridors → Ellison Bldg ground floor",
+  wildfireExit: "Hospital indoor refuge — filtered HVAC throughout",
+  wildfireRoute: "Stay indoors; use internal corridors only",
+  warming: "Yawkey Center commons — full power & heat",
+  winterRoute: "Indoor connector network → Yawkey Center",
+});
+
+const MIT_LOC: SavedLocation = {
+  id: "mit",
+  name: "Massachusetts Institute of Technology",
   type: "Campus",
-  area: "3690 East Ave, Pittsford, NY",
+  area: "77 Massachusetts Ave, Cambridge, MA",
   ready: true,
   geo: {
-    lat: 43.0913,
-    lng: -77.524,
-    displayName: "St. John Fisher University, 3690 East Ave, Pittsford, NY",
-    city: "Pittsford",
-    county: "Monroe County",
-    state: "New York",
-    stateCode: "NY",
-    country: "United States",
-    countryCode: "us",
+    lat: 42.3601, lng: -71.0942,
+    displayName: "MIT, 77 Massachusetts Ave, Cambridge, MA 02139",
+    city: "Cambridge", county: "Middlesex County", state: "Massachusetts",
+    stateCode: "MA", country: "United States", countryCode: "us",
   },
   preloaded: true,
   answers: allYesAnswers(),
   skipped: blankSkipped(),
-  routes: SJFU_ROUTES,
-  readinessScore: 92,
-  hazardScores: { flood: 95, earthquake: 90, heat: 95, hurricane: 90, wildfire: 88, winter: 92 },
-  gaps: ["Confirm pet-friendly shelter capacity", "Refresh quarterly drill schedule"],
+  routes: MIT_ROUTES,
+  readinessScore: 94,
+  hazardScores: { flood: 92, earthquake: 90, heat: 96, hurricane: 91, wildfire: 95, winter: 93 },
+  gaps: ["Confirm muster point lighting for evening drills", "Refresh quarterly drill schedule"],
 };
+
+const BU_LOC: SavedLocation = {
+  id: "bu",
+  name: "Boston University",
+  type: "Campus",
+  area: "1 Silber Way, Boston, MA",
+  ready: true,
+  geo: {
+    lat: 42.3505, lng: -71.1054,
+    displayName: "Boston University, Commonwealth Ave, Boston, MA 02215",
+    city: "Boston", county: "Suffolk County", state: "Massachusetts",
+    stateCode: "MA", country: "United States", countryCode: "us",
+  },
+  preloaded: true,
+  answers: allYesAnswers(),
+  skipped: blankSkipped(),
+  routes: BU_ROUTES,
+  readinessScore: 91,
+  hazardScores: { flood: 88, earthquake: 90, heat: 94, hurricane: 86, wildfire: 93, winter: 92 },
+  gaps: ["Confirm Charles River–side flood signage", "Refresh shuttle backup roster"],
+};
+
+const MGH_LOC: SavedLocation = {
+  id: "mgh",
+  name: "Massachusetts General Hospital",
+  type: "Business",
+  area: "55 Fruit St, Boston, MA",
+  ready: true,
+  geo: {
+    lat: 42.3631, lng: -71.0686,
+    displayName: "Massachusetts General Hospital, 55 Fruit St, Boston, MA 02114",
+    city: "Boston", county: "Suffolk County", state: "Massachusetts",
+    stateCode: "MA", country: "United States", countryCode: "us",
+  },
+  preloaded: true,
+  answers: allYesAnswers(),
+  skipped: blankSkipped(),
+  routes: MGH_ROUTES,
+  readinessScore: 96,
+  hazardScores: { flood: 95, earthquake: 93, heat: 97, hurricane: 94, wildfire: 96, winter: 95 },
+  gaps: ["Confirm backup generator transfer drill", "Refresh patient transport coordination"],
+};
+
+const PRELOADED_LOCATIONS: SavedLocation[] = [MIT_LOC, BU_LOC, MGH_LOC];
+
 
 const LOCATION_TYPES = ["Home", "School", "Campus", "Community Center", "Church", "Business", "Other"];
 const NAME_PRESETS = ["Home", "School", "Community Center"];
@@ -619,16 +705,15 @@ export function SafetyLocationPanel() {
   const { confirmLocation, setManualLocation } = useLocation();
   const [locations, setLocations] = useState<SavedLocation[]>(() => {
     const stored = loadStoredLocations<SavedLocation>();
-    if (!stored || stored.length === 0) return [MY_ADDRESS, SJFU];
-    // Ensure the preloaded SJFU stays present even if older payloads dropped it.
-    const hasSjfu = stored.some((l) => l.id === SJFU.id);
-    const hasMyAddr = stored.some((l) => l.id === MY_ADDRESS.id);
+    if (!stored || stored.length === 0) return [...PRELOADED_LOCATIONS];
+    // Ensure all preloaded locations stay present even if older payloads dropped them.
     const merged = [...stored];
-    if (!hasMyAddr) merged.unshift(MY_ADDRESS);
-    if (!hasSjfu) merged.push(SJFU);
+    for (const preset of PRELOADED_LOCATIONS) {
+      if (!merged.some((l) => l.id === preset.id)) merged.push(preset);
+    }
     return merged;
   });
-  const [selectedId, setSelectedId] = useState<string>(MY_ADDRESS.id);
+  const [selectedId, setSelectedId] = useState<string>(MIT_LOC.id);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   // Persist every change so readiness percentage and answers survive reloads.
@@ -659,7 +744,7 @@ export function SafetyLocationPanel() {
   const { activePhase } = usePhase();
   const showRiskMap = activePhase === "prepare";
 
-  const selected = locations.find((l) => l.id === selectedId) ?? SJFU;
+  const selected: SavedLocation = locations.find((l) => l.id === selectedId) ?? MIT_LOC;
   const currentRoute = useMemo(
     () => selected.routes.find((r) => r.disaster === selectedDisaster) ?? selected.routes[0],
     [selected, selectedDisaster],

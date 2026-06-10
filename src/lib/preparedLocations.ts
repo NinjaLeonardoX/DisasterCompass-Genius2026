@@ -3,7 +3,7 @@
 // used elsewhere in Disaster Compass. Schema is versioned so older payloads
 // are dropped cleanly when the structure changes.
 
-const STORAGE_KEY = "dc:savedLocations:v2";
+const STORAGE_KEY = "dc:savedLocations:v3";
 
 export function loadStoredLocations<T>(): T[] | null {
   if (typeof window === "undefined") return null;
