@@ -899,7 +899,7 @@ function SOSRecipientPanel() {
         When someone taps <span className="font-semibold">Send SOS</span> in Respond, the confirmation will read
         "Sent to {formatSOSRecipient(recipient)}".
       </p>
-      <div className="mt-3 grid gap-2 sm:grid-cols-3">
+      <div className="mt-3 grid gap-2 sm:grid-cols-4">
         <label className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/60">
           Title / Designation
           <input
@@ -924,6 +924,15 @@ function SOSRecipientPanel() {
             value={recipient.organization}
             onChange={(e) => update("organization", e.target.value)}
             placeholder="Firestation 80"
+            className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-1.5 text-sm font-normal normal-case tracking-normal text-foreground"
+          />
+        </label>
+        <label className="text-[11px] font-semibold uppercase tracking-wider text-card-foreground/60">
+          Cellphone
+          <input
+            value={recipient.phone}
+            onChange={(e) => update("phone", e.target.value)}
+            placeholder="+1 (555) 123-4567"
             className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-1.5 text-sm font-normal normal-case tracking-normal text-foreground"
           />
         </label>
