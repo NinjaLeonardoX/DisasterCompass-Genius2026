@@ -165,3 +165,86 @@ export async function reverseGeocode(
     return null;
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Place autocomplete (multi-result Nominatim search)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface PlaceSuggestion {
+  displayName: string;
+  name: string; // short name (e.g. "Lincoln High School")
+  klass: string; // Nominatim "class" (e.g. amenity, building)
+  type: string; // Nominatim "type" (e.g. school, hospital)
+  lat: number;
+  lng: number;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+}
+
+interface NominatimSearchItem extends NominatimResponse {
+  name?: string;
+  class?: string;
+  type?: string;
+}
+
+export async function searchPlaces(
+  query: string,
+  signal?: AbortSignal,
+  limit = 6,
+): Promise<PlaceSuggestion[]> {
+  const q = query.trim();
+  if (q.length < 3) return [];
+
+  await throttle();
+  const url = new URL("https://nominatim.openstreetmap.org/search");
+  url.searchParams.set("q", q);
+  url.searchParams.set("format", "json");
+  url.searchParams.set("addressdetails", "1");
+  url.searchParams.set("namedetails", "1");
+  url.searchParams.set("limit", String(limit));
+
+  try {
+    const res = await fetch(url.toString(), {
+      headers: { Accept: "application/json" },
+      signal,
+    });
+    if (!res.ok) return [];
+    const arr = (await res.json()) as NominatimSearchItem[];
+    return arr
+      .map((r) => ({
+        displayName: r.display_name,
+        name: r.name || r.display_name.split(",")[0] || "",
+        klass: r.class ?? "",
+        type: r.type ?? "",
+        lat: Number.parseFloat(r.lat),
+        lng: Number.parseFloat(r.lon),
+        city: pickCity(r.address),
+        state: r.address?.state ?? null,
+        country: r.address?.country ?? null,
+      }))
+      .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
+  } catch {
+    return [];
+  }
+}
+
+/** Map an OSM (class, type) pair to a Disaster Compass location type. */
+export function inferLocationType(klass: string, type: string): string {
+  const t = type.toLowerCase();
+  const c = klass.toLowerCase();
+  if (t === "school" || t === "kindergarten" || t === "college") return "School";
+  if (t === "university") return "University";
+  if (t === "hospital" || t === "clinic" || t === "doctors") return "Hospital";
+  if (t === "place_of_worship" || c === "place_of_worship") return "Church";
+  if (t === "library") return "Library";
+  if (t === "community_centre" || t === "townhall") return "Community Center";
+  if (t === "fire_station") return "Fire Station";
+  if (t === "police") return "Police Station";
+  if (c === "shop" || t === "supermarket" || t === "mall") return "Business";
+  if (c === "office" || t === "office") return "Office";
+  if (c === "tourism" || t === "hotel" || t === "motel") return "Lodging";
+  if (c === "building" && (t === "apartments" || t === "residential" || t === "house")) return "Home";
+  if (c === "highway" || c === "place") return "Home";
+  return "Home";
+}

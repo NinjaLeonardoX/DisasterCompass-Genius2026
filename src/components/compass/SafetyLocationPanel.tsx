@@ -1,8 +1,10 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useLocation } from "../LocationContext";
 import { usePhase } from "../PhaseContext";
-import { forwardGeocode, type GeocodeResult } from "@/lib/geocoding";
+import { forwardGeocode, inferLocationType, type GeocodeResult, type PlaceSuggestion } from "@/lib/geocoding";
 import { HAZARD_RISKS, SEVERITY_META, type HazardRisk } from "@/data/prepare";
+import { generateCompassPlan } from "@/lib/compass-plan.functions";
+import { PlaceAutocomplete } from "./PlaceAutocomplete";
 
 const PrepareRiskMap = lazy(() => import("./PrepareRiskMap"));
 import { RouteTrainingPanel } from "./RouteTrainingPanel";
@@ -568,7 +570,7 @@ function topFixNow(gaps: string[]): string[] {
 // ─────────────────────────────────────────────────────────────────────────────
 
 type SetupMode = null | "device" | "manual";
-type SetupStep = "name" | "wizard" | "review" | "generated";
+type SetupStep = "name" | "wizard" | "review" | "generating" | "generated";
 
 export function SafetyLocationPanel() {
   const { confirmLocation, setManualLocation } = useLocation();
@@ -582,10 +584,13 @@ export function SafetyLocationPanel() {
   const [draftName, setDraftName] = useState("Home");
   const [draftType, setDraftType] = useState("Home");
   const [draftArea, setDraftArea] = useState("");
+  const [draftGeo, setDraftGeo] = useState<GeocodeResult | null>(null);
   const [draftLocationId, setDraftLocationId] = useState<string | null>(null);
   const [answers, setAnswers] = useState<AllAnswers>(blankAnswers());
   const [skipped, setSkipped] = useState<SkipMap>(blankSkipped());
   const [wizardIndex, setWizardIndex] = useState(0); // 0..SECTIONS.length-1
+  const [genProgress, setGenProgress] = useState(0);
+  const [genStatus, setGenStatus] = useState<string>("");
 
   const [selectedDisaster, setSelectedDisaster] = useState<Disaster>("flood");
   const [bodyTab, setBodyTab] = useState<"overview" | "people" | "risk" | "routes" | "gaps">("overview");
@@ -621,6 +626,7 @@ export function SafetyLocationPanel() {
     setDraftName("Home");
     setDraftType("Home");
     setDraftArea("");
+    setDraftGeo(null);
     setSetupStep("name");
   }
   function cancelSetup() {
@@ -630,6 +636,9 @@ export function SafetyLocationPanel() {
     setSkipped(blankSkipped());
     setWizardIndex(0);
     setDraftLocationId(null);
+    setDraftGeo(null);
+    setGenProgress(0);
+    setGenStatus("");
   }
 
   function createDraftAndStartWizard() {
@@ -675,49 +684,88 @@ export function SafetyLocationPanel() {
     setSetupStep("review");
   }
 
-  function generatePlan() {
+  async function generatePlan() {
     if (!draftLocationId) return;
     const locId = draftLocationId;
     const { overall, hazardScores, gaps } = computeScores(answers, skipped);
-    const routes = genericRoutes(draftName, draftArea);
+
+    // Move into the generating step with a live progress bar.
+    setSetupStep("generating");
+    setGenProgress(5);
+    setGenStatus("Analyzing your location…");
+
+    // Resolve coordinates (use draftGeo from autocomplete if available).
+    let geo: GeocodeResult | null = draftGeo;
+    const area = draftArea.trim();
+    if (!geo && area) {
+      try {
+        geo = await forwardGeocode(area);
+      } catch {
+        geo = null;
+      }
+    }
+    setGenProgress(25);
+    setGenStatus("Mapping hazards near you…");
+
+    // Kick off AI plan generation while we animate progress through hazards.
+    const aiPromise = generateCompassPlan({
+      data: {
+        locationName: draftName.trim() || "My location",
+        locationType: draftType,
+        address: area || draftName,
+        city: geo?.city ?? undefined,
+        state: geo?.state ?? undefined,
+        country: geo?.country ?? undefined,
+        lat: geo?.lat,
+        lng: geo?.lng,
+      },
+    }).catch(() => null);
+
+    const hazardLabels = ["Flood", "Earthquake", "Extreme Heat", "Hurricane", "Wildfire", "Winter Storm"];
+    for (let i = 0; i < hazardLabels.length; i++) {
+      setGenStatus(`Generating ${hazardLabels[i]} route…`);
+      setGenProgress(25 + Math.round(((i + 1) / hazardLabels.length) * 60));
+      await new Promise((r) => setTimeout(r, 350));
+    }
+
+    setGenStatus("Finalizing your Compass Plan…");
+    const aiResult = await aiPromise;
+    const routes: RoutePlan[] = aiResult?.routes?.length
+      ? (aiResult.routes as RoutePlan[])
+      : genericRoutes(draftName, draftArea);
+    setGenProgress(100);
+
     setLocations((ls) =>
       ls.map((l) =>
         l.id === locId
           ? {
               ...l,
               ready: true,
+              area: area || l.area,
               answers,
               skipped,
               routes,
               readinessScore: overall,
               hazardScores,
               gaps,
+              ...(geo ? { geo } : {}),
             }
           : l,
       ),
     );
-    setSetupStep("generated");
 
-    // Resolve the typed address to coordinates so the rest of the app (rollup,
-    // snapshots, risk map) follows this location. The confirm effect picks up
-    // `geo` once it lands; if geocoding fails we still confirm via `ready`.
-    const area = draftArea.trim();
-    if (area) {
-      forwardGeocode(area)
-        .then((geo) => {
-          if (!geo) return;
-          setLocations((ls) => ls.map((l) => (l.id === locId ? { ...l, geo } : l)));
-        })
-        .catch(() => {
-          /* offline / geocode failure — keep the readiness plan without geo */
-        });
-    }
+    // Brief pause so the user sees 100% before the results screen.
+    await new Promise((r) => setTimeout(r, 400));
+    setSetupStep("generated");
   }
 
   function closeAfterResults() {
     setSetupMode(null);
     setSetupStep("name");
     setDraftLocationId(null);
+    setDraftGeo(null);
+    setGenProgress(0);
+    setGenStatus("");
     setAnswers(blankAnswers());
     setSkipped(blankSkipped());
     setWizardIndex(0);
@@ -1165,6 +1213,25 @@ ${planBlocks}
           onChangeName={setDraftName}
           onChangeType={setDraftType}
           onChangeArea={setDraftArea}
+          onSelectPlace={(s: PlaceSuggestion) => {
+            setDraftArea(s.displayName);
+            setDraftGeo({
+              lat: s.lat,
+              lng: s.lng,
+              displayName: s.displayName,
+              city: s.city,
+              county: null,
+              state: s.state,
+              stateCode: null,
+              country: s.country,
+              countryCode: null,
+            });
+            const inferred = inferLocationType(s.klass, s.type);
+            setDraftType(inferred);
+            if ((draftName === "Home" || !draftName.trim()) && s.name) {
+              setDraftName(s.name.slice(0, 60));
+            }
+          }}
           onChangeAnswers={setAnswers}
           onChangeSkipped={setSkipped}
           onChangeWizardIndex={setWizardIndex}
@@ -1173,6 +1240,8 @@ ${planBlocks}
           onGoReview={goToReview}
           onGeneratePlan={generatePlan}
           onClose={closeAfterResults}
+          genProgress={genProgress}
+          genStatus={genStatus}
         />
       )}
     </section>
@@ -1207,6 +1276,7 @@ interface SetupModalProps {
   onChangeName: (s: string) => void;
   onChangeType: (s: string) => void;
   onChangeArea: (s: string) => void;
+  onSelectPlace: (s: PlaceSuggestion) => void;
   onChangeAnswers: (a: AllAnswers) => void;
   onChangeSkipped: (s: SkipMap) => void;
   onChangeWizardIndex: (i: number) => void;
@@ -1215,6 +1285,8 @@ interface SetupModalProps {
   onGoReview: () => void;
   onGeneratePlan: () => void;
   onClose: () => void;
+  genProgress: number;
+  genStatus: string;
 }
 
 function SetupModal(p: SetupModalProps) {
@@ -1226,6 +1298,7 @@ function SetupModal(p: SetupModalProps) {
       return `Step ${p.wizardIndex + 1} of ${totalSteps} · ${section.title}`;
     }
     if (p.step === "review") return `Step 8 of ${totalSteps} · Review Score`;
+    if (p.step === "generating") return `Step 9 of ${totalSteps} · Generating Compass Plan`;
     return `Step 9 of ${totalSteps} · Compass Plan`;
   })();
 
@@ -1258,6 +1331,7 @@ function SetupModal(p: SetupModalProps) {
           {p.step === "name" && <NameStep {...p} />}
           {p.step === "wizard" && <WizardStep {...p} />}
           {p.step === "review" && <ReviewStep {...p} />}
+          {p.step === "generating" && <GeneratingStep {...p} />}
           {p.step === "generated" && <GeneratedStep {...p} />}
         </div>
       </div>
@@ -1266,13 +1340,58 @@ function SetupModal(p: SetupModalProps) {
 }
 
 function ProgressBar({ step, wizardIndex, totalSteps }: { step: SetupStep; wizardIndex: number; totalSteps: number }) {
-  const current = step === "wizard" ? wizardIndex + 1 : step === "review" ? 8 : 9;
+  const current =
+    step === "wizard" ? wizardIndex + 1 : step === "review" ? 8 : step === "generating" ? 9 : 9;
   const pct = Math.round((current / totalSteps) * 100);
   return (
     <div className="px-5 pt-3">
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-card-foreground/10">
         <div className="h-full rounded-full bg-[color:var(--severity-low)] transition-all" style={{ width: `${pct}%` }} />
       </div>
+    </div>
+  );
+}
+
+function GeneratingStep(p: SetupModalProps) {
+  return (
+    <div className="space-y-4 py-2">
+      <div className="flex items-center gap-2">
+        <Sparkles className="h-4 w-4 text-[color:var(--severity-moderate)] animate-pulse" />
+        <h3 className="text-base font-bold text-foreground">Generating your Compass Plan</h3>
+      </div>
+      <p className="text-sm text-black/75">
+        AI is building personalized route plans for each disaster based on{" "}
+        <span className="font-semibold">{p.draftName}</span>
+        {p.draftArea ? ` (${p.draftArea.split(",").slice(0, 2).join(",")})` : ""}.
+      </p>
+      <div className="space-y-2">
+        <div className="h-2.5 w-full overflow-hidden rounded-full bg-black/10">
+          <div
+            className="h-full rounded-full bg-[color:var(--severity-moderate)] transition-all duration-300"
+            style={{ width: `${p.genProgress}%` }}
+          />
+        </div>
+        <div className="flex items-center justify-between text-xs">
+          <span className="font-medium text-black/70">{p.genStatus || "Working…"}</span>
+          <span className="font-semibold tabular-nums text-black">{p.genProgress}%</span>
+        </div>
+      </div>
+      <ul className="grid grid-cols-2 gap-1.5 pt-2 text-[11px] text-black/65 sm:grid-cols-3">
+        {["Flood", "Earthquake", "Heat", "Hurricane", "Wildfire", "Winter"].map((d, i) => {
+          const threshold = 25 + ((i + 1) / 6) * 60;
+          const done = p.genProgress >= threshold;
+          return (
+            <li
+              key={d}
+              className={`rounded-md border px-2 py-1 transition ${
+                done ? "border-[color:var(--severity-low)]/40 bg-[color:var(--severity-low)]/10 text-[color:var(--severity-low)]" : "border-border bg-white"
+              }`}
+            >
+              {done ? "✓" : "•"} {d} route
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
@@ -1305,16 +1424,20 @@ function NameStep(p: SetupModalProps) {
       </label>
 
       {p.mode === "manual" && (
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-black">Address or area</span>
-          <input
+        <div className="flex flex-col gap-1">
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-black">
+            Address, school, business, or landmark
+          </span>
+          <PlaceAutocomplete
             value={p.draftArea}
-            onChange={(e) => p.onChangeArea(e.target.value)}
-            maxLength={200}
-            placeholder="123 Main St, City, State"
-            className="rounded-md border border-border bg-white px-2 py-1.5 text-sm text-black placeholder:text-black/50"
+            onChange={p.onChangeArea}
+            onSelect={p.onSelectPlace}
+            placeholder="Try a school, hospital, business, or address…"
           />
-        </label>
+          <span className="text-[11px] text-black/60">
+            Pick a result to auto-fill the location type and coordinates.
+          </span>
+        </div>
       )}
 
       <label className="flex flex-col gap-1">
