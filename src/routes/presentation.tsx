@@ -6,11 +6,13 @@ import {
   LifeBuoy,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   ArrowRight,
   Maximize2,
   Minimize2,
   Download,
   CheckCircle2,
+  Sparkles,
 } from "lucide-react";
 import { SiteHeader } from "../components/SiteHeader";
 import dcLogo from "@/assets/disaster-compass-logo.png.asset.json";
@@ -42,6 +44,8 @@ type Slide = {
   decision?: string[];
   positioning?: string[];
   flow?: { inputs: string[]; core: string[]; output: string };
+  tech?: { layers: { label: string; items: string[] }[]; tooling?: string[] };
+  aiTools?: { name: string; use: string }[];
   columns?: Column[];
   bullets?: string[];
   footer?: string;
@@ -67,10 +71,14 @@ const slides: Slide[] = [
         value: "27",
         label: "billion-dollar weather & climate disasters struck the U.S. in 2024.",
       },
+      {
+        value: "69%",
+        label: "of U.S. households haven't learned their evacuation routes.",
+      },
     ],
-    note: "FEMA preparedness data shows many households still don't know their evacuation routes, haven't practiced their plan, or haven't planned with their neighbors.",
+    note: "FEMA preparedness data also shows most households haven't practiced their plan or planned with their neighbors.",
     footer: "A warning tells you something is coming — not what to do next.",
-    source: "Sources: NOAA Billion-Dollar Disasters · FEMA National Household Survey",
+    source: "Sources: NOAA Billion-Dollar Disasters · FEMA 2023 National Household Survey",
   },
   // 2 — Strategy
   {
@@ -93,7 +101,38 @@ const slides: Slide[] = [
     },
     footer: "AI explains. Rules decide. Humans approve.",
   },
-  // 4 — Product process
+  // 4 — Tech stack (systems diagram)
+  {
+    eyebrow: "System architecture — tech stack",
+    title: "How it's built.",
+    tech: {
+      layers: [
+        {
+          label: "Client",
+          items: ["React", "TypeScript", "Tailwind CSS", "shadcn/ui (Radix)", "Leaflet maps"],
+        },
+        {
+          label: "App framework",
+          items: ["TanStack Start (SSR)", "TanStack Router", "TanStack Query"],
+        },
+        {
+          label: "Rules core",
+          items: ["Action engine", "Route scoring", "Volunteer matching", "Recovery steps"],
+        },
+        {
+          label: "Backend & data",
+          items: ["Supabase (Postgres · Auth)", "Seed data (North Creek)"],
+        },
+        {
+          label: "Live signals",
+          items: ["NOAA / NWS alerts", "Weather & routing APIs", "Fallback-guarded"],
+        },
+      ],
+      tooling: ["Vite", "Bun", "ESLint", "Prettier"],
+    },
+    footer: "A thin, explainable stack — rules in plain TypeScript, live data behind fallbacks.",
+  },
+  // 5 — Product process
   {
     eyebrow: "Product process",
     title: "One system across Prepare, Respond, Recover.",
@@ -131,7 +170,20 @@ const slides: Slide[] = [
       "Disaster Compass helps communities prepare earlier, respond faster, and recover clearer.",
     close: "We turn official information into local action.",
   },
-  // 6 — Closing
+  // 7 — AI disclosure
+  {
+    eyebrow: "Transparency — AI disclosure",
+    title: "AI tools we used.",
+    aiTools: [
+      { name: "ChatGPT", use: "Ideation, copywriting, and research" },
+      { name: "Claude (Claude Code)", use: "Code generation and implementation" },
+      { name: "Lovable", use: "Full-stack app scaffolding and hosting" },
+      { name: "Gamma", use: "Presentation design support" },
+      { name: "FlowScholar", use: "Research and source-finding" },
+    ],
+    note: "AI accelerated the build, but the rules engine stays deterministic and human-reviewed: AI explains, rules decide, humans approve.",
+  },
+  // 8 — Closing
   {
     cover: true,
     eyebrow: "",
@@ -295,6 +347,49 @@ function SlideView({ slide, index, total }: { slide: Slide; index: number; total
           </div>
         )}
 
+        {/* Tech-stack systems diagram */}
+        {slide.tech && (
+          <div className="mt-6 space-y-1.5">
+            {slide.tech.layers.map((layer, i) => (
+              <div key={layer.label}>
+                <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:flex-row sm:items-center">
+                  <span className="w-36 shrink-0 text-xs font-semibold uppercase tracking-wider text-[#5EE6A1]">
+                    {layer.label}
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {layer.items.map((it) => (
+                      <span
+                        key={it}
+                        className="rounded-lg bg-white/[0.06] px-3 py-1.5 text-sm text-white/85 ring-1 ring-white/10"
+                      >
+                        {it}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                {i < (slide.tech?.layers.length ?? 0) - 1 && (
+                  <div className="flex justify-center py-0.5">
+                    <ChevronDown className="h-4 w-4 text-white/30" />
+                  </div>
+                )}
+              </div>
+            ))}
+            {slide.tech.tooling && (
+              <div className="flex flex-wrap items-center gap-2 pt-3 text-xs text-white/50">
+                <span className="font-semibold uppercase tracking-wider">Tooling</span>
+                {slide.tech.tooling.map((t) => (
+                  <span
+                    key={t}
+                    className="rounded-full bg-white/[0.05] px-2.5 py-1 ring-1 ring-white/10"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Three-phase columns */}
         {slide.columns && (
           <div className="mt-7 grid gap-4 sm:grid-cols-3">
@@ -320,6 +415,21 @@ function SlideView({ slide, index, total }: { slide: Slide; index: number; total
               >
                 <CheckCircle2 className="h-4 w-4 shrink-0 text-[#5EE6A1]" />
                 {b}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* AI disclosure */}
+        {slide.aiTools && (
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {slide.aiTools.map((t) => (
+              <div key={t.name} className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 shrink-0 text-[#5EE6A1]" />
+                  <p className="text-base font-semibold text-white">{t.name}</p>
+                </div>
+                <p className="mt-1.5 text-sm text-white/60">{t.use}</p>
               </div>
             ))}
           </div>

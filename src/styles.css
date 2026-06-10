@@ -40,7 +40,7 @@
 
 :root {
   --radius: 0.875rem;
-  /* DisasterCompass civic palette — light base, navy surfaces */
+  /* Disaster Compass civic palette — light base, navy surfaces */
   --background: #f8fafc; /* dc-bg */
   --foreground: #2a3b55; /* dc-navy */
 
@@ -113,7 +113,7 @@
   }
 }
 
-/* --- DisasterCompass depth + accent utilities (2.5D civic-tech) --- */
+/* --- Disaster Compass depth + accent utilities (2.5D civic-tech) --- */
 @utility dc-elev-1 {
   box-shadow: 0 8px 30px rgba(42, 59, 85, 0.06);
 }

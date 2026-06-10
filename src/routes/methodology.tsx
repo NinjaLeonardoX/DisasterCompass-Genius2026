@@ -89,9 +89,9 @@ function MethodologyPage() {
       >
         <div className="space-y-8">
           <p className="max-w-3xl text-base text-foreground/75">
-            Disaster Compass turns a disaster alert into a household action plan using deterministic,
-            explainable rules — not machine learning. Every recommendation traces to a specific
-            rule, so it's auditable and student-explainable.
+            Disaster Compass turns a disaster alert into a household action plan using
+            deterministic, explainable rules — not machine learning. Every recommendation traces to
+            a specific rule, so it's auditable and student-explainable.
           </p>
 
           <RuleCard rule={rules[0]} />
