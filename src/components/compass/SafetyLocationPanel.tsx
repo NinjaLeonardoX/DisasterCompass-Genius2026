@@ -1110,6 +1110,55 @@ ${planBlocks}
                             </button>
                           );
                         })}
+
+                        {/* Legend */}
+                        {(() => {
+                          const route = HAZARD_ROUTES[riskHazardId];
+                          const selectedHazard = HAZARD_RISKS.find((h) => h.id === riskHazardId);
+                          return (
+                            <div className="rounded-xl border border-border bg-surface/40 p-3 text-xs text-foreground">
+                              <p className="mb-1 font-semibold">
+                                {selectedHazard ? `${selectedHazard.shortLabel} rehearsal route` : "Risk map"}
+                              </p>
+                              {route && (
+                                <p className="mb-2 text-[11px] text-muted-foreground">
+                                  Home → {route.destinationName}
+                                  <br />
+                                  <span className="italic">{route.note}</span>
+                                </p>
+                              )}
+                              <ul className="space-y-1.5">
+                                {route && (
+                                  <li className="flex items-center gap-2">
+                                    <span
+                                      className="inline-block h-[3px] w-5 rounded"
+                                      style={{ background: route.color }}
+                                    />
+                                    Pre-mapped route
+                                  </li>
+                                )}
+                                <li className="flex items-center gap-2">
+                                  <span
+                                    className="inline-block h-3 w-3 rounded-sm"
+                                    style={{ background: SEVERITY_META.high.color, opacity: 0.5 }}
+                                  />
+                                  Flood zone — high
+                                </li>
+                                <li className="flex items-center gap-2">
+                                  <span
+                                    className="inline-block h-3 w-3 rounded-sm"
+                                    style={{ background: SEVERITY_META.low.color, opacity: 0.5 }}
+                                  />
+                                  Fault · WUI edge — low
+                                </li>
+                                <li className="flex items-center gap-2">
+                                  <span className="inline-block h-3 w-3 rounded-full" style={{ background: "#0F172A" }} />
+                                  Your home
+                                </li>
+                              </ul>
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>
