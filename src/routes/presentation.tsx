@@ -1,9 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   Compass,
-  ShieldCheck,
-  LifeBuoy,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
@@ -11,7 +9,6 @@ import {
   Maximize2,
   Minimize2,
   Download,
-  CheckCircle2,
   Sparkles,
   LogOut,
 } from "lucide-react";
@@ -31,7 +28,7 @@ export const Route = createFileRoute("/presentation")({
   component: PresentationPage,
 });
 
-type Column = { icon: typeof Compass; label: string; detail: string };
+type PipeCol = { heading: string; sub: string; items: string[] };
 
 type Slide = {
   eyebrow: string;
@@ -46,18 +43,15 @@ type Slide = {
   note?: string;
   decision?: string[];
   positioning?: string[];
-  flow?: { inputs: string[]; core: string[]; output: string };
+  pipeline?: { data: PipeCol; rules: PipeCol; action: PipeCol };
   tech?: { layers: { label: string; items: string[] }[]; tooling?: string[] };
   aiTools?: { name: string; use: string }[];
-  columns?: Column[];
-  bullets?: string[];
   footer?: string;
-  close?: string;
   source?: string;
 };
 
 const slides: Slide[] = [
-  // 0 — Cover
+  // 1 — Cover
   {
     cover: true,
     eyebrow: "",
@@ -67,7 +61,7 @@ const slides: Slide[] = [
     presenters: ["William Riano", "Miguel Riano Jr"],
     team: "Team 8934",
   },
-  // 1 — Context
+  // 2 — Context
   {
     eyebrow: "Context — Why action planning matters",
     title: "Alerts create awareness. Communities need action paths.",
@@ -85,28 +79,46 @@ const slides: Slide[] = [
     footer: "A warning tells you something is coming — not what to do next.",
     source: "Sources: NOAA Billion-Dollar Disasters · FEMA 2023 National Household Survey",
   },
-  // 2 — Strategy
+  // 3 — Strategy + how it works
   {
-    eyebrow: "Strategy — What we built",
-    title: "From alert to safest next action.",
-    lead: "Disaster Compass is a Community Disaster Action Planner. Its core output is a single decision:",
+    eyebrow: "Strategy — from alert to action",
+    title: "From alert to the safest next action.",
+    lead: "Disaster Compass turns an official alert into one clear decision:",
     decision: ["GO", "STAY", "WAIT"],
-    positioning: ["Not another alert app", "Not a checklist", "Not just a map"],
-    footer:
-      "North Star: help every household take the safest next action during a natural disaster.",
-  },
-  // 3 — Architecture
-  {
-    eyebrow: "Implementation architecture",
-    title: "Data → Rules → Action.",
-    flow: {
-      inputs: ["Household profile", "Hazard risk", "Shelters · routes · volunteers"],
-      core: ["Action engine", "Route scoring", "Volunteer matching", "Recovery steps"],
-      output: "Compass Plan",
+    pipeline: {
+      data: {
+        heading: "Data",
+        sub: "Live APIs · seeded demo fallback",
+        items: [
+          "Maps — MapTiler · Weather & elevation — Open-Meteo",
+          "Alerts — NOAA/NWS & OpenWeatherMap · Routing — OpenRouteService",
+          "Flood zone, hazard risk, shelters & volunteers — seeded demo",
+        ],
+      },
+      rules: {
+        heading: "Rules",
+        sub: "Deterministic — no ML",
+        items: [
+          "GO / STAY / WAIT, chosen per hazard + household",
+          "Open 100-point route-safety score",
+          "Weights tuned & saved in the IQ Engine",
+        ],
+      },
+      action: {
+        heading: "Action",
+        sub: "One clear plan",
+        items: [
+          "One decision + plain-language instruction",
+          "Safest scored route & a matched volunteer",
+          "Recovery checklist for after impact",
+        ],
+      },
     },
     footer: "AI explains. Rules decide. Humans approve.",
+    source:
+      "AI assist: Google Gemini 3 Flash (Lovable AI Gateway) generates location plans — never the GO/STAY/WAIT decision.",
   },
-  // 4 — Tech stack (systems diagram)
+  // 4 — Tech stack
   {
     eyebrow: "System architecture — tech stack",
     title: "How it's built.",
@@ -126,71 +138,42 @@ const slides: Slide[] = [
         },
         {
           label: "Real-time data",
-          items: ["MapTiler (maps)", "OpenWeatherMap API", "Web scrape via Lovable"],
+          items: [
+            "MapTiler tiles",
+            "Open-Meteo (weather · elevation)",
+            "NWS · OpenWeatherMap (alerts)",
+            "OpenRouteService (routing)",
+            "OSM Nominatim (geocoding)",
+          ],
         },
       ],
       tooling: ["Vite", "Bun", "ESLint", "Prettier"],
     },
-    footer: "A thin, explainable stack — rules in plain TypeScript, live data behind fallbacks.",
+    footer: "Live APIs (feature-flagged), each with a seeded demo fallback.",
   },
-  // 5 — Product process
-  {
-    eyebrow: "Product process",
-    title: "One system across Prepare, Respond, Recover.",
-    columns: [
-      {
-        icon: ShieldCheck,
-        label: "Prepare",
-        detail: "Readiness Radar pre-solves risk, destination, route, and gaps.",
-      },
-      {
-        icon: Compass,
-        label: "Respond",
-        detail: "Compass Plan activates GO / STAY / WAIT and the safe route.",
-      },
-      {
-        icon: LifeBuoy,
-        label: "Recover",
-        detail: "Recovery Steps guide damage, assistance, cleanup, and wellbeing.",
-      },
-    ],
-  },
-  // 5 — Functionality + impact
-  {
-    eyebrow: "App functionality & impact",
-    title: "Clear action, not confusion.",
-    bullets: [
-      "Risk radar",
-      "Safe route map",
-      "Rejected-route explanation",
-      "Volunteer approval",
-      "Coordinator status",
-      "Recovery checklist",
-    ],
-    footer:
-      "Disaster Compass helps communities prepare earlier, respond faster, and recover clearer.",
-    close: "We turn official information into local action.",
-  },
-  // 7 — AI disclosure
+  // 5 — AI disclosure
   {
     eyebrow: "Transparency — AI disclosure",
     title: "AI tools we used.",
     aiTools: [
       { name: "ChatGPT", use: "Ideation, copywriting, and research" },
       { name: "Claude (Claude Code)", use: "Code generation and implementation" },
-      { name: "Lovable", use: "Full-stack app scaffolding and hosting" },
+      {
+        name: "Lovable",
+        use: "Full-stack scaffolding, hosting & in-app AI gateway — Google Gemini 3 Flash",
+      },
       { name: "Gamma", use: "Presentation design support" },
       { name: "FlowScholar", use: "Task management and strategy" },
     ],
-    note: "AI accelerated the build, but the rules engine stays deterministic and human-reviewed: AI explains, rules decide, humans approve.",
+    note: "AI accelerated the build, but the rules engine stays deterministic and human-reviewed — AI explains, rules decide, humans approve.",
   },
-  // 8 — Closing
+  // 6 — Demo
   {
     cover: true,
     eyebrow: "",
     kicker: "Disaster Compass",
-    title: "Thank you.",
-    tagline: "We turn official information into local action.",
+    title: "DEMO",
+    tagline: "Let's see it live.",
     presenters: ["William Riano", "Miguel Riano Jr"],
     team: "Team 8934",
   },
@@ -346,41 +329,30 @@ function SlideView({
           </div>
         )}
 
-        {/* Architecture flow */}
-        {slide.flow && (
-          <div className="mt-7 flex flex-col items-stretch gap-3 lg:flex-row lg:items-center">
-            <div className="flex-1 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-white/40">
-                Inputs
-              </p>
-              <ul className="mt-2 space-y-1.5 text-sm text-white/80">
-                {slide.flow.inputs.map((i) => (
-                  <li key={i}>{i}</li>
-                ))}
-              </ul>
-            </div>
-
-            <ArrowRight className="mx-auto hidden h-6 w-6 shrink-0 text-[#5EE6A1] lg:block" />
-
-            <div className="flex-1 rounded-2xl border border-[#16A34A]/40 bg-[#16A34A]/10 p-5 ring-1 ring-[#16A34A]/30">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#5EE6A1]">
-                Rules Core
-              </p>
-              <ul className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm text-white">
-                {slide.flow.core.map((c) => (
-                  <li key={c}>{c}</li>
-                ))}
-              </ul>
-            </div>
-
-            <ArrowRight className="mx-auto hidden h-6 w-6 shrink-0 text-[#5EE6A1] lg:block" />
-
-            <div className="flex-1 rounded-2xl border border-white/10 bg-white/[0.06] p-5">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-white/40">
-                Output
-              </p>
-              <p className="mt-2 text-xl font-bold text-white">{slide.flow.output}</p>
-            </div>
+        {/* Data → Rules → Action pipeline */}
+        {slide.pipeline && (
+          <div className="mt-6 flex flex-col gap-3 lg:flex-row lg:items-stretch">
+            {[slide.pipeline.data, slide.pipeline.rules, slide.pipeline.action].map((col, i) => (
+              <Fragment key={col.heading}>
+                <div className="flex-1 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                  <p className="text-lg font-bold text-white">{col.heading}</p>
+                  <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-[#5EE6A1]">
+                    {col.sub}
+                  </p>
+                  <ul className="mt-3 space-y-2 text-sm leading-snug text-white/75">
+                    {col.items.map((it) => (
+                      <li key={it} className="flex gap-2">
+                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#5EE6A1]" />
+                        <span>{it}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                {i < 2 && (
+                  <ArrowRight className="mx-auto hidden h-6 w-6 shrink-0 self-center text-[#5EE6A1] lg:block" />
+                )}
+              </Fragment>
+            ))}
           </div>
         )}
 
@@ -404,7 +376,7 @@ function SlideView({
                     ))}
                   </div>
                 </div>
-                {i < (slide.tech?.layers.length ?? 0) - 1 && (
+                {i < slide.tech!.layers.length - 1 && (
                   <div className="flex justify-center py-0.5">
                     <ChevronDown className="h-4 w-4 text-white/30" />
                   </div>
@@ -427,36 +399,6 @@ function SlideView({
           </div>
         )}
 
-        {/* Three-phase columns */}
-        {slide.columns && (
-          <div className="mt-7 grid gap-4 sm:grid-cols-3">
-            {slide.columns.map((c) => (
-              <div key={c.label} className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#16A34A]/15 text-[#5EE6A1] ring-1 ring-[#16A34A]/30">
-                  <c.icon className="h-5 w-5" />
-                </span>
-                <p className="mt-3 text-lg font-semibold text-white">{c.label}</p>
-                <p className="mt-1 text-sm text-white/60">{c.detail}</p>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Functionality grid */}
-        {slide.bullets && (
-          <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {slide.bullets.map((b) => (
-              <div
-                key={b}
-                className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-medium text-white/90"
-              >
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-[#5EE6A1]" />
-                {b}
-              </div>
-            ))}
-          </div>
-        )}
-
         {/* AI disclosure */}
         {slide.aiTools && (
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -473,22 +415,16 @@ function SlideView({
         )}
 
         {slide.note && (
-          <p className="mt-6 max-w-2xl text-sm leading-relaxed text-white/60">{slide.note}</p>
+          <p className="mt-6 max-w-3xl text-sm leading-relaxed text-white/60">{slide.note}</p>
         )}
 
         {slide.footer && (
-          <p className="mt-7 max-w-3xl border-l-2 border-[#16A34A] pl-4 text-base font-semibold text-white sm:text-lg">
+          <p className="mt-6 max-w-3xl border-l-2 border-[#16A34A] pl-4 text-base font-semibold text-white sm:text-lg">
             {slide.footer}
           </p>
         )}
 
-        {slide.close && (
-          <p className="mt-4 bg-gradient-to-r from-[#16A34A] to-[#5EE6A1] bg-clip-text text-xl font-bold text-transparent sm:text-2xl">
-            {slide.close}
-          </p>
-        )}
-
-        {slide.source && <p className="mt-5 text-[11px] text-white/40">{slide.source}</p>}
+        {slide.source && <p className="mt-4 max-w-3xl text-[11px] text-white/40">{slide.source}</p>}
       </div>
 
       {/* Template footer */}
