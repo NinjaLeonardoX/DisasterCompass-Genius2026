@@ -99,7 +99,7 @@ const slides: Slide[] = [
         heading: "Rules",
         sub: "Deterministic — no ML",
         items: [
-          "GO / STAY / WAIT, chosen per hazard + household",
+          "GO / STAY / WAIT, chosen per hazard + Residence/Commercial",
           "Open 100-point route-safety score",
           "Weights tuned & saved in the IQ Engine",
         ],
