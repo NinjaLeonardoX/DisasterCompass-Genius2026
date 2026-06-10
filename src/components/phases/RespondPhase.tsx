@@ -6,12 +6,11 @@ import { RouteScorePanel } from "../compass/RouteScorePanel";
 import { VolunteerMatchCard } from "../compass/VolunteerMatchCard";
 import { CoordinatorPanel } from "../compass/CoordinatorPanel";
 import { HouseholdCard } from "../compass/HouseholdCard";
-import {
-  DisasterPicker,
-  type DisasterKind,
-} from "../compass/DisasterPicker";
+import { DisasterPicker, type DisasterKind } from "../compass/DisasterPicker";
 import { WhyThisPopover } from "../WhyThisPopover";
+import { WeatherCard } from "../WeatherCard";
 import { usePhase } from "../PhaseContext";
+import { RIVERA_HOUSEHOLD } from "@/data/seed";
 
 export function RespondPhase() {
   const [disaster, setDisaster] = useState<DisasterKind>("Flood");
@@ -46,11 +45,7 @@ export function RespondPhase() {
 
       <div className="grid gap-6 lg:grid-cols-5 lg:items-stretch">
         <div className="lg:col-span-3">
-          <ActionCard
-            ref={actionRef}
-            disaster={disaster}
-            volunteerApproved={volunteerApproved}
-          />
+          <ActionCard ref={actionRef} disaster={disaster} volunteerApproved={volunteerApproved} />
         </div>
         <div className="lg:col-span-2">
           <MapPanel disaster={disaster} />
@@ -91,14 +86,13 @@ export function RespondPhase() {
             </div>
           )}
 
-          {mode === "community" && (
-            <CoordinatorPanel volunteerApproved={volunteerApproved} />
-          )}
+          {mode === "community" && <CoordinatorPanel volunteerApproved={volunteerApproved} />}
 
           <DisasterContrastPanel />
         </div>
 
         <div className="space-y-6">
+          <WeatherCard lat={RIVERA_HOUSEHOLD.lat} lng={RIVERA_HOUSEHOLD.lng} />
           <HouseholdCard />
           {disaster === "Flood" && (
             <div className="space-y-2">
@@ -124,9 +118,24 @@ export function RespondPhase() {
 
 function DisasterContrastPanel() {
   const cases = [
-    { Icon: Droplets, name: "Flood", verb: "GO to higher ground", tone: "text-[color:var(--severity-low)]" },
-    { Icon: Activity, name: "Earthquake", verb: "STAY — Drop, Cover, Hold On", tone: "text-[color:var(--foreground)]" },
-    { Icon: Sun, name: "Heat", verb: "GO to cooling center · WAIT if medically vulnerable, no car", tone: "text-[color:var(--severity-moderate)]" },
+    {
+      Icon: Droplets,
+      name: "Flood",
+      verb: "GO to higher ground",
+      tone: "text-[color:var(--severity-low)]",
+    },
+    {
+      Icon: Activity,
+      name: "Earthquake",
+      verb: "STAY — Drop, Cover, Hold On",
+      tone: "text-[color:var(--foreground)]",
+    },
+    {
+      Icon: Sun,
+      name: "Heat",
+      verb: "GO to cooling center · WAIT if medically vulnerable, no car",
+      tone: "text-[color:var(--severity-moderate)]",
+    },
   ];
   return (
     <div className="dc-card p-5">

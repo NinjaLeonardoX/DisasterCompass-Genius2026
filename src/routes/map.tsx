@@ -7,7 +7,10 @@ import { NextBackNav } from "../components/NextBackNav";
 import { useScenario } from "../components/ScenarioContext";
 import { decideAction } from "@/lib/actions";
 import { scoreRoute, getBestRoute } from "@/lib/scoring";
-import { ROUTES, RIVERA_HOUSEHOLD } from "@/data/seed";
+import { RIVERA_HOUSEHOLD } from "@/data/seed";
+import { useRoutes, resolveDestinationShelter } from "@/lib/queries/routing";
+import { flags } from "@/lib/flags";
+import { LiveDataBadge } from "../components/LiveDataBadge";
 import type { RouteOption } from "@/types";
 
 // MapPanel is imported lazily so Leaflet (which touches `window`) never loads
@@ -35,6 +38,13 @@ function MapPage() {
   const { selectedDisaster, selectedRouteId, setSelectedRouteId } = useScenario();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  // Live road routes (flag off / error ⇒ exact seed ROUTES). Hooks must run
+  // before any early return, so this is computed unconditionally.
+  const home: [number, number] = [RIVERA_HOUSEHOLD.lat, RIVERA_HOUSEHOLD.lng];
+  const destShelter = resolveDestinationShelter();
+  const dest: [number, number] = destShelter ? [destShelter.lat, destShelter.lng] : home;
+  const { data: routes, source: routeSource } = useRoutes(home, dest);
 
   if (!selectedDisaster) {
     return (
@@ -69,7 +79,7 @@ function MapPage() {
     );
   }
 
-  const bestRoute = getBestRoute(ROUTES);
+  const bestRoute = getBestRoute(routes);
 
   return (
     <PageShell
@@ -86,7 +96,11 @@ function MapPage() {
                 </div>
               }
             >
-              <MapPanel selectedRouteId={selectedRouteId} onSelectRoute={setSelectedRouteId} />
+              <MapPanel
+                routes={routes}
+                selectedRouteId={selectedRouteId}
+                onSelectRoute={setSelectedRouteId}
+              />
             </Suspense>
           ) : (
             <div className="flex h-[520px] items-center justify-center rounded-2xl bg-surface text-sm text-foreground/60">
@@ -97,10 +111,13 @@ function MapPage() {
 
         {/* Route score panel */}
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground/60">
-            Route safety scores
-          </h3>
-          {ROUTES.map((route) => {
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground/60">
+              Route safety scores
+            </h3>
+            {flags.routing && <LiveDataBadge source={routeSource} />}
+          </div>
+          {routes.map((route) => {
             const { score, breakdown, rejectedReasons } = scoreRoute(route);
             const selected = route.id === selectedRouteId;
             const recommended = bestRoute?.id === route.id;

@@ -7,10 +7,13 @@ import {
   MAP_CENTER,
   MAP_ZOOM,
   RIVERA_HOUSEHOLD,
-  ROUTES,
   SHELTERS,
   VOLUNTEERS,
 } from "@/data/seed";
+import { flags } from "@/lib/flags";
+
+// Browser-sent (VITE_) tile key — domain-restrict it in the MapTiler dashboard.
+const maptilerKey = import.meta.env.VITE_MAPTILER_KEY as string | undefined;
 
 // Client-only Leaflet map. This module is dynamically imported (see
 // src/routes/map.tsx) so Leaflet's `window` access never runs during SSR.
@@ -24,11 +27,13 @@ const ROUTE_COLORS: Record<RouteOption["colorType"], string> = {
 };
 
 interface MapPanelProps {
+  /** Routes to draw — seed ROUTES when offline, live geometry when routing is on. */
+  routes: RouteOption[];
   selectedRouteId: string | null;
   onSelectRoute: (id: string) => void;
 }
 
-export default function MapPanel({ selectedRouteId, onSelectRoute }: MapPanelProps) {
+export default function MapPanel({ routes, selectedRouteId, onSelectRoute }: MapPanelProps) {
   const hilltop = SHELTERS.find((s) => s.id === "shelter-hilltop")!;
   const ana = VOLUNTEERS.find((v) => v.id === "vol-ana")!;
 
@@ -40,10 +45,17 @@ export default function MapPanel({ selectedRouteId, onSelectRoute }: MapPanelPro
         scrollWheelZoom={false}
         style={{ height: "520px", width: "100%", borderRadius: "1rem" }}
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+        {flags.tiles && maptilerKey ? (
+          <TileLayer
+            attribution='&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url={`https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${maptilerKey}`}
+          />
+        ) : (
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+        )}
 
         {/* Flood area */}
         <Polygon
@@ -65,7 +77,7 @@ export default function MapPanel({ selectedRouteId, onSelectRoute }: MapPanelPro
         ))}
 
         {/* Routes — rejected first so safe/caution draw on top */}
-        {[...ROUTES]
+        {[...routes]
           .sort((a) => (a.colorType === "rejected" ? -1 : 1))
           .map((route) => {
             const selected = route.id === selectedRouteId;
