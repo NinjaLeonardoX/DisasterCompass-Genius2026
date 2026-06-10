@@ -160,8 +160,11 @@ export function RespondQuickAction() {
           <p className="mt-1 text-sm font-medium text-foreground/85">
             {activeAlert?.headline ||
               (hasRealLocation
-                ? `Route generated for ${currentDisaster.label.toLowerCase()} near your live location.`
+                ? alertState === "error"
+                  ? "Live alert lookup is unavailable; route is still generated from your live location."
+                  : `No ${alertScope === "state" ? "local" : "active"} alert found; route generated for ${currentDisaster.label.toLowerCase()} near your live location.`
                 : "Share your location to load the current disaster and route.")}
+            {activeAlert && alertScope === "state" ? " Statewide alert shown." : ""}
           </p>
         </div>
       </div>
