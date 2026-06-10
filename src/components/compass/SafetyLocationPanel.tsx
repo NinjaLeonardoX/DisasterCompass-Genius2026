@@ -749,7 +749,7 @@ export function SafetyLocationPanel() {
     }
     return merged;
   });
-  const [selectedId, setSelectedId] = useState<string>(MIT_LOC.id);
+  const [selectedId, setSelectedId] = useState<string>(SJFU_LOC.id);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   // Persist every change so readiness percentage and answers survive reloads.
