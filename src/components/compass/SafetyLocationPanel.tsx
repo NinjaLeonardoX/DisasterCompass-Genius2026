@@ -249,6 +249,31 @@ const SECTIONS: Section[] = [
 
 const HAZARD_SECTION_IDS: Disaster[] = ["flood", "earthquake", "heat", "hurricane", "wildfire", "winter"];
 
+function allYesAnswers(): AllAnswers {
+  const out = {} as AllAnswers;
+  for (const s of SECTIONS) {
+    out[s.id] = {};
+    for (const q of s.questions) out[s.id][q.key] = "yes";
+  }
+  return out;
+}
+
+function blankAnswers(): AllAnswers {
+  const out = {} as AllAnswers;
+  for (const s of SECTIONS) {
+    out[s.id] = {};
+    for (const q of s.questions) out[s.id][q.key] = null;
+  }
+  return out;
+}
+
+function blankSkipped(): SkipMap {
+  return {
+    base: false, flood: false, earthquake: false, heat: false,
+    hurricane: false, wildfire: false, winter: false,
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Seeded Boston-area locations
 // ─────────────────────────────────────────────────────────────────────────────
