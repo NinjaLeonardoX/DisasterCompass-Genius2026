@@ -81,9 +81,12 @@ export function RespondPhase() {
 
       <RespondLocationBar />
 
+      <RecommendationBanner disaster={disaster} alerts={alerts.data} />
+
       <ActiveAlertsStrip alerts={alerts.data} source={alerts.source} />
 
       <RollupPanel />
+
 
       <div className="dc-card p-4">
         <DisasterPicker selected={disaster} onSelect={setDisaster} />
