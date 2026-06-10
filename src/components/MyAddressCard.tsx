@@ -52,7 +52,13 @@ export function MyAddressCard() {
   const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
-    setAddresses(listAddresses());
+    let cancelled = false;
+    listAddresses().then((list) => {
+      if (!cancelled) setAddresses(list);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [open, activeAddress?.id]);
 
   // Seed the form from the active saved address (so "Update" works).
@@ -104,21 +110,30 @@ export function MyAddressCard() {
         countryCode: geo.countryCode,
         savedAt: new Date().toISOString(),
       };
-      upsertAddress(saved);
+      await upsertAddress(saved);
       selectAddress(saved.id);
       refreshAddresses();
+      const list = await listAddresses();
+      setAddresses(list);
       toast.success(updateExisting ? `Updated "${saved.name}"` : `Saved "${saved.name}"`);
       setOpen(false);
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : "Failed to save");
     } finally {
       setBusy(false);
     }
   }
 
-  function handleDelete(id: string) {
-    deleteAddress(id);
-    refreshAddresses();
-    setAddresses(listAddresses());
-    toast.success("Address removed");
+  async function handleDelete(id: string) {
+    try {
+      await deleteAddress(id);
+      refreshAddresses();
+      const list = await listAddresses();
+      setAddresses(list);
+      toast.success("Address removed");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to delete");
+    }
   }
 
   return (
@@ -220,7 +235,7 @@ export function MyAddressCard() {
               )}
             </div>
             <p className="text-[11px] text-card-foreground/55">
-              Stored only in your browser (localStorage). No account, no server.
+              Stored in shared cloud — visible on every device. No login.
             </p>
           </div>
 

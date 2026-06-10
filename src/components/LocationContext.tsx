@@ -77,8 +77,14 @@ export function LocationProvider({ children }: { children: ReactNode }) {
       setActiveAddress(null);
       return;
     }
-    const found = listAddresses().find((a) => a.id === id) ?? null;
-    setActiveAddress(found);
+    let cancelled = false;
+    listAddresses().then((list) => {
+      if (cancelled) return;
+      setActiveAddress(list.find((a) => a.id === id) ?? null);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [addrsTick]);
 
   // Reverse-geocode whenever device coords change (only when no saved address is active).
@@ -102,8 +108,9 @@ export function LocationProvider({ children }: { children: ReactNode }) {
       setActiveAddress(null);
       return;
     }
-    const found = listAddresses().find((a) => a.id === id) ?? null;
-    setActiveAddress(found);
+    listAddresses().then((list) => {
+      setActiveAddress(list.find((a) => a.id === id) ?? null);
+    });
   }, []);
 
   const refreshAddresses = useCallback(() => {
