@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SolutionRouteImport } from './routes/solution'
 import { Route as SheltersRoutesRouteImport } from './routes/shelters-routes'
 import { Route as ReportRouteImport } from './routes/report'
 import { Route as MethodologyRouteImport } from './routes/methodology'
@@ -18,6 +19,11 @@ import { Route as AiDisclosureRouteImport } from './routes/ai-disclosure'
 import { Route as ActionPlanRouteImport } from './routes/action-plan'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SolutionRoute = SolutionRouteImport.update({
+  id: '/solution',
+  path: '/solution',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SheltersRoutesRoute = SheltersRoutesRouteImport.update({
   id: '/shelters-routes',
   path: '/shelters-routes',
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/methodology': typeof MethodologyRoute
   '/report': typeof ReportRoute
   '/shelters-routes': typeof SheltersRoutesRoute
+  '/solution': typeof SolutionRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/methodology': typeof MethodologyRoute
   '/report': typeof ReportRoute
   '/shelters-routes': typeof SheltersRoutesRoute
+  '/solution': typeof SolutionRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/methodology': typeof MethodologyRoute
   '/report': typeof ReportRoute
   '/shelters-routes': typeof SheltersRoutesRoute
+  '/solution': typeof SolutionRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/report'
     | '/shelters-routes'
+    | '/solution'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/report'
     | '/shelters-routes'
+    | '/solution'
   id:
     | '__root__'
     | '/'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/report'
     | '/shelters-routes'
+    | '/solution'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,10 +144,18 @@ export interface RootRouteChildren {
   MethodologyRoute: typeof MethodologyRoute
   ReportRoute: typeof ReportRoute
   SheltersRoutesRoute: typeof SheltersRoutesRoute
+  SolutionRoute: typeof SolutionRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/solution': {
+      id: '/solution'
+      path: '/solution'
+      fullPath: '/solution'
+      preLoaderRoute: typeof SolutionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shelters-routes': {
       id: '/shelters-routes'
       path: '/shelters-routes'
@@ -204,6 +224,7 @@ const rootRouteChildren: RootRouteChildren = {
   MethodologyRoute: MethodologyRoute,
   ReportRoute: ReportRoute,
   SheltersRoutesRoute: SheltersRoutesRoute,
+  SolutionRoute: SolutionRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Compass,
@@ -10,8 +11,22 @@ import {
   Sparkles,
   Activity,
   CheckCircle2,
+  ChevronDown,
+  Menu,
+  X,
+  Presentation,
 } from "lucide-react";
 import dcLogo from "@/assets/disaster-compass-logo.png.asset.json";
+
+// Methodology sub-sections deep-link into the phase anchors on /methodology.
+const methodologyLinks = [
+  { label: "Prepare", hash: "prepare" },
+  { label: "Respond", hash: "respond" },
+  { label: "Recover", hash: "recover" },
+] as const;
+
+// TODO: replace with the uploaded presentation link once available.
+const PRESENTATION_URL = "#";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -28,6 +43,9 @@ export const Route = createFileRoute("/")({
 });
 
 function LandingPage() {
+  const [methodOpen, setMethodOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-[#0f1a2e] text-white antialiased">
       {/* Ambient background */}
@@ -46,24 +64,144 @@ function LandingPage() {
 
       <div className="relative">
         {/* NAV */}
-        <header className="flex w-full items-center justify-between bg-white px-6 py-4">
-          <Link to="/" className="flex items-center">
-            <img
-              src={dcLogo.url}
-              alt="DisasterCompass — Community Disaster Action Planner"
-              className="h-14 w-auto"
-            />
-          </Link>
-          <nav className="hidden items-center gap-8 text-sm text-slate-600 md:flex">
-            <a href="#features" className="hover:text-slate-900">Features</a>
-          </nav>
-          <Link
-            to="/compass"
-            className="group inline-flex items-center gap-2 rounded-full bg-[#16A34A] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-black/20 transition hover:brightness-110"
-          >
-            Go to App
-            <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-          </Link>
+        <header className="relative bg-white">
+          <div className="flex w-full items-center justify-between px-6 py-4">
+            <Link to="/" className="flex items-center">
+              <img
+                src={dcLogo.url}
+                alt="DisasterCompass — Community Disaster Action Planner"
+                className="h-14 w-auto"
+              />
+            </Link>
+
+            {/* Desktop nav */}
+            <nav className="hidden items-center gap-7 text-sm font-medium text-slate-600 md:flex">
+              <a href="#features" className="hover:text-slate-900">
+                Features
+              </a>
+
+              {/* Methodology dropdown */}
+              <div
+                className="relative"
+                onMouseEnter={() => setMethodOpen(true)}
+                onMouseLeave={() => setMethodOpen(false)}
+              >
+                <button
+                  type="button"
+                  onClick={() => setMethodOpen((v) => !v)}
+                  aria-expanded={methodOpen}
+                  aria-haspopup="true"
+                  className="inline-flex items-center gap-1 hover:text-slate-900"
+                >
+                  Methodology
+                  <ChevronDown className={`h-4 w-4 transition ${methodOpen ? "rotate-180" : ""}`} />
+                </button>
+                {methodOpen && (
+                  <div className="absolute left-1/2 top-full z-50 w-44 -translate-x-1/2 pt-3">
+                    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-xl shadow-black/10">
+                      {methodologyLinks.map((m) => (
+                        <Link
+                          key={m.hash}
+                          to="/methodology"
+                          hash={m.hash}
+                          onClick={() => setMethodOpen(false)}
+                          className="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                        >
+                          {m.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <Link to="/solution" className="hover:text-slate-900">
+                Solution
+              </Link>
+              <a
+                href={PRESENTATION_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 hover:text-slate-900"
+              >
+                <Presentation className="h-4 w-4" />
+                Presentation
+              </a>
+            </nav>
+
+            <div className="flex items-center gap-3">
+              <Link
+                to="/compass"
+                className="group hidden items-center gap-2 rounded-full bg-[#16A34A] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-black/20 transition hover:brightness-110 sm:inline-flex"
+              >
+                Go to App
+                <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+              </Link>
+
+              {/* Mobile menu toggle */}
+              <button
+                type="button"
+                onClick={() => setMobileOpen((v) => !v)}
+                aria-expanded={mobileOpen}
+                aria-label="Toggle menu"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-slate-700 hover:bg-slate-100 md:hidden"
+              >
+                {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile menu */}
+          {mobileOpen && (
+            <div className="border-t border-slate-200 bg-white px-6 py-4 text-slate-700 md:hidden">
+              <a
+                href="#features"
+                onClick={() => setMobileOpen(false)}
+                className="block py-2 text-sm font-medium hover:text-slate-900"
+              >
+                Features
+              </a>
+              <p className="pt-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Methodology
+              </p>
+              {methodologyLinks.map((m) => (
+                <Link
+                  key={m.hash}
+                  to="/methodology"
+                  hash={m.hash}
+                  onClick={() => setMobileOpen(false)}
+                  className="block py-2 pl-3 text-sm hover:text-slate-900"
+                >
+                  {m.label}
+                </Link>
+              ))}
+              <Link
+                to="/solution"
+                onClick={() => setMobileOpen(false)}
+                className="block py-2 text-sm font-medium hover:text-slate-900"
+              >
+                Solution
+              </Link>
+              <a
+                href={PRESENTATION_URL}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2 py-2 text-sm font-medium hover:text-slate-900"
+              >
+                <Presentation className="h-4 w-4" />
+                Presentation
+              </a>
+              <Link
+                to="/compass"
+                onClick={() => setMobileOpen(false)}
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#16A34A] px-4 py-2.5 text-sm font-semibold text-white"
+              >
+                Go to App
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          )}
         </header>
 
         {/* HERO */}
@@ -87,10 +225,9 @@ function LandingPage() {
               </h1>
 
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/70">
-                When disaster strikes, families freeze. Disaster Compass gives
-                every household one clear action — go, stay, or wait — with the
-                safest route and a neighbor to help those who can't leave alone,
-                then guides them through recovery. Built for floods,
+                When disaster strikes, families freeze. Disaster Compass gives every household one
+                clear action — go, stay, or wait — with the safest route and a neighbor to help
+                those who can't leave alone, then guides them through recovery. Built for floods,
                 earthquakes, wildfires, hurricanes, and extreme heat.
               </p>
 
@@ -140,10 +277,10 @@ function LandingPage() {
                   </div>
 
                   <div className="mt-5">
-                    <p className="text-xs uppercase tracking-[0.2em] text-white/50">Recommended action</p>
-                    <h3 className="mt-2 text-3xl font-bold leading-tight">
-                      Go to higher ground
-                    </h3>
+                    <p className="text-xs uppercase tracking-[0.2em] text-white/50">
+                      Recommended action
+                    </p>
+                    <h3 className="mt-2 text-3xl font-bold leading-tight">Go to higher ground</h3>
                     <p className="mt-1 text-sm text-white/60">
                       Hilltop Community Center · 3.0 mi · ETA 35 min
                     </p>
@@ -179,7 +316,6 @@ function LandingPage() {
           </div>
         </section>
 
-
         {/* FEATURES */}
         <section id="features" className="mx-auto max-w-7xl px-6 pt-4 pb-12 lg:pt-6 lg:pb-16">
           <div className="max-w-2xl">
@@ -188,8 +324,7 @@ function LandingPage() {
               One plan. Six panels. Zero guesswork.
             </h2>
             <p className="mt-4 text-lg text-white/60">
-              Every panel answers a question a panicked family is already
-              asking. Nothing more.
+              Every panel answers a question a panicked family is already asking. Nothing more.
             </p>
           </div>
 
@@ -203,14 +338,11 @@ function LandingPage() {
                   <f.icon className="h-5 w-5 text-[#16A34A]" />
                 </div>
                 <h3 className="mt-5 text-lg font-semibold text-white">{f.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/60">
-                  {f.desc}
-                </p>
+                <p className="mt-2 text-sm leading-relaxed text-white/60">{f.desc}</p>
               </div>
             ))}
           </div>
         </section>
-
 
         {/* CTA */}
         <section className="mx-auto max-w-7xl px-6 pb-32">
@@ -221,8 +353,8 @@ function LandingPage() {
                 See it before you need it.
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-white/70">
-                Open the live North Creek demo and walk through the first 60
-                minutes of a flood event.
+                Open the live North Creek demo and walk through the first 60 minutes of a flood
+                event.
               </p>
               <Link
                 to="/compass"
@@ -281,4 +413,3 @@ const features = [
     desc: "Every signal source, model weight, and fallback shown inline. Trust by construction.",
   },
 ];
-
