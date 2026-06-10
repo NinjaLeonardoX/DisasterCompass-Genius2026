@@ -1,56 +1,51 @@
-## Goal
+# Top-of-page address entry + saved addresses + real rollup data
 
-Refactor the app navigation and composition so the existing DisasterCompass features tell a clear 3-phase story (Prepare → Respond → Recover) without rewriting working logic (Leaflet map, route scores, volunteer match, coordinator, recovery checklist, scoring, seeded data).
+## Move + expand the location card
+Move `LocationPermissionCard` to the very top of every phase (above the "Phase 1 · Before impact" header), and expand it into a `MyAddressCard` with three modes:
 
-## What changes
+1. **Use my location** (existing browser geolocation)
+2. **Enter address manually** (text field → Nominatim forward geocode)
+3. **Pick a saved address** (dropdown of names + addresses from localStorage)
 
-### 1. Sidebar (`src/components/AppSidebar.tsx`)
-Replace the current 7-item nav with:
-- **Mode toggle** at top: Resident | Community (via React context)
-- **3 phase tabs**: Prepare (Readiness Radar) · Respond (Compass Action Plan) · Recover (Recovery Launchpad)
-- **Footer secondary links**: Methodology, AI Disclosure
-- Keep dark navy style, polished green active state.
+When the user enters or picks an address, that address becomes "household #1" — the same `Household` object every screen already consumes via `useHousehold()` — with `locationName` set to the user-provided name (e.g. "Home", "Mom's place").
 
-### 2. New phase context
-New `src/components/PhaseContext.tsx` provides `activePhase`, `mode`, `setActivePhase`, `setMode`. Wraps app in `__root.tsx`.
+Includes:
+- Editable name field ("Save as: Home")
+- Save / Update / Delete buttons
+- Address validation (Zod: trimmed, 5–200 chars), Nominatim error toasts
+- "Use as my current household" toggle per saved address
 
-### 3. New main app route (replace `/compass` UX, keep route)
-`src/routes/compass.tsx` becomes a host that renders:
-- **Lifecycle Dashboard** (always at top): title "One family. Three moments. One clear plan." + 3 cinematic gradient cards (Prepare/Respond/Recover) with phase label, status pill, tooltip, "View Actions" expansion, creative tagline. Pure CSS premium look (no new image assets needed) — layered gradients, grid textures, glass overlays, lucide icons.
-- **Phase panel** below, switches on `activePhase`.
+## Local persistence (no DB)
+Single localStorage key: `dc:saved-addresses:v1` → `Array<{ id, name, address, lat, lng, region, county, state, country, savedAt }>`. Plus `dc:active-address-id` pointing at the currently-selected saved address. No Supabase, no server — matches the user's "just local" requirement.
 
-### 4. Phase screens (new files under `src/components/phases/`)
-- `PreparePhase.tsx` — Readiness Radar: drill banner, disaster picker, Rivera profile, readiness ring (SVG), gap list with Fix-now buttons that close gaps via local state, community-mode readiness summary.
-- `RespondPhase.tsx` — Compass Action Plan: reuses existing `ActionCard`, `MapPanel`, collapsible `RouteScorePanel`, `VolunteerMatchCard`, compact `CoordinatorPanel`, plus a small Disaster Contrast Panel (Flood/Earthquake/Heat micro-cards).
-- `RecoverPhase.tsx` — Recovery Launchpad: single-current-action queue (steps from `getRecoveryChecklist`), Recovery Packet card, "Neighbor network repurposed" using volunteer data, Resource Router chips (reuse list from existing `RecoveryPanel`).
+## Rollups: real data only, "no data" otherwise
+Resolve the entered address → `{ city, county, state }` via Nominatim, then fetch from real, CORS-friendly, no-key APIs:
 
-### 5. Reusable bits
-- `WhyThisPopover.tsx` — small "Why this?" tooltip used inline on action/route/volunteer/recovery (uses existing shadcn `Popover`). Removes need for AI Disclosure top tab.
-- `LifecycleCard.tsx` — premium gradient card used in dashboard.
+- **Community (your county)** → NWS `https://api.weather.gov/alerts/active?point=lat,lng` → active alerts at that exact point
+- **State (rollup)** → NWS `https://api.weather.gov/alerts/active?area={STATE}` → count + severity histogram
+- **National** → NWS `https://api.weather.gov/alerts/active` → top hazards nationwide
 
-### 6. Routes
-- `/compass` remains the main app (single-page phase switcher).
-- Keep existing `/ai-disclosure` and `/methodology` for footer links.
-- Other top-level routes (`/map`, `/report`, etc.) untouched, but no longer in sidebar.
+If a fetch returns 0 alerts or fails → render "No active signals reported for this area" with the source + timestamp. Never fabricate counts. (NWS is US-only — for non-US addresses the rollups show "Coverage unavailable outside US — NWS only".)
 
-## What stays untouched
-- `src/lib/scoring.ts`, `src/lib/matching.ts`, `src/lib/recovery.ts`, `src/lib/actions.ts`
-- `src/data/seed.ts`
-- `src/components/compass/MapPanel.tsx` (Leaflet)
-- `src/components/compass/RouteScorePanel.tsx`
-- `src/components/compass/VolunteerMatchCard.tsx` (approve button behavior preserved)
-- `src/components/compass/CoordinatorPanel.tsx`
-- Landing page `src/routes/index.tsx`
+A new `RollupPanel` component on Prepare renders the three tiers as cards (Community → State → National), each with: source link, fetched-at timestamp, signal count, top 3 alert headlines, or the explicit "no data" empty state.
 
-## Visual rules
-- Dark navy sidebar, light atmospheric main bg, white elevated cards, soft shadows.
-- Green = safe/GO, Amber = caution/needs help, Red = danger/rejected only, Blue = water/map.
-- Action heading "GO TO HIGHER GROUND" stays navy with green GO badge (not red).
+## Files
+- new: `src/lib/geocoding.ts` (Nominatim forward/reverse, throttled, cached)
+- new: `src/lib/nwsAlerts.ts` (typed fetch wrappers, error → null)
+- new: `src/lib/savedAddresses.ts` (localStorage CRUD + Zod schema)
+- new: `src/components/MyAddressCard.tsx` (replaces `LocationPermissionCard` usage)
+- new: `src/components/RollupPanel.tsx` (Community / State / National)
+- edited: `src/components/LocationContext.tsx` — accept manual address, expose `setManualAddress`, hydrate active address from localStorage
+- edited: `src/components/phases/PreparePhase.tsx` — render `MyAddressCard` at the very top and `RollupPanel` below the risk map
+- edited: `src/routes/__root.tsx` — render `MyAddressCard` once at the very top of `AppChrome` instead of per-phase, so it's persistent across Prepare/Respond/Recover
 
 ## Out of scope
-- No backend, auth, localStorage, live APIs.
-- No new image assets — use CSS gradients + icons for cinematic cards.
-- No changes to scoring math or seeded data.
+- No backend / no auth (per user)
+- No editing of seed disaster scoring math
+- No payment, no AI; rollup fetches are unauthenticated public APIs
 
-## Demo flow it enables
-Open app → see 3 lifecycle cards → click Prepare (Rivera gaps) → click Respond (flood GO + Route B + Approve Ana → Rivera En Route) → click Recover (next-action queue + packet + repurposed network). Tagline footer: "AI explains. Rules decide. Humans approve."
+## Technical notes
+- Nominatim usage policy: max 1 req/sec, send a descriptive `User-Agent`/referrer; we throttle in `geocoding.ts` and cache in-memory + localStorage per `addressNormalized`.
+- All fetches client-side (no SSR), wrapped in try/catch, with 8-second AbortController timeouts.
+- NWS responses are GeoJSON; we narrow to `features[].properties.{event, severity, headline, areaDesc, sent, ends}`.
+- Zod is already used elsewhere; address schema validated on submit + on load from localStorage.

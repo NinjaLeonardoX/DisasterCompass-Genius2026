@@ -31,7 +31,9 @@ import {
 } from "@/data/prepare";
 import { decideAction } from "@/lib/actions";
 import { getBestRoute, scoreRoute } from "@/lib/scoring";
-import { ROUTES, RIVERA_HOUSEHOLD } from "@/data/seed";
+import { ROUTES } from "@/data/seed";
+import { useHousehold } from "../LocationContext";
+import { RollupPanel } from "../RollupPanel";
 
 // Prepare leads with the calm risk map. Leaflet touches `window`, so the map is
 // lazy-loaded and only mounted client-side (mirrors src/routes/map.tsx).
@@ -71,6 +73,8 @@ export function PreparePhase() {
           Orient on the risk map → pick a hazard → see your route → fix your gaps.
         </p>
       </div>
+
+      <RollupPanel />
 
       <div className="dc-card flex flex-wrap items-center justify-between gap-3 p-4">
         <span className="inline-flex items-center gap-2 rounded-full bg-[color:var(--severity-low)]/10 px-3 py-1 text-xs font-semibold text-[color:var(--severity-low)] ring-1 ring-[color:var(--severity-low)]/25">
@@ -454,7 +458,8 @@ function SeverityBars({ severity }: { severity: HazardRisk["severity"] }) {
  * renders BELOW the map with no active route drawn on the calm map itself.
  */
 function RouteReadinessPanel({ hazard }: { hazard: HazardRisk }) {
-  const decision = decideAction(hazard.disasterType, RIVERA_HOUSEHOLD);
+  const household = useHousehold();
+  const decision = decideAction(hazard.disasterType, household);
 
   // Flood enriches the seeded route line with the live engine score.
   let routeLine = hazard.routeLine;

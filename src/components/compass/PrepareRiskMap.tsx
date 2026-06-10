@@ -1,6 +1,7 @@
 import { MapContainer, TileLayer, Polygon, CircleMarker, Tooltip } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { FLOOD_POLYGON, MAP_CENTER, MAP_ZOOM, RIVERA_HOUSEHOLD } from "@/data/seed";
+import { FLOOD_POLYGON, MAP_CENTER, MAP_ZOOM } from "@/data/seed";
+import { useHousehold } from "@/components/LocationContext";
 import {
   ASSEMBLY_POINT,
   FAULT_LINE_BAND,
@@ -28,12 +29,15 @@ interface Props {
 }
 
 export default function PrepareRiskMap({ selectedHazardId, onSelectHazard }: Props) {
+  const household = useHousehold();
   const zonedHazards = HAZARD_RISKS.filter((h) => h.zone !== null);
+  const center: [number, number] =
+    household.lat && household.lng ? [household.lat, household.lng] : MAP_CENTER;
 
   return (
     <div className="relative">
       <MapContainer
-        center={MAP_CENTER}
+        center={center}
         zoom={MAP_ZOOM}
         scrollWheelZoom={false}
         className="prepare-risk-map"
@@ -69,12 +73,12 @@ export default function PrepareRiskMap({ selectedHazardId, onSelectHazard }: Pro
 
         {/* Home marker — muted slate, no alert styling */}
         <CircleMarker
-          center={[RIVERA_HOUSEHOLD.lat, RIVERA_HOUSEHOLD.lng]}
+          center={[household.lat, household.lng]}
           radius={8}
           pathOptions={{ color: "#ffffff", weight: 2, fillColor: "#475569", fillOpacity: 1 }}
         >
           <Tooltip permanent direction="top" offset={[0, -8]}>
-            🏠 {RIVERA_HOUSEHOLD.name}
+            🏠 {household.name}
           </Tooltip>
         </CircleMarker>
 

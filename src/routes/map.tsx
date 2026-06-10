@@ -7,10 +7,10 @@ import { NextBackNav } from "../components/NextBackNav";
 import { useScenario } from "../components/ScenarioContext";
 import { decideAction } from "@/lib/actions";
 import { scoreRoute, getBestRoute } from "@/lib/scoring";
-import { RIVERA_HOUSEHOLD } from "@/data/seed";
 import { useRoutes, resolveDestinationShelter } from "@/lib/queries/routing";
 import { flags } from "@/lib/flags";
 import { LiveDataBadge } from "../components/LiveDataBadge";
+import { useHousehold } from "../components/LocationContext";
 import type { RouteOption } from "@/types";
 
 // MapPanel is imported lazily so Leaflet (which touches `window`) never loads
@@ -36,12 +36,13 @@ const COLOR_BADGE: Record<RouteOption["colorType"], string> = {
 function MapPage() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { selectedDisaster, selectedRouteId, setSelectedRouteId } = useScenario();
+  const household = useHousehold();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
   // Live road routes (flag off / error ⇒ exact seed ROUTES). Hooks must run
   // before any early return, so this is computed unconditionally.
-  const home: [number, number] = [RIVERA_HOUSEHOLD.lat, RIVERA_HOUSEHOLD.lng];
+  const home: [number, number] = [household.lat, household.lng];
   const destShelter = resolveDestinationShelter();
   const dest: [number, number] = destShelter ? [destShelter.lat, destShelter.lng] : home;
   const { data: routes, source: routeSource } = useRoutes(home, dest);
@@ -59,7 +60,7 @@ function MapPage() {
     );
   }
 
-  const decision = decideAction(selectedDisaster, RIVERA_HOUSEHOLD);
+  const decision = decideAction(selectedDisaster, household);
 
   // No routing during an earthquake — shelter in place.
   if (!decision.shouldShowRoute) {

@@ -6,11 +6,11 @@ import {
   FLOOD_POLYGON,
   MAP_CENTER,
   MAP_ZOOM,
-  RIVERA_HOUSEHOLD,
   SHELTERS,
   VOLUNTEERS,
 } from "@/data/seed";
 import { flags } from "@/lib/flags";
+import { useHousehold } from "./LocationContext";
 
 // Browser-sent (VITE_) tile key — domain-restrict it in the MapTiler dashboard.
 const maptilerKey = import.meta.env.VITE_MAPTILER_KEY as string | undefined;
@@ -34,13 +34,16 @@ interface MapPanelProps {
 }
 
 export default function MapPanel({ routes, selectedRouteId, onSelectRoute }: MapPanelProps) {
+  const household = useHousehold();
   const hilltop = SHELTERS.find((s) => s.id === "shelter-hilltop")!;
   const ana = VOLUNTEERS.find((v) => v.id === "vol-ana")!;
+  const center: [number, number] =
+    household.lat && household.lng ? [household.lat, household.lng] : MAP_CENTER;
 
   return (
     <div className="relative">
       <MapContainer
-        center={MAP_CENTER}
+        center={center}
         zoom={MAP_ZOOM}
         scrollWheelZoom={false}
         style={{ height: "520px", width: "100%", borderRadius: "1rem" }}
@@ -100,12 +103,12 @@ export default function MapPanel({ routes, selectedRouteId, onSelectRoute }: Map
 
         {/* Home marker */}
         <CircleMarker
-          center={[RIVERA_HOUSEHOLD.lat, RIVERA_HOUSEHOLD.lng]}
+          center={[household.lat, household.lng]}
           radius={9}
           pathOptions={{ color: "#ffffff", weight: 2, fillColor: "#0EA5A4", fillOpacity: 1 }}
         >
           <Tooltip permanent direction="top" offset={[0, -8]}>
-            🏠 {RIVERA_HOUSEHOLD.name}
+            🏠 {household.name}
           </Tooltip>
         </CircleMarker>
 

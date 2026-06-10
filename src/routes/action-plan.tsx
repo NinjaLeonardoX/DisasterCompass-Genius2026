@@ -14,7 +14,8 @@ import { useScenario } from "../components/ScenarioContext";
 import { decideAction } from "@/lib/actions";
 import { getBestRoute, scoreRoute } from "@/lib/scoring";
 import { matchVolunteer } from "@/lib/matching";
-import { ROUTES, VOLUNTEERS, RIVERA_HOUSEHOLD, SHELTERS } from "@/data/seed";
+import { ROUTES, VOLUNTEERS, SHELTERS } from "@/data/seed";
+import { useHousehold } from "../components/LocationContext";
 
 export const Route = createFileRoute("/action-plan")({
   head: () => ({
@@ -49,11 +50,12 @@ function ActionPlanPage() {
     );
   }
 
-  const decision = decideAction(selectedDisaster, RIVERA_HOUSEHOLD);
+  const household = useHousehold();
+  const decision = decideAction(selectedDisaster, household);
   const bestRoute = decision.shouldShowRoute ? getBestRoute(ROUTES) : null;
   const bestScore = bestRoute ? scoreRoute(bestRoute).score : null;
   const destination = bestRoute ? SHELTERS.find((s) => s.id === bestRoute.destinationId) : null;
-  const match = matchVolunteer(RIVERA_HOUSEHOLD, VOLUNTEERS);
+  const match = matchVolunteer(household, VOLUNTEERS);
   const completedCount = recoveryItems.filter((i) => i.completed).length;
 
   return (
@@ -131,7 +133,7 @@ function ActionPlanPage() {
                 />
                 <span>
                   <strong className="font-semibold">Approved.</strong> {match.bestVolunteer.name} is
-                  en route to the {RIVERA_HOUSEHOLD.name}. Their status is now{" "}
+                  en route to the {household.name}. Their status is now{" "}
                   <strong>En Route</strong> on the coordinator board.
                 </span>
               </div>

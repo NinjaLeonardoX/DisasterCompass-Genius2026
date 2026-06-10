@@ -1,0 +1,167 @@
+// Free, no-key geocoding via OpenStreetMap Nominatim.
+// Usage policy: max 1 req/sec, descriptive UA, cache results.
+// https://operations.osmfoundation.org/policies/nominatim/
+
+export interface GeocodeResult {
+  lat: number;
+  lng: number;
+  displayName: string;
+  city: string | null;
+  county: string | null;
+  state: string | null;
+  stateCode: string | null;
+  country: string | null;
+  countryCode: string | null; // ISO 3166-1 alpha-2, lowercase
+}
+
+interface NominatimAddress {
+  city?: string;
+  town?: string;
+  village?: string;
+  hamlet?: string;
+  county?: string;
+  state?: string;
+  "ISO3166-2-lvl4"?: string;
+  country?: string;
+  country_code?: string;
+}
+
+interface NominatimResponse {
+  lat: string;
+  lon: string;
+  display_name: string;
+  address?: NominatimAddress;
+}
+
+const CACHE_KEY = "dc:geocode-cache:v1";
+const memCache = new Map<string, GeocodeResult>();
+let lastRequest = 0;
+
+function loadCache(): Record<string, GeocodeResult> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(CACHE_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, GeocodeResult>) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveCache(key: string, value: GeocodeResult) {
+  memCache.set(key, value);
+  if (typeof window === "undefined") return;
+  try {
+    const all = loadCache();
+    all[key] = value;
+    window.localStorage.setItem(CACHE_KEY, JSON.stringify(all));
+  } catch {
+    /* quota */
+  }
+}
+
+function fromCache(key: string): GeocodeResult | null {
+  if (memCache.has(key)) return memCache.get(key)!;
+  const all = loadCache();
+  const hit = all[key];
+  if (hit) memCache.set(key, hit);
+  return hit ?? null;
+}
+
+async function throttle() {
+  const now = Date.now();
+  const wait = Math.max(0, 1100 - (now - lastRequest));
+  if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+  lastRequest = Date.now();
+}
+
+function normalize(input: string) {
+  return input.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function pickCity(a: NominatimAddress | undefined): string | null {
+  if (!a) return null;
+  return a.city ?? a.town ?? a.village ?? a.hamlet ?? null;
+}
+
+function pickStateCode(a: NominatimAddress | undefined): string | null {
+  if (!a) return null;
+  // "ISO3166-2-lvl4": "US-NY" → "NY"
+  const iso = a["ISO3166-2-lvl4"];
+  if (iso && iso.includes("-")) return iso.split("-")[1] ?? null;
+  return null;
+}
+
+function toResult(r: NominatimResponse): GeocodeResult {
+  return {
+    lat: Number.parseFloat(r.lat),
+    lng: Number.parseFloat(r.lon),
+    displayName: r.display_name,
+    city: pickCity(r.address),
+    county: r.address?.county ?? null,
+    state: r.address?.state ?? null,
+    stateCode: pickStateCode(r.address),
+    country: r.address?.country ?? null,
+    countryCode: r.address?.country_code?.toLowerCase() ?? null,
+  };
+}
+
+export async function forwardGeocode(address: string, signal?: AbortSignal): Promise<GeocodeResult | null> {
+  const key = `f:${normalize(address)}`;
+  const cached = fromCache(key);
+  if (cached) return cached;
+
+  await throttle();
+  const url = new URL("https://nominatim.openstreetmap.org/search");
+  url.searchParams.set("q", address);
+  url.searchParams.set("format", "json");
+  url.searchParams.set("addressdetails", "1");
+  url.searchParams.set("limit", "1");
+
+  try {
+    const res = await fetch(url.toString(), {
+      headers: { Accept: "application/json" },
+      signal,
+    });
+    if (!res.ok) return null;
+    const arr = (await res.json()) as NominatimResponse[];
+    if (!arr.length) return null;
+    const out = toResult(arr[0]);
+    if (!Number.isFinite(out.lat) || !Number.isFinite(out.lng)) return null;
+    saveCache(key, out);
+    return out;
+  } catch {
+    return null;
+  }
+}
+
+export async function reverseGeocode(
+  lat: number,
+  lng: number,
+  signal?: AbortSignal,
+): Promise<GeocodeResult | null> {
+  const key = `r:${lat.toFixed(4)},${lng.toFixed(4)}`;
+  const cached = fromCache(key);
+  if (cached) return cached;
+
+  await throttle();
+  const url = new URL("https://nominatim.openstreetmap.org/reverse");
+  url.searchParams.set("lat", String(lat));
+  url.searchParams.set("lon", String(lng));
+  url.searchParams.set("format", "json");
+  url.searchParams.set("addressdetails", "1");
+  url.searchParams.set("zoom", "12");
+
+  try {
+    const res = await fetch(url.toString(), {
+      headers: { Accept: "application/json" },
+      signal,
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as NominatimResponse;
+    const out = toResult(json);
+    saveCache(key, out);
+    return out;
+  } catch {
+    return null;
+  }
+}
