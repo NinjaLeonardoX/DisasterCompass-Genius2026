@@ -262,41 +262,40 @@ export function RespondQuickAction() {
 
       </div>
 
-      {/* Real-time location status (auto, no button) */}
-      <div
-        className={`flex items-center justify-between gap-3 rounded-xl border px-4 py-2.5 text-sm shadow-sm ${
-          hasRealLocation
-            ? "border-[color:var(--severity-low)]/40 bg-[color:var(--severity-low)]/10 text-foreground"
-            : "border-border bg-white text-foreground/80"
-        }`}
-      >
-        <div className="flex min-w-0 items-center gap-2">
-          {geoStatus === "prompting" || (!hasRealLocation && geoStatus === "idle") ? (
-            <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" />
-          ) : (
+      {/* Real-time location status — only shown once we have a real fix or an error to surface */}
+      {(hasRealLocation || cachedLoc || geoStatus === "denied" || geoStatus === "unsupported" || geoStatus === "error") && (
+        <div
+          className={`flex items-center justify-between gap-3 rounded-xl border px-4 py-2.5 text-sm shadow-sm ${
+            hasRealLocation
+              ? "border-[color:var(--severity-low)]/40 bg-[color:var(--severity-low)]/10 text-foreground"
+              : "border-border bg-white text-foreground/80"
+          }`}
+        >
+          <div className="flex min-w-0 items-center gap-2">
             <MapPin
               className={`h-4 w-4 shrink-0 ${hasRealLocation ? "text-[color:var(--severity-low)]" : "text-foreground/60"}`}
               aria-hidden="true"
             />
+            <span className="truncate font-medium">
+              {hasRealLocation
+                ? `Live location · ±${Math.round(accuracyMeters ?? 0)} m`
+                : geoStatus === "denied"
+                  ? "Location permission denied — enable it in your browser"
+                  : geoStatus === "unsupported"
+                    ? "Geolocation not supported on this device"
+                    : geoStatus === "error"
+                      ? (geoError ?? "Couldn't get location — retrying…")
+                      : "Using last known location"}
+            </span>
+          </div>
+          {(hasRealLocation || cachedLoc) && (
+            <span className="shrink-0 text-xs text-foreground/60">
+              Updated {formatTime((hasRealLocation ? locationUpdatedAt : cachedLoc?.savedAt) ?? Date.now())}
+            </span>
           )}
-          <span className="truncate font-medium">
-            {hasRealLocation
-              ? `Live location · ±${Math.round(accuracyMeters ?? 0)} m`
-              : geoStatus === "denied"
-                ? "Location permission denied — enable it in your browser"
-                : geoStatus === "unsupported"
-                  ? "Geolocation not supported on this device"
-                  : geoStatus === "error"
-                    ? (geoError ?? "Couldn't get location — retrying…")
-                    : "Getting your location…"}
-          </span>
         </div>
-        {(hasRealLocation || cachedLoc) && (
-          <span className="shrink-0 text-xs text-foreground/60">
-            Updated {formatTime((hasRealLocation ? locationUpdatedAt : cachedLoc?.savedAt) ?? Date.now())}
-          </span>
-        )}
-      </div>
+      )}
+
 
       {/* Live weather at the user's location */}
       <WeatherCard lat={home[0]} lng={home[1]} />
