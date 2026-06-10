@@ -15,7 +15,9 @@ import { usePhase } from "../PhaseContext";
 import { useHousehold, useLocation } from "../LocationContext";
 import { useRoutes, resolveDestinationShelter } from "@/lib/queries/routing";
 import { useEvacuationRoutes } from "@/lib/queries/evacuation";
-import type { BadgeSource } from "../LiveDataBadge";
+import { useWeatherAlerts } from "@/lib/queries/alerts";
+import type { DisasterAlert } from "@/lib/adapters/alerts";
+import { LiveDataBadge, type BadgeSource } from "../LiveDataBadge";
 import type { DisasterType } from "@/types";
 
 const KIND_TO_TYPE: Record<DisasterKind, DisasterType> = {
@@ -54,6 +56,7 @@ export function RespondPhase() {
   const routes = locationAware ? evac.routes : seedRouting.data;
   const routeSource: BadgeSource = locationAware ? evac.source : seedRouting.source;
   const showScores = locationAware ? routes.length > 0 || evac.isLoading : disaster === "Flood";
+  const alerts = useWeatherAlerts(household.lat, household.lng);
 
   return (
     <div className="space-y-6">
@@ -76,6 +79,8 @@ export function RespondPhase() {
       </div>
 
       <RespondLocationBar />
+
+      <ActiveAlertsStrip alerts={alerts.data} source={alerts.source} />
 
       <RollupPanel />
 
@@ -165,6 +170,55 @@ export function RespondPhase() {
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+const SEVERITY_VAR: Record<DisasterAlert["severity"], string> = {
+  low: "var(--severity-low)",
+  moderate: "var(--severity-moderate)",
+  high: "var(--severity-moderate)",
+  critical: "var(--severity-critical)",
+};
+
+function ActiveAlertsStrip({
+  alerts,
+  source,
+}: {
+  alerts: DisasterAlert[];
+  source: BadgeSource;
+}) {
+  if (alerts.length === 0) return null;
+  return (
+    <div className="dc-card p-4">
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="text-xs font-bold uppercase tracking-wider">Active alerts</h3>
+        <LiveDataBadge source={source} />
+      </div>
+      <ul className="flex flex-wrap gap-2">
+        {alerts.map((a) => {
+          const color = SEVERITY_VAR[a.severity];
+          return (
+            <li
+              key={a.id}
+              title={a.description}
+              className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
+              style={{
+                backgroundColor: `color-mix(in oklab, ${color} 15%, transparent)`,
+                color: color,
+              }}
+            >
+              <span
+                className="h-1.5 w-1.5 rounded-full"
+                style={{ backgroundColor: color }}
+                aria-hidden="true"
+              />
+              {a.event}
+              <span className="text-[10px] font-normal opacity-75">· {a.source}</span>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
