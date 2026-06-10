@@ -10,9 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SolutionRouteImport } from './routes/solution'
-import { Route as PresentationRouteImport } from './routes/presentation'
 import { Route as SheltersRoutesRouteImport } from './routes/shelters-routes'
 import { Route as ReportRouteImport } from './routes/report'
+import { Route as PresentationRouteImport } from './routes/presentation'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as CompassRouteImport } from './routes/compass'
@@ -25,11 +25,6 @@ const SolutionRoute = SolutionRouteImport.update({
   path: '/solution',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PresentationRoute = PresentationRouteImport.update({
-  id: '/presentation',
-  path: '/presentation',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SheltersRoutesRoute = SheltersRoutesRouteImport.update({
   id: '/shelters-routes',
   path: '/shelters-routes',
@@ -38,6 +33,11 @@ const SheltersRoutesRoute = SheltersRoutesRouteImport.update({
 const ReportRoute = ReportRouteImport.update({
   id: '/report',
   path: '/report',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PresentationRoute = PresentationRouteImport.update({
+  id: '/presentation',
+  path: '/presentation',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MethodologyRoute = MethodologyRouteImport.update({
@@ -169,13 +169,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SolutionRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/presentation': {
-      id: '/presentation'
-      path: '/presentation'
-      fullPath: '/presentation'
-      preLoaderRoute: typeof PresentationRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/shelters-routes': {
       id: '/shelters-routes'
       path: '/shelters-routes'
@@ -188,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/report'
       fullPath: '/report'
       preLoaderRoute: typeof ReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/presentation': {
+      id: '/presentation'
+      path: '/presentation'
+      fullPath: '/presentation'
+      preLoaderRoute: typeof PresentationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/methodology': {
@@ -250,13 +250,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
