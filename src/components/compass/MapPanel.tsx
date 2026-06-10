@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { Map as MapIcon, ChevronDown, ChevronUp } from "lucide-react";
+import { Map as MapIcon } from "lucide-react";
+
 import type { RouteOption } from "@/types";
 import type { MapDestination } from "../MapPanel";
 import type { DisasterKind } from "./DisasterPicker";
@@ -33,7 +34,6 @@ export function MapPanel({
   locationAware = false,
 }: Props) {
   const [mounted, setMounted] = useState(false);
-  const [legendOpen, setLegendOpen] = useState(false);
   useEffect(() => setMounted(true), []);
 
   const [secsAgo, setSecsAgo] = useState(0);
@@ -69,45 +69,8 @@ export function MapPanel({
             {justRefreshed ? "Re-checking routes…" : `Updated ${secsAgo}s ago`}
           </span>
         </div>
-        <button
-          type="button"
-          onClick={() => setLegendOpen((o) => !o)}
-          aria-expanded={legendOpen}
-          className="flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold text-card-foreground/70 hover:bg-foreground/5"
-        >
-          <span>Legend</span>
-          {legendOpen ? (
-            <ChevronUp className="h-3 w-3" aria-hidden="true" />
-          ) : (
-            <ChevronDown className="h-3 w-3" aria-hidden="true" />
-          )}
-        </button>
-        {legendOpen && (
-          <ul className="absolute right-5 top-10 z-10 flex flex-col gap-2 rounded-xl border border-border/70 bg-background/95 p-3 text-[11px] font-medium text-card-foreground/70 shadow-lg backdrop-blur">
-            <li className="inline-flex items-center gap-1.5">
-              <span
-                className="h-2 w-2 rounded-full bg-[color:var(--severity-low)] shadow-[0_0_0_3px_rgba(22,163,74,0.18)]"
-                aria-hidden="true"
-              />
-              Best route
-            </li>
-            <li className="inline-flex items-center gap-1.5">
-              <span
-                className="h-2 w-2 rounded-full bg-[color:var(--severity-moderate)] shadow-[0_0_0_3px_rgba(245,158,11,0.18)]"
-                aria-hidden="true"
-              />
-              Caution
-            </li>
-            <li className="inline-flex items-center gap-1.5">
-              <span
-                className="h-2 w-2 rounded-full bg-[color:var(--severity-critical)] shadow-[0_0_0_3px_rgba(220,38,38,0.18)]"
-                aria-hidden="true"
-              />
-              Blocked
-            </li>
-          </ul>
-        )}
       </div>
+
 
       {disaster === "Earthquake" ? (
         <div className="flex h-80 items-center justify-center p-6">
