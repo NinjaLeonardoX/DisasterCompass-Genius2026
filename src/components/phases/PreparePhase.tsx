@@ -92,6 +92,9 @@ export function PreparePhase() {
         </p>
       </div>
 
+      {/* Safety location + printout — kept next to the risk map so the flow stays in one place */}
+      <SafetyLocationPanel />
+
       {/* 1 · RISK MAP (lead element) */}
       <section className="dc-card overflow-hidden">
         <div className="flex items-center gap-2 border-b border-border/60 px-5 py-3">
