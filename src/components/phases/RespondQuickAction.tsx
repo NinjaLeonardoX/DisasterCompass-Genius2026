@@ -68,6 +68,7 @@ export function RespondQuickAction() {
   const [status, setStatus] = useState<Status>("none");
   const [lastMessage, setLastMessage] = useState<string | null>(null);
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
+  const [refreshTick, setRefreshTick] = useState(0);
 
   const {
     household,
