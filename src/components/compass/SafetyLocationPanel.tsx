@@ -1,6 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useLocation } from "../LocationContext";
+import { usePhase } from "../PhaseContext";
 import { forwardGeocode, type GeocodeResult } from "@/lib/geocoding";
+import { HAZARD_RISKS, SEVERITY_META, type HazardRisk } from "@/data/prepare";
+
+const PrepareRiskMap = lazy(() => import("./PrepareRiskMap"));
 import {
   MapPin,
   LocateFixed,
