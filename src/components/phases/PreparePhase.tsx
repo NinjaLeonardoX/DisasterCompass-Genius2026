@@ -335,6 +335,8 @@ function ReadinessBar({ value }: { value: number }) {
 }
 
 function CommunityReadinessPanel() {
+  const { resolved } = useLocation();
+  const townLabel = resolved?.city ?? resolved?.county ?? "your area";
   const ready = COMMUNITY_MEMBERS.filter((m) => m.readiness >= 80).length;
   const avg = Math.round(
     COMMUNITY_MEMBERS.reduce((sum, m) => sum + m.readiness, 0) / COMMUNITY_MEMBERS.length,
@@ -345,7 +347,7 @@ function CommunityReadinessPanel() {
         <div className="flex items-center gap-2">
           <Users className="h-4 w-4 text-[color:var(--severity-low)]" aria-hidden="true" />
           <h3 className="text-sm font-bold uppercase tracking-wider">
-            North Creek block · 5 households
+            {townLabel} block · {COMMUNITY_MEMBERS.length} households (illustrative)
           </h3>
         </div>
         <ul className="mt-4 space-y-3">
