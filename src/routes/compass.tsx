@@ -34,27 +34,29 @@ function CompassPage() {
 
         {hasLocation ? (
           <>
-            <LifecycleDashboard />
+            {activePhase !== "respond" && <LifecycleDashboard />}
 
-            <div className="border-t border-border/60 pt-8">
+            <div className={activePhase === "respond" ? "" : "border-t border-border/60 pt-8"}>
               {activePhase === "prepare" && <PreparePhase />}
               {activePhase === "respond" && <RespondQuickAction />}
               {activePhase === "recover" && <RecoverPhase />}
             </div>
 
-            <footer className="rounded-2xl border border-border/60 bg-white p-5 text-center text-sm text-card-foreground/75 shadow-sm">
-              <p className="font-semibold text-card-foreground">Data → Rules → Action</p>
-              <p className="mt-1 text-xs">
-                <span className="font-medium">Data:</span> household needs, hazards, shelters, routes, volunteers
-                &nbsp;·&nbsp;
-                <span className="font-medium">Rules:</span> GO / STAY / WAIT, route scoring, volunteer matching, recovery priority
-                &nbsp;·&nbsp;
-                <span className="font-medium">Action:</span> safe route, volunteer help, recovery packet
-              </p>
-              <p className="mt-2 text-[11px] italic text-card-foreground/55">
-                AI explains. Rules decide. Humans approve.
-              </p>
-            </footer>
+            {activePhase !== "respond" && (
+              <footer className="rounded-2xl border border-border/60 bg-white p-5 text-center text-sm text-card-foreground/75 shadow-sm">
+                <p className="font-semibold text-card-foreground">Data → Rules → Action</p>
+                <p className="mt-1 text-xs">
+                  <span className="font-medium">Data:</span> household needs, hazards, shelters, routes, volunteers
+                  &nbsp;·&nbsp;
+                  <span className="font-medium">Rules:</span> GO / STAY / WAIT, route scoring, volunteer matching, recovery priority
+                  &nbsp;·&nbsp;
+                  <span className="font-medium">Action:</span> safe route, volunteer help, recovery packet
+                </p>
+                <p className="mt-2 text-[11px] italic text-card-foreground/55">
+                  AI explains. Rules decide. Humans approve.
+                </p>
+              </footer>
+            )}
           </>
         ) : (
           <section className="rounded-2xl border border-dashed border-border bg-white p-8 text-center shadow-sm">
