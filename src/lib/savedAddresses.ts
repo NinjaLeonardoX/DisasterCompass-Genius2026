@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 export const SavedAddressSchema = z.object({
   id: z.string().min(1),
@@ -17,36 +18,68 @@ export const SavedAddressSchema = z.object({
 });
 export type SavedAddress = z.infer<typeof SavedAddressSchema>;
 
-const LIST_KEY = "dc:saved-addresses:v1";
+// Only the *active selection* stays local-per-browser (personal pick).
 const ACTIVE_KEY = "dc:active-address-id";
 
-function safeRead<T>(key: string, fallback: T): T {
-  if (typeof window === "undefined") return fallback;
-  try {
-    const raw = window.localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch {
-    return fallback;
-  }
+type Row = {
+  id: string;
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+  display_name: string | null;
+  city: string | null;
+  county: string | null;
+  state: string | null;
+  state_code: string | null;
+  country: string | null;
+  country_code: string | null;
+  saved_at: string;
+};
+
+function rowToAddress(r: Row): SavedAddress {
+  return {
+    id: r.id,
+    name: r.name,
+    address: r.address,
+    lat: Number(r.lat),
+    lng: Number(r.lng),
+    displayName: r.display_name ?? undefined,
+    city: r.city,
+    county: r.county,
+    state: r.state,
+    stateCode: r.state_code,
+    country: r.country,
+    countryCode: r.country_code,
+    savedAt: r.saved_at,
+  };
 }
 
-function safeWrite(key: string, value: unknown) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    /* quota */
-  }
+function addressToRow(a: SavedAddress): Row {
+  return {
+    id: a.id,
+    name: a.name,
+    address: a.address,
+    lat: a.lat,
+    lng: a.lng,
+    display_name: a.displayName ?? null,
+    city: a.city ?? null,
+    county: a.county ?? null,
+    state: a.state ?? null,
+    state_code: a.stateCode ?? null,
+    country: a.country ?? null,
+    country_code: a.countryCode ?? null,
+    saved_at: a.savedAt,
+  };
 }
 
-export function listAddresses(): SavedAddress[] {
-  const raw = safeRead<unknown[]>(LIST_KEY, []);
-  const out: SavedAddress[] = [];
-  for (const item of raw) {
-    const parsed = SavedAddressSchema.safeParse(item);
-    if (parsed.success) out.push(parsed.data);
-  }
-  return out;
+export async function listAddresses(): Promise<SavedAddress[]> {
+  const { data, error } = await supabase
+    .from("saved_addresses")
+    .select("*")
+    .order("saved_at", { ascending: false });
+  if (error || !data) return [];
+  return (data as Row[]).map(rowToAddress);
 }
 
 export function getActiveAddressId(): string | null {
@@ -68,20 +101,17 @@ export function setActiveAddressId(id: string | null) {
   }
 }
 
-export function upsertAddress(addr: SavedAddress): SavedAddress[] {
-  const list = listAddresses();
-  const idx = list.findIndex((a) => a.id === addr.id);
-  if (idx >= 0) list[idx] = addr;
-  else list.unshift(addr);
-  safeWrite(LIST_KEY, list);
-  return list;
+export async function upsertAddress(addr: SavedAddress): Promise<void> {
+  const { error } = await supabase
+    .from("saved_addresses")
+    .upsert(addressToRow(addr) as never, { onConflict: "id" });
+  if (error) throw error;
 }
 
-export function deleteAddress(id: string): SavedAddress[] {
-  const list = listAddresses().filter((a) => a.id !== id);
-  safeWrite(LIST_KEY, list);
+export async function deleteAddress(id: string): Promise<void> {
+  const { error } = await supabase.from("saved_addresses").delete().eq("id", id);
+  if (error) throw error;
   if (getActiveAddressId() === id) setActiveAddressId(null);
-  return list;
 }
 
 export function makeId() {
