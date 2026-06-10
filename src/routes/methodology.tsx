@@ -1,145 +1,164 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ShieldCheck, Compass, LifeBuoy } from "lucide-react";
+import {
+  Navigation,
+  Route as RouteIcon,
+  Users,
+  ClipboardCheck,
+  Database,
+  ShieldAlert,
+} from "lucide-react";
 import { PageShell } from "../components/PageShell";
 
 export const Route = createFileRoute("/methodology")({
   head: () => ({
     meta: [
-      { title: "Methodology — DisasterCompass" },
+      { title: "Methodology — How DisasterCompass decides" },
       {
         name: "description",
         content:
-          "How DisasterCompass works across the three phases of an emergency: Prepare, Respond, and Recover.",
+          "How DisasterCompass turns a disaster alert into a household action plan using deterministic, explainable rules — not machine learning.",
       },
     ],
   }),
   component: MethodologyPage,
 });
 
-type Phase = {
-  id: string;
-  label: string;
-  sub: string;
-  when: "BEFORE" | "DURING" | "AFTER";
-  icon: typeof ShieldCheck;
-  intro: string;
-  points: { title: string; body: string }[];
+type Rule = {
+  n: number;
+  icon: typeof Navigation;
+  title: string;
+  fn: string;
+  body: string;
 };
 
-const phases: Phase[] = [
+const rules: Rule[] = [
   {
-    id: "prepare",
-    label: "Prepare",
-    sub: "Readiness Radar",
-    when: "BEFORE",
-    icon: ShieldCheck,
-    intro:
-      "Before any warning, every household builds a profile so the plan is ready the moment it is needed.",
-    points: [
-      {
-        title: "Household risk profile",
-        body: "People, elderly, toddlers, pets, vehicles, medical and accessibility needs, and power-dependent devices are captured once and reused everywhere.",
-      },
-      {
-        title: "Community readiness score",
-        body: "We aggregate household readiness into a single block-level resilience signal so coordinators can see gaps before a disaster, not after.",
-      },
-      {
-        title: "Hazard awareness",
-        body: "Flood, earthquake, wildfire, hurricane, and extreme-heat hazards each have tailored guidance grounded in FEMA-aligned preparedness steps.",
-      },
-    ],
+    n: 1,
+    icon: Navigation,
+    title: "Action decision (GO / STAY / WAIT)",
+    fn: "decideAction(disasterType, household)",
+    body: "Per-hazard rules: Flood → GO TO HIGHER GROUND; Earthquake → STAY / SHELTER NOW (Drop, Cover, Hold On), no evacuation route; Hurricane → GO before the deadline; Wildfire → GO away from the fire path; Extreme heat → cooling-center logic (including WAIT for cooling transport). Household factors — elderly, toddler, pets, vehicle access, medical/accessibility needs — adjust the guidance.",
   },
   {
-    id: "respond",
-    label: "Respond",
-    sub: "Compass Action Plan",
-    when: "DURING",
-    icon: Compass,
-    intro:
-      "When the warning hits, the engine turns signals into one clear action — go, stay, or wait — with the safest route and who needs help.",
-    points: [
-      {
-        title: "Deterministic action decision",
-        body: "A pure rules engine (decideAction) maps the active disaster and household profile to a single recommended action with a plain-language reason. Same inputs always produce the same output.",
-      },
-      {
-        title: "Open route-safety scoring",
-        body: "Each route scores from 100 with named terms: flood exposure, flooded-bridge and blocked-road penalties, distance-and-time cost, and bonuses for elevation gain, shelter fit, and accessibility. The full breakdown is shown, not hidden.",
-      },
-      {
-        title: "Rejected-route transparency",
-        body: "Routes that cross a flooded bridge, use a blocked road, or carry high floodwater exposure are flagged and excluded — and we show exactly why.",
-      },
-      {
-        title: "Volunteer matching",
-        body: "Neighbors with capacity are matched to households that cannot leave alone, prioritizing transport, medicine, and eyes-on needs.",
-      },
-    ],
+    n: 3,
+    icon: Users,
+    title: "Volunteer matching",
+    fn: "matchVolunteer(household, volunteers)",
+    body: "Matches a household needing transport to the best-fit available volunteer (vehicle capacity, distance, pet/accessibility support). A human coordinator must approve before anyone is dispatched.",
   },
   {
-    id: "recover",
-    label: "Recover",
-    sub: "Recovery Launchpad",
-    when: "AFTER",
-    icon: LifeBuoy,
-    intro:
-      "After the event, a phase-aware checklist guides households through safe return, documentation, and assistance.",
-    points: [
-      {
-        title: "Recovery checklist",
-        body: "A tailored, trackable list covers safety checks, damage documentation, and the steps to access aid — persisted as the household works through it.",
-      },
-      {
-        title: "Data sources & demo fallback",
-        body: "The demo runs on in-memory seed data for the fictional town of North Creek — no live APIs, no database — so the full flow is reproducible offline.",
-      },
-      {
-        title: "Limitations & privacy",
-        body: "This is a demonstration, not an official emergency service. Profiles stay client-side; nothing is sent to a third party.",
-      },
-    ],
+    n: 4,
+    icon: ClipboardCheck,
+    title: "Recovery",
+    fn: "getRecoveryChecklist()",
+    body: "A standard post-disaster checklist of next steps.",
   },
 ];
+
+function RuleCard({ rule }: { rule: Rule }) {
+  return (
+    <section className="rounded-2xl bg-card p-6 text-card-foreground shadow-md shadow-black/10">
+      <div className="flex items-center gap-3">
+        <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+          <rule.icon className="h-5 w-5" aria-hidden="true" />
+        </span>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+            Rule {rule.n}
+          </p>
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">{rule.title}</h2>
+        </div>
+      </div>
+      <code className="mt-3 inline-block rounded-lg bg-foreground/5 px-2.5 py-1 font-mono text-xs text-foreground/80">
+        {rule.fn}
+      </code>
+      <p className="mt-3 text-sm text-card-foreground/75">{rule.body}</p>
+    </section>
+  );
+}
 
 function MethodologyPage() {
   return (
     <PageShell
       title="Methodology"
-      description="DisasterCompass follows the emergency lifecycle: Prepare before, Respond during, Recover after."
+      description="How DisasterCompass decides."
       showStepIndicator={false}
     >
-      <div className="space-y-10">
-        {phases.map((phase) => (
-          <section key={phase.id} id={phase.id} className="scroll-mt-24">
-            <div className="flex items-center gap-3">
-              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
-                <phase.icon className="h-5 w-5" />
-              </span>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-                  {phase.when} · {phase.sub}
-                </p>
-                <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-                  {phase.label}
-                </h2>
-              </div>
-            </div>
-            <p className="mt-3 max-w-3xl text-base text-foreground/75">{phase.intro}</p>
+      <div className="space-y-8">
+        <p className="max-w-3xl text-base text-foreground/75">
+          DisasterCompass turns a disaster alert into a household action plan using deterministic,
+          explainable rules — not machine learning. Every recommendation traces to a specific rule,
+          so it's auditable and student-explainable.
+        </p>
 
-            <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {phase.points.map((p) => (
-                <div
-                  key={p.title}
-                  className="rounded-2xl bg-card p-6 text-card-foreground shadow-md shadow-black/10"
-                >
-                  <h3 className="text-base font-semibold">{p.title}</h3>
-                  <p className="mt-2 text-sm text-card-foreground/70">{p.body}</p>
-                </div>
-              ))}
+        <RuleCard rule={rules[0]} />
+
+        {/* Rule 2 — route scoring, rendered separately for the formula + caveat. */}
+        <section className="rounded-2xl bg-card p-6 text-card-foreground shadow-md shadow-black/10">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+              <RouteIcon className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                Rule 2
+              </p>
+              <h2 className="text-lg font-semibold tracking-tight text-foreground">
+                Route scoring
+              </h2>
             </div>
-          </section>
-        ))}
+          </div>
+          <code className="mt-3 inline-block rounded-lg bg-foreground/5 px-2.5 py-1 font-mono text-xs text-foreground/80">
+            scoreRoute(route)
+          </code>
+          <div className="mt-3 overflow-x-auto rounded-lg bg-foreground/5 p-3 font-mono text-xs leading-relaxed text-foreground/80">
+            score = 100 − floodPenalty − bridgePenalty − blockedRoadPenalty − distancePenalty +
+            elevationBonus + shelterFitBonus + accessibilityBonus
+          </div>
+          <p className="mt-3 text-sm text-card-foreground/75">
+            Higher is safer; getBestRoute() picks the maximum. In the North Creek demo this yields
+            Route A ≈ 48 (crosses a flooded bridge), Route B ≈ 91 (best), Route C ≈ 70 (caution).
+          </p>
+          <p className="mt-3 rounded-lg border border-severity-moderate/30 bg-severity-moderate/10 p-3 text-xs italic text-card-foreground/75">
+            NOTE: these weights are illustrative and demo-calibrated to make the example legible —
+            they are not validated emergency-management coefficients.
+          </p>
+        </section>
+
+        <RuleCard rule={rules[1]} />
+        <RuleCard rule={rules[2]} />
+
+        <section className="rounded-2xl bg-card p-6 text-card-foreground shadow-md shadow-black/10">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+              <Database className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <h2 className="text-lg font-semibold tracking-tight text-foreground">
+              Data &amp; live feeds
+            </h2>
+          </div>
+          <p className="mt-3 text-sm text-card-foreground/75">
+            Shelters, routes, and road closures are seeded demo data for the fictional town of North
+            Creek — there is no reliable free live feed for these, and stale data for life-safety
+            routing would be unsafe. Hazard signals (earthquakes, weather, alerts) can optionally
+            run on live public APIs behind a fallback; if a feed is unavailable, the app falls back
+            to bundled data and labels it.
+          </p>
+        </section>
+
+        <section className="rounded-2xl border border-severity-critical/30 bg-severity-critical/5 p-6 text-card-foreground shadow-md shadow-black/10">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-severity-critical/15 text-severity-critical">
+              <ShieldAlert className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <h2 className="text-lg font-semibold tracking-tight text-foreground">Safety</h2>
+          </div>
+          <p className="mt-3 text-sm text-card-foreground/80">
+            Routes are suggested/estimated — never “guaranteed safe.” DisasterCompass complements
+            and never replaces 911, FEMA, the Red Cross, or local officials.{" "}
+            <strong className="font-semibold text-foreground">In an emergency, call 911.</strong>
+          </p>
+        </section>
       </div>
     </PageShell>
   );
