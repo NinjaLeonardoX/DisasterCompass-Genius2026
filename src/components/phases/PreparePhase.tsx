@@ -264,7 +264,7 @@ export function PreparePhase() {
 
                 {readiness === 100 && (
                   <div className="mt-5 rounded-xl bg-[color:var(--severity-low)]/10 p-4 text-sm font-medium text-[color:var(--severity-low)] ring-1 ring-[color:var(--severity-low)]/30">
-                    Rivera Family is rehearsed. Transport pre-matched, shelter confirmed. The siren
+                    {householdLabel} is rehearsed. Transport pre-matched, shelter confirmed. The siren
                     no longer starts the plan — it executes it.
                   </div>
                 )}
