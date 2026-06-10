@@ -45,7 +45,7 @@ export function AppSidebar() {
       className="border-r border-white/5 [&_[data-sidebar=sidebar]]:bg-[color:var(--surface)] [&_[data-sidebar=sidebar]]:text-surface-foreground"
     >
       <SidebarHeader className="h-14 flex-row items-center border-b border-slate-200 bg-white p-0 px-2">
-        <Link to="/compass/prepare" className="flex h-full items-center">
+        <Link to="/" className="flex h-full items-center">
           <img
             src={dcLogo.url}
             alt="Disaster Compass"
