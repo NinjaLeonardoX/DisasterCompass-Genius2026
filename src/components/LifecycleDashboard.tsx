@@ -40,7 +40,7 @@ export function LifecycleDashboard() {
           ]}
           active={activePhase === "prepare"}
           onSelect={() => setActivePhase("prepare")}
-          visualClass="bg-[radial-gradient(circle_at_20%_30%,rgba(56,189,248,0.45),transparent_55%),radial-gradient(circle_at_80%_70%,rgba(22,163,74,0.35),transparent_55%),linear-gradient(135deg,#0f1a2e_0%,#1d3a5f_60%,#0f1a2e_100%)]"
+          visualClass="bg-[radial-gradient(circle_at_25%_20%,rgba(125,211,252,0.85),transparent_60%),radial-gradient(circle_at_85%_85%,rgba(14,116,144,0.9),transparent_55%),linear-gradient(135deg,#0c4a6e_0%,#0369a1_55%,#082f49_100%)]"
         />
         <LifecycleCard
           phase="respond"
