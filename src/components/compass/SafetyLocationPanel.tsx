@@ -752,6 +752,50 @@ export function SafetyLocationPanel() {
     setGenStatus("");
   }
 
+  /**
+   * Update a single answer on an already-onboarded location and recompute
+   * readinessScore / hazardScores / gaps live. Persists via the useEffect above.
+   */
+  function updateAnswer(
+    locationId: string,
+    sectionId: SectionId,
+    questionKey: string,
+    value: Answer,
+  ) {
+    setLocations((ls) =>
+      ls.map((l) => {
+        if (l.id !== locationId) return l;
+        const nextSection = { ...(l.answers[sectionId] ?? {}), [questionKey]: value };
+        const nextAnswers: AllAnswers = { ...l.answers, [sectionId]: nextSection };
+        // Editing an answer un-skips its section so the answer actually counts.
+        const nextSkipped: SkipMap = l.skipped[sectionId]
+          ? { ...l.skipped, [sectionId]: false }
+          : l.skipped;
+        const { overall, hazardScores, gaps } = computeScores(nextAnswers, nextSkipped);
+        return {
+          ...l,
+          answers: nextAnswers,
+          skipped: nextSkipped,
+          readinessScore: overall,
+          hazardScores,
+          gaps,
+        };
+      }),
+    );
+  }
+
+  /** Toggle a hazard section's "skip" flag from the Answers tab. */
+  function toggleSectionSkip(locationId: string, sectionId: SectionId) {
+    setLocations((ls) =>
+      ls.map((l) => {
+        if (l.id !== locationId) return l;
+        const nextSkipped: SkipMap = { ...l.skipped, [sectionId]: !l.skipped[sectionId] };
+        const { overall, hazardScores, gaps } = computeScores(l.answers, nextSkipped);
+        return { ...l, skipped: nextSkipped, readinessScore: overall, hazardScores, gaps };
+      }),
+    );
+  }
+
   function createDraftAndStartWizard() {
     const id = `loc-${Date.now()}`;
     const draft: SavedLocation = {
