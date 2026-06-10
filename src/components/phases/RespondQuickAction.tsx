@@ -217,8 +217,13 @@ export function RespondQuickAction() {
               type="button"
               onClick={() => onAction(a)}
               aria-pressed={active}
-              className={`flex min-h-[88px] items-center justify-center gap-3 rounded-2xl px-5 py-5 text-lg font-bold shadow-sm outline-none transition focus-visible:ring-4 focus-visible:ring-offset-2 ${a.className} ${active ? "ring-4 ring-offset-2" : ""}`}
+              className={`relative flex min-h-[88px] items-center justify-center gap-3 rounded-2xl px-5 py-5 text-lg font-bold shadow-sm outline-none transition focus-visible:ring-4 focus-visible:ring-offset-2 ${a.className} ${active ? "ring-4 ring-offset-2 ring-white/60" : "opacity-90 hover:opacity-100"}`}
             >
+              {active && (
+                <span className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-md">
+                  <Check className="h-4 w-4 text-foreground" aria-hidden="true" />
+                </span>
+              )}
               <a.Icon className="h-6 w-6" aria-hidden="true" />
               {a.label}
             </button>
