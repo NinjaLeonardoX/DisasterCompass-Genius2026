@@ -37,7 +37,7 @@ export function LifecycleDashboard() {
         </p>
       </div>
 
-      
+      <ScopeSelector />
 
       <div className={activePhase ? "grid gap-5" : "grid gap-5 lg:grid-cols-3"}>
         {(!activePhase || activePhase === "prepare") && (
