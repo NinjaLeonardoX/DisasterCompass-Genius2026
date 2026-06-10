@@ -163,7 +163,8 @@ const URGENCY_TONE: Record<Need["urgency"], string> = {
 };
 
 const STATUS_TONE: Record<Status, string> = {
-  Open: "var(--severity-high)",
+  Draft: "var(--severity-low)",
+  Posted: "var(--severity-high)",
   Matched: "var(--severity-moderate)",
   "In Progress": "var(--severity-moderate)",
   Completed: "var(--severity-low)",
