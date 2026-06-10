@@ -456,12 +456,12 @@ function readinessColor(score: number | null): string {
   return "var(--severity-critical)";
 }
 
-function scoreSection(answers: SectionAnswers, skipped: boolean): number | null {
-  if (skipped) return null;
-  const answered = Object.values(answers).filter((a) => a !== null);
-  if (answered.length === 0) return null;
-  const yes = answered.filter((a) => a === "yes").length;
-  return Math.round((yes / answered.length) * 100);
+function scoreSection(answers: SectionAnswers, skipped: boolean, total: number): number | null {
+  // Skipped or unanswered questions count as "No" against the section total.
+  if (total === 0) return null;
+  if (skipped) return 0;
+  const yes = Object.values(answers).filter((a) => a === "yes").length;
+  return Math.round((yes / total) * 100);
 }
 
 function computeScores(answers: AllAnswers, skipped: SkipMap): {
@@ -471,23 +471,23 @@ function computeScores(answers: AllAnswers, skipped: SkipMap): {
 } {
   const hazardScores = {} as Record<Disaster, number | null>;
   for (const d of HAZARD_SECTION_IDS) {
-    hazardScores[d] = scoreSection(answers[d] ?? {}, skipped[d]);
+    const section = SECTIONS.find((s) => s.id === d);
+    const total = section?.questions.length ?? 0;
+    hazardScores[d] = scoreSection(answers[d] ?? {}, skipped[d], total);
   }
-  // Overall = yes / answered across all non-skipped sections
+  // Overall = yes / total across ALL sections. Skipped + unanswered count as No.
   let yes = 0;
-  let answered = 0;
+  let total = 0;
   for (const s of SECTIONS) {
-    if (skipped[s.id]) continue;
     for (const q of s.questions) {
-      const a = answers[s.id]?.[q.key];
-      if (a === null || a === undefined) continue;
-      answered++;
-      if (a === "yes") yes++;
+      total++;
+      if (skipped[s.id]) continue;
+      if (answers[s.id]?.[q.key] === "yes") yes++;
     }
   }
-  const overall = answered === 0 ? 0 : Math.round((yes / answered) * 100);
+  const overall = total === 0 ? 0 : Math.round((yes / total) * 100);
 
-  // Gaps: every "no" answer that has a gap label
+  // Gaps: every "no" answer that has a gap label (skipped sections aren't enumerated here)
   const gaps: string[] = [];
   for (const s of SECTIONS) {
     if (skipped[s.id]) continue;
