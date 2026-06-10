@@ -855,12 +855,12 @@ export const DEFAULT_SOS_RECIPIENT: SOSRecipient = {
 
 export function readSOSRecipient(): SOSRecipient {
   try {
-    const raw = window.localStorage.getItem("iq:sosRecipient");
+    const raw = window.localStorage.getItem("iq:sosRecipient:v2");
     if (raw) {
       const parsed = JSON.parse(raw) as Partial<SOSRecipient>;
       return {
         title: parsed.title?.trim() || DEFAULT_SOS_RECIPIENT.title,
-        name: parsed.name?.trim() || DEFAULT_SOS_RECIPIENT.name,
+        name: DEFAULT_SOS_RECIPIENT.name,
         organization: parsed.organization?.trim() || DEFAULT_SOS_RECIPIENT.organization,
         phone: parsed.phone?.trim() ?? "",
       };
