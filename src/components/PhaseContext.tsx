@@ -23,31 +23,22 @@ function isMode(v: unknown): v is Mode {
 }
 
 export function PhaseProvider({ children }: { children: ReactNode }) {
-  // Always start with the SSR default to avoid hydration mismatch.
-  const [activePhase, setActivePhaseState] = useState<Phase>("respond");
+  // Default to Prepare — the dashboard landing phase.
+  const [activePhase, setActivePhaseState] = useState<Phase>("prepare");
   const [mode, setModeState] = useState<Mode>("resident");
-  const [hydrated, setHydrated] = useState(false);
 
-  // After mount, restore from sessionStorage.
+  // Restore mode (but not phase) from sessionStorage after mount.
   useEffect(() => {
     try {
-      const p = sessionStorage.getItem(PHASE_KEY);
-      if (isPhase(p)) setActivePhaseState(p);
       const m = sessionStorage.getItem(MODE_KEY);
       if (isMode(m)) setModeState(m);
     } catch {
       /* ignore */
     }
-    setHydrated(true);
   }, []);
 
   const setActivePhase = (p: Phase) => {
     setActivePhaseState(p);
-    try {
-      sessionStorage.setItem(PHASE_KEY, p);
-    } catch {
-      /* ignore */
-    }
   };
   const setMode = (m: Mode) => {
     setModeState(m);
@@ -58,8 +49,6 @@ export function PhaseProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Avoid passing hydrated through context — just use values.
-  void hydrated;
 
   return (
     <PhaseContext.Provider value={{ activePhase, setActivePhase, mode, setMode }}>
