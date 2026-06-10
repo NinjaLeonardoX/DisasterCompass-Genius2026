@@ -27,6 +27,16 @@ const DISASTER_LABEL: Record<DisasterType, string> = {
   earthquake: "open assembly area",
 };
 
+function disasterToKind(d: DisasterType): "Flood" | "Earthquake" | "Wildfire" | "Hurricane" | "Extreme Heat" {
+  switch (d) {
+    case "flood": return "Flood";
+    case "earthquake": return "Earthquake";
+    case "wildfire": return "Wildfire";
+    case "hurricane": return "Hurricane";
+    case "heat": return "Extreme Heat";
+  }
+}
+
 const ROUTE_CACHE_KEY = "dc.respond.lastRoute.v1";
 const LOC_CACHE_KEY = "dc.respond.lastLocation.v1";
 
