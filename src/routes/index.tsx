@@ -64,15 +64,15 @@ function LandingPage() {
                 <span>Recover.</span>
               </div>
 
-
-
-              <h1 className="mt-6 text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
-                Ready before the warning.{" "}
+              <h1 className="mt-6 text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+                Right Direction.{" "}
                 <span className="bg-gradient-to-r from-[#16A34A] to-[#5EE6A1] bg-clip-text text-transparent">
-                  Clear and calm
-                </span>{" "}
-                when it hits. Supported after.
+                  Right Location. Right Help.
+                </span>
               </h1>
+              <p className="mt-4 text-xl font-semibold text-white/85 sm:text-2xl">
+                Ready before the warning. Clear and calm when it hits. Supported after.
+              </p>
 
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/70">
                 When disaster strikes, families freeze. Disaster Compass gives every household one
@@ -188,7 +188,6 @@ function LandingPage() {
             ))}
           </div>
         </section>
-
 
         <footer className="border-t border-white/10">
           <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-8 text-xs text-white/40 sm:flex-row">

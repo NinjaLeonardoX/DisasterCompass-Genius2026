@@ -61,8 +61,8 @@ const slides: Slide[] = [
     cover: true,
     eyebrow: "",
     kicker: "Prepare · Respond · Recover",
-    title: "Calm decisions in the first 60 minutes.",
-    tagline: "A Community Disaster Action Planner — go, stay, or wait, with the safest route.",
+    title: "Right Direction. Right Location. Right Help.",
+    tagline: "Ready before the warning. Clear and calm when it hits. Supported after.",
     presenters: ["William Riano", "Miguel Riano Jr"],
     team: "Team 8934",
   },
@@ -205,7 +205,7 @@ const decisionStyles: Record<string, string> = {
 function SlideView({ slide, index, total }: { slide: Slide; index: number; total: number }) {
   if (slide.cover) {
     return (
-      <div className="slide relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#0f1a2e] px-8 text-center text-white">
+      <div className="slide relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#0f1a2e] px-8 pb-24 pt-12 text-center text-white">
         {/* Ambient background */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute -top-24 left-1/2 h-[460px] w-[460px] -translate-x-1/2 rounded-full bg-[#16A34A] opacity-15 blur-3xl" />
@@ -219,23 +219,20 @@ function SlideView({ slide, index, total }: { slide: Slide; index: number; total
             </span>
           )}
 
-          <div className="mt-8 rounded-2xl bg-white px-7 py-5 shadow-2xl shadow-black/40">
-            <img src={dcLogo.url} alt="Disaster Compass" className="h-16 w-auto" />
+          <div className="mt-7 rounded-2xl bg-white px-6 py-4 shadow-2xl shadow-black/40">
+            <img src={dcLogo.url} alt="Disaster Compass" className="h-14 w-auto" />
           </div>
 
-          <h2 className="mt-9 max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+          <h2 className="mt-7 max-w-3xl text-2xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
             {slide.title}
           </h2>
           {slide.tagline && (
-            <p className="mt-5 max-w-xl text-base text-white/70 sm:text-lg">{slide.tagline}</p>
+            <p className="mt-4 max-w-2xl text-base text-white/70 sm:text-lg">{slide.tagline}</p>
           )}
 
           {slide.presenters && (
-            <div className="mt-9 border-t border-white/10 pt-6">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/40">
-                Developers
-              </p>
-              <p className="mt-2 text-base font-semibold text-white sm:text-lg">
+            <div className="mt-7 border-t border-white/10 pt-5">
+              <p className="text-base font-semibold text-white sm:text-lg">
                 {slide.presenters.join("  ·  ")}
               </p>
               {slide.team && (
