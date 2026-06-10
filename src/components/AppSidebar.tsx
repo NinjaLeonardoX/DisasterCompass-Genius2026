@@ -30,7 +30,12 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { activePhase, setActivePhase } = usePhase();
+  const { setActivePhase } = usePhase();
+  const phaseRoutes: Record<Phase, "/compass/prepare" | "/compass/respond" | "/compass/recover"> = {
+    prepare: "/compass/prepare",
+    respond: "/compass/respond",
+    recover: "/compass/recover",
+  };
 
   return (
     <Sidebar
@@ -52,7 +57,8 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {PHASES.map(({ id, label, sub, Icon }) => {
-                const active = activePhase === id && pathname === "/compass";
+                const to = phaseRoutes[id];
+                const active = pathname === to || (id === "prepare" && pathname === "/compass");
                 return (
                   <SidebarMenuItem key={id}>
                     <SidebarMenuButton
@@ -67,7 +73,7 @@ export function AppSidebar() {
                       data-active={active}
                     >
                       <Link
-                        to="/compass"
+                        to={to}
                         onClick={() => setActivePhase(id)}
                         className="flex items-start gap-2.5"
                       >

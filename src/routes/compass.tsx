@@ -1,10 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { LifecycleDashboard } from "../components/LifecycleDashboard";
 import { SafetyLocationPanel } from "../components/compass/SafetyLocationPanel";
-import { PreparePhase } from "../components/phases/PreparePhase";
-import { RespondQuickAction } from "../components/phases/RespondQuickAction";
-import { RecoverPhase } from "../components/phases/RecoverPhase";
-import { usePhase } from "../components/PhaseContext";
+import { usePhase, type Phase } from "../components/PhaseContext";
 import { useLocation } from "../components/LocationContext";
 
 export const Route = createFileRoute("/compass")({
@@ -18,17 +16,29 @@ export const Route = createFileRoute("/compass")({
       },
     ],
   }),
-  component: CompassPage,
+  component: CompassLayout,
 });
 
-function CompassPage() {
-  const { activePhase } = usePhase();
+function CompassLayout() {
+  const { activePhase, setActivePhase } = usePhase();
   const { locationConfirmed } = useLocation();
-  // Gate on an EXPLICIT confirmation only. A cached device location or a
-  // previously-saved address (which make `source !== "seed"`) must not silently
-  // reopen the system on reload — nothing shows until the user picks/sets a
-  // location this session.
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  // Keep phase context in sync with the URL so shared components
+  // (sidebar, dashboard) still reflect the active phase.
+  useEffect(() => {
+    const next: Phase | null = pathname.endsWith("/respond")
+      ? "respond"
+      : pathname.endsWith("/recover")
+        ? "recover"
+        : pathname.endsWith("/prepare") || pathname === "/compass"
+          ? "prepare"
+          : null;
+    if (next && next !== activePhase) setActivePhase(next);
+  }, [pathname, activePhase, setActivePhase]);
+
   const hasLocation = locationConfirmed;
+  const isRespond = pathname.endsWith("/respond");
 
   return (
     <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 sm:py-10">
@@ -38,15 +48,13 @@ function CompassPage() {
 
         {hasLocation ? (
           <>
-            {activePhase !== "respond" && <LifecycleDashboard />}
+            {!isRespond && <LifecycleDashboard />}
 
-            <div className={activePhase === "respond" ? "" : "border-t border-border/60 pt-8"}>
-              {activePhase === "prepare" && <PreparePhase />}
-              {activePhase === "respond" && <RespondQuickAction />}
-              {activePhase === "recover" && <RecoverPhase />}
+            <div className={isRespond ? "" : "border-t border-border/60 pt-8"}>
+              <Outlet />
             </div>
 
-            {activePhase !== "respond" && (
+            {!isRespond && (
               <footer className="rounded-2xl border border-border/60 bg-white p-5 text-center text-sm text-card-foreground/75 shadow-sm">
                 <p className="font-semibold text-card-foreground">Data → Rules → Action</p>
                 <p className="mt-1 text-xs">
