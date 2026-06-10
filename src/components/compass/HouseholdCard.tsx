@@ -18,9 +18,7 @@ const ATTRS = [
 export function HouseholdCard({ onGeneratePlan }: Props) {
   const { household, activeAddress, resolved, source } = useLocation();
 
-  const title =
-    activeAddress?.name ??
-    (source === "device" ? "Your household" : "Rivera Family");
+  const title = activeAddress?.name ?? "Your household";
 
   const placeLine =
     activeAddress?.displayName ??
