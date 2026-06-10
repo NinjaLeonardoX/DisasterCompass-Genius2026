@@ -70,10 +70,10 @@ export function LifecycleCard({
           backgroundSize: "44px 44px",
         }}
       />
-      {/* Dark glass bottom for legibility */}
+      {/* Subtle bottom legibility scrim — keeps phase color visible */}
       <div
         aria-hidden="true"
-        className="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-[#0b1426]/95 via-[#0b1426]/70 to-transparent"
+        className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/55 via-black/20 to-transparent"
       />
 
       <div className="relative z-10 flex flex-1 flex-col p-6">

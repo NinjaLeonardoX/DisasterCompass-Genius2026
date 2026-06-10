@@ -40,7 +40,7 @@ export function LifecycleDashboard() {
           ]}
           active={activePhase === "prepare"}
           onSelect={() => setActivePhase("prepare")}
-          visualClass="bg-[radial-gradient(circle_at_20%_30%,rgba(56,189,248,0.45),transparent_55%),radial-gradient(circle_at_80%_70%,rgba(22,163,74,0.35),transparent_55%),linear-gradient(135deg,#0f1a2e_0%,#1d3a5f_60%,#0f1a2e_100%)]"
+          visualClass="bg-[radial-gradient(circle_at_25%_20%,rgba(125,211,252,0.85),transparent_60%),radial-gradient(circle_at_85%_85%,rgba(14,116,144,0.9),transparent_55%),linear-gradient(135deg,#0c4a6e_0%,#0369a1_55%,#082f49_100%)]"
         />
         <LifecycleCard
           phase="respond"
@@ -61,7 +61,7 @@ export function LifecycleDashboard() {
           ]}
           active={activePhase === "respond"}
           onSelect={() => setActivePhase("respond")}
-          visualClass="bg-[radial-gradient(circle_at_75%_25%,rgba(220,38,38,0.40),transparent_55%),radial-gradient(circle_at_15%_80%,rgba(22,163,74,0.45),transparent_55%),linear-gradient(135deg,#0b1426_0%,#1e293b_50%,#0b1426_100%)]"
+          visualClass="bg-[radial-gradient(circle_at_80%_20%,rgba(248,113,113,0.85),transparent_55%),radial-gradient(circle_at_20%_85%,rgba(251,191,36,0.7),transparent_55%),linear-gradient(135deg,#7f1d1d_0%,#b91c1c_55%,#451a03_100%)]"
         />
         <LifecycleCard
           phase="recover"
@@ -83,7 +83,7 @@ export function LifecycleDashboard() {
           ]}
           active={activePhase === "recover"}
           onSelect={() => setActivePhase("recover")}
-          visualClass="bg-[radial-gradient(circle_at_30%_25%,rgba(245,158,11,0.30),transparent_55%),radial-gradient(circle_at_80%_75%,rgba(94,230,161,0.30),transparent_55%),linear-gradient(135deg,#1a2842_0%,#243b5f_50%,#0f1a2e_100%)]"
+          visualClass="bg-[radial-gradient(circle_at_25%_30%,rgba(134,239,172,0.85),transparent_55%),radial-gradient(circle_at_80%_80%,rgba(34,197,94,0.85),transparent_55%),linear-gradient(135deg,#14532d_0%,#166534_55%,#052e16_100%)]"
         />
       </div>
     </section>
