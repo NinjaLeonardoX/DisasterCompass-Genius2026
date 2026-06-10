@@ -1113,6 +1113,7 @@ ${planBlocks}
             ...(showRiskMap ? [{ id: "risk" as const, label: "Risk map" }] : []),
             { id: "routes", label: "Routes" },
             { id: "gaps", label: `Gaps${selected.gaps.length ? ` (${selected.gaps.length})` : ""}` },
+            { id: "answers", label: "Edit answers" },
           ];
           return (
             <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
