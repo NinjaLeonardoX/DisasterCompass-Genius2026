@@ -292,49 +292,45 @@ export default function MapPanel({
         </>
       )}
 
-      {/* Legend (seed demo only) */}
+      {/* Legend (seed demo only) — collapsible */}
       {showDemoLayers && (
-        <div className="pointer-events-none absolute bottom-4 left-4 z-[1000] rounded-xl bg-background/90 p-3 text-xs text-foreground shadow-lg backdrop-blur">
-          <p className="mb-2 font-semibold">Legend</p>
-          <ul className="space-y-1.5">
-            <li className="flex items-center gap-2">
-              <span
-                className="inline-block h-1 w-5 rounded"
-                style={{ background: ROUTE_COLORS.safe }}
-              />
-              Route B — safe (selected)
-            </li>
-            <li className="flex items-center gap-2">
-              <span
-                className="inline-block h-1 w-5 rounded"
-                style={{ background: ROUTE_COLORS.caution }}
-              />
-              Route C — caution
-            </li>
-            <li className="flex items-center gap-2">
-              <span
-                className="inline-block h-1 w-5 rounded"
-                style={{ background: ROUTE_COLORS.rejected }}
-              />
-              Route A — rejected
-            </li>
-            <li className="flex items-center gap-2">
-              <span
-                className="inline-block h-1 w-5 rounded border border-dashed"
-                style={{ borderColor: "#DC2626" }}
-              />
-              Blocked road
-            </li>
-            <li className="flex items-center gap-2">
-              <span
-                className="inline-block h-3 w-3 rounded-sm"
-                style={{ background: "#3B82F6", opacity: 0.4 }}
-              />
-              Flood area
-            </li>
-          </ul>
+        <div className="absolute bottom-4 left-4 z-[1000] rounded-xl bg-background/90 text-xs text-foreground shadow-lg backdrop-blur">
+          <button
+            type="button"
+            onClick={() => setLegendOpen((o) => !o)}
+            aria-expanded={legendOpen}
+            className="flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2 font-semibold hover:bg-foreground/5"
+          >
+            <span>Legend</span>
+            <span aria-hidden="true" className="text-foreground/60">{legendOpen ? "−" : "+"}</span>
+          </button>
+          {legendOpen && (
+            <ul className="space-y-1.5 px-3 pb-3">
+              <li className="flex items-center gap-2">
+                <span className="inline-block h-1 w-5 rounded" style={{ background: ROUTE_COLORS.safe }} />
+                Route B — safe (selected)
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="inline-block h-1 w-5 rounded" style={{ background: ROUTE_COLORS.caution }} />
+                Route C — caution
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="inline-block h-1 w-5 rounded" style={{ background: ROUTE_COLORS.rejected }} />
+                Route A — rejected
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="inline-block h-1 w-5 rounded border border-dashed" style={{ borderColor: "#DC2626" }} />
+                Blocked road
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="inline-block h-3 w-3 rounded-sm" style={{ background: "#3B82F6", opacity: 0.4 }} />
+                Flood area
+              </li>
+            </ul>
+          )}
         </div>
       )}
+
     </div>
   );
 }
