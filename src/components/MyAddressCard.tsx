@@ -335,35 +335,31 @@ export function MyAddressCard() {
       )}
 
       {showDeviceModal && resolved && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-        >
-          <div
-            className="w-full max-w-md rounded-2xl border border-border bg-card p-5 shadow-2xl"
-          >
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-white p-5 shadow-2xl">
             <div className="mb-3 flex items-center gap-2">
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[color:var(--severity-low)]/15 text-[color:var(--severity-low)]">
                 <LocateFixed className="h-4 w-4" />
               </span>
               <div>
-                <p className="text-sm font-semibold text-foreground">You're here</p>
-                <p className="text-xs text-card-foreground/65">
+                <p className="text-sm font-semibold text-black">You're here</p>
+                <p className="text-xs text-black/70">
                   {accuracyMeters != null && `±${Math.round(accuracyMeters)} m accuracy`}
                 </p>
               </div>
             </div>
 
-            <div className="mb-4 rounded-lg border border-border bg-background p-3">
-              <p className="text-sm font-medium text-foreground">
+            <div className="mb-4 rounded-lg border border-border bg-gray-50 p-3">
+              <p className="text-sm font-medium text-black">
                 {resolved.displayName ?? "Your current location"}
               </p>
-              <p className="mt-0.5 text-xs text-card-foreground/55">
+              <p className="mt-0.5 text-xs text-black/70">
                 {resolved.lat.toFixed(5)}, {resolved.lng.toFixed(5)}
               </p>
             </div>
 
             <label className="mb-4 flex flex-col gap-1">
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-card-foreground/55">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-black/80">
                 Save my location as household
               </span>
               <input
@@ -372,7 +368,7 @@ export function MyAddressCard() {
                 maxLength={60}
                 placeholder="Home"
                 autoFocus
-                className="rounded-md border border-border bg-background px-2 py-1.5 text-sm text-foreground"
+                className="rounded-md border border-border bg-white px-2 py-1.5 text-sm text-black placeholder:text-black/40"
               />
             </label>
 
@@ -380,7 +376,7 @@ export function MyAddressCard() {
               <button
                 disabled={savingHousehold}
                 onClick={() => setPendingDevice(false)}
-                className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-surface disabled:opacity-60"
+                className="rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-black hover:bg-gray-100 disabled:opacity-60"
               >
                 Cancel
               </button>
