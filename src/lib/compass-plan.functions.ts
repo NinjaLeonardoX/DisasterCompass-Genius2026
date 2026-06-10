@@ -59,7 +59,7 @@ Rules:
 
     try {
       const { experimental_output } = await generateText({
-        model: gateway("google/gemini-2.5-flash"),
+        model: gateway("google/gemini-3-flash-preview"),
         prompt,
         experimental_output: Output.object({ schema: RoutePlanSchema }),
       });
