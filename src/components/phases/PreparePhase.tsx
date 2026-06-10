@@ -311,7 +311,7 @@ export function PreparePhase() {
 
         {scope === "national" && (
           <RollupStatsPanel
-            title="United States · national"
+            title={`${nationLabel} · national`}
             Icon={Globe}
             ringLabel="National readiness"
             data={NATIONAL_READINESS}
