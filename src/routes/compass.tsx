@@ -23,8 +23,12 @@ export const Route = createFileRoute("/compass")({
 
 function CompassPage() {
   const { activePhase } = usePhase();
-  const { source, locationConfirmed } = useLocation();
-  const hasLocation = source !== "seed" || locationConfirmed;
+  const { locationConfirmed } = useLocation();
+  // Gate on an EXPLICIT confirmation only. A cached device location or a
+  // previously-saved address (which make `source !== "seed"`) must not silently
+  // reopen the system on reload — nothing shows until the user picks/sets a
+  // location this session.
+  const hasLocation = locationConfirmed;
 
   return (
     <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 sm:py-10">
