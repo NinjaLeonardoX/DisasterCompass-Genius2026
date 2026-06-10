@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LifecycleDashboard } from "../components/LifecycleDashboard";
+import { SafetyLocationPanel } from "../components/compass/SafetyLocationPanel";
 import { PreparePhase } from "../components/phases/PreparePhase";
 import { RespondPhase } from "../components/phases/RespondPhase";
 import { RecoverPhase } from "../components/phases/RecoverPhase";
@@ -24,7 +25,10 @@ function CompassPage() {
   return (
     <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 sm:py-10">
       <div className="space-y-10">
+        <SafetyLocationPanel />
+
         <LifecycleDashboard />
+
 
         <div className="border-t border-border/60 pt-8">
           {activePhase === "prepare" && <PreparePhase />}
