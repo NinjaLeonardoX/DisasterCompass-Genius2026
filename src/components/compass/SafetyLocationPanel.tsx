@@ -1600,3 +1600,18 @@ function GeneratedStep(p: SetupModalProps) {
     </>
   );
 }
+
+function SeverityBars({ severity }: { severity: HazardRisk["severity"] }) {
+  const { bars, color } = SEVERITY_META[severity];
+  return (
+    <span className="flex items-center gap-0.5" aria-hidden="true">
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="h-3 w-1.5 rounded-[1px]"
+          style={{ background: i < bars ? color : "rgba(100,116,139,0.22)" }}
+        />
+      ))}
+    </span>
+  );
+}
