@@ -63,32 +63,47 @@ export function useDeviceLocation() {
     }
     setStatus("prompting");
     setError(null);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const next: GeoCoords = {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          accuracyMeters: pos.coords.accuracy ?? 0,
-        };
-        setCoords(next);
-        setStatus("granted");
-        try {
-          window.sessionStorage.setItem(CACHE_KEY, JSON.stringify(next));
-        } catch {
-          /* ignore quota */
-        }
-      },
-      (err) => {
-        if (err.code === err.PERMISSION_DENIED) {
-          setStatus("denied");
-          setError("Location permission denied.");
-        } else {
-          setStatus("error");
-          setError(err.message || "Could not get location.");
-        }
-      },
-      { enableHighAccuracy: false, timeout: 10000, maximumAge: 60_000 },
-    );
+
+    const onSuccess = (pos: GeolocationPosition) => {
+      const next: GeoCoords = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        accuracyMeters: pos.coords.accuracy ?? 0,
+      };
+      setCoords(next);
+      setStatus("granted");
+      try {
+        window.sessionStorage.setItem(CACHE_KEY, JSON.stringify(next));
+      } catch {
+        /* ignore quota */
+      }
+    };
+
+    // A cold GPS fix can be slow, so a single getCurrentPosition call times out
+    // intermittently. First try a fast attempt that accepts a recent cached
+    // fix; if that times out, retry once with high accuracy and a longer budget
+    // before surfacing an error. Permission denials fail fast (no retry).
+    const fail = (err: GeolocationPositionError) => {
+      if (err.code === err.PERMISSION_DENIED) {
+        setStatus("denied");
+        setError("Location permission denied.");
+      } else {
+        setStatus("error");
+        setError(err.message || "Could not get location.");
+      }
+    };
+
+    navigator.geolocation.getCurrentPosition(onSuccess, (firstErr) => {
+      if (firstErr.code === firstErr.PERMISSION_DENIED) {
+        fail(firstErr);
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(onSuccess, fail, {
+        enableHighAccuracy: true,
+        timeout: 20000,
+        maximumAge: 0,
+      });
+    }, { enableHighAccuracy: false, timeout: 8000, maximumAge: 60_000 });
   }, []);
 
   const clear = useCallback(() => {

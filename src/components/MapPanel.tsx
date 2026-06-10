@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { MapContainer, TileLayer, Polygon, Polyline, CircleMarker, Tooltip } from "react-leaflet";
+import { MapContainer, TileLayer, Polygon, Polyline, CircleMarker, Tooltip, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import type { RouteOption } from "@/types";
 import {
@@ -41,6 +41,25 @@ const DRIVE_TICK_MS = 230;
 
 /** Stable empty list so the drive model isn't recomputed every render. */
 const NO_BLOCKED_ROADS: typeof BLOCKED_ROADS = [];
+
+/**
+ * Keeps the Leaflet camera in sync with the active location. `MapContainer`
+ * only honours `center`/`zoom` on the first mount, so without this the map
+ * stays parked on the seed center when the user grants geolocation (or picks an
+ * address) AFTER the map has already rendered — which is exactly why location
+ * "worked sometimes and not others". Primitive deps mean it only fires on a real
+ * location change, not on every render (so it never fights a manual pan or the
+ * driving animation).
+ */
+function Recenter({ lat, lng, zoom }: { lat: number; lng: number; zoom: number }) {
+  const map = useMap();
+  useEffect(() => {
+    if (Number.isFinite(lat) && Number.isFinite(lng)) {
+      map.setView([lat, lng], zoom);
+    }
+  }, [map, lat, lng, zoom]);
+  return null;
+}
 
 /** A computed safe destination to plot (location-aware evacuation mode). */
 export interface MapDestination {
@@ -135,6 +154,7 @@ export default function MapPanel({
         scrollWheelZoom={false}
         style={{ height, width: "100%", borderRadius: "1rem" }}
       >
+        <Recenter lat={center[0]} lng={center[1]} zoom={zoom} />
         {flags.tiles ? (
           <TileLayer
             attribution='&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
