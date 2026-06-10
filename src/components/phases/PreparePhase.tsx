@@ -456,7 +456,8 @@ function SeverityBars({ severity }: { severity: HazardRisk["severity"] }) {
  * renders BELOW the map with no active route drawn on the calm map itself.
  */
 function RouteReadinessPanel({ hazard }: { hazard: HazardRisk }) {
-  const decision = decideAction(hazard.disasterType, RIVERA_HOUSEHOLD);
+  const household = useHousehold();
+  const decision = decideAction(hazard.disasterType, household);
 
   // Flood enriches the seeded route line with the live engine score.
   let routeLine = hazard.routeLine;
