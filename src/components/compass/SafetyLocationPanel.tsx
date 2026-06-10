@@ -1276,6 +1276,7 @@ interface SetupModalProps {
   onChangeName: (s: string) => void;
   onChangeType: (s: string) => void;
   onChangeArea: (s: string) => void;
+  onSelectPlace: (s: PlaceSuggestion) => void;
   onChangeAnswers: (a: AllAnswers) => void;
   onChangeSkipped: (s: SkipMap) => void;
   onChangeWizardIndex: (i: number) => void;
@@ -1284,6 +1285,8 @@ interface SetupModalProps {
   onGoReview: () => void;
   onGeneratePlan: () => void;
   onClose: () => void;
+  genProgress: number;
+  genStatus: string;
 }
 
 function SetupModal(p: SetupModalProps) {
