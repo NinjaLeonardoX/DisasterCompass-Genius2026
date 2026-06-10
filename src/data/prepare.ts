@@ -192,41 +192,7 @@ export const SNAPSHOT_READINESS = 60;
 export const SNAPSHOT_OPEN_GAPS = PREPARE_GAPS.filter((g) => !g.closedByDefault).length;
 export const SNAPSHOT_TOP_GAP = PREPARE_GAPS.find((g) => !g.closedByDefault)?.label ?? "";
 
-// ---- Readiness scope (whose readiness am I looking at?) ----
-
-export type ReadinessScope = "family" | "community" | "town";
-
-export interface ScopeMeta {
-  id: ReadinessScope;
-  tab: string;
-  owner: string;
-  blurb: string;
-}
-
-export const SCOPES: ScopeMeta[] = [
-  {
-    id: "family",
-    tab: "My Family",
-    owner: "Rivera Family",
-    blurb: "your household profile and the gaps to close before the warning.",
-  },
-  {
-    id: "community",
-    tab: "My Community",
-    owner: "North Creek block",
-    blurb: "your 5 neighboring households and who still needs pre-disaster support.",
-  },
-  {
-    id: "town",
-    tab: "My Town",
-    owner: "North Creek",
-    blurb: "a town-wide rollup across households, shelters, and transport.",
-  },
-];
-
-export function getScope(id: ReadinessScope): ScopeMeta {
-  return SCOPES.find((s) => s.id === id) ?? SCOPES[0];
-}
+// ---- Community + town rollup (the Community lens) ----
 
 /** Readiness color by percentage — shared by rings and bars. */
 export function readinessColor(value: number): string {

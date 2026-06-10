@@ -30,7 +30,7 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { activePhase, setActivePhase, mode, setMode } = usePhase();
+  const { activePhase, setActivePhase } = usePhase();
 
   return (
     <Sidebar
@@ -48,31 +48,6 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="bg-[color:var(--surface)]">
-        {/* Mode toggle */}
-        {!collapsed && (
-          <div className="px-3 pt-3">
-            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
-              Mode
-            </p>
-            <div className="flex rounded-lg bg-white/5 p-0.5 ring-1 ring-white/10">
-              {(["resident", "community"] as const).map((m) => (
-                <button
-                  key={m}
-                  onClick={() => setMode(m)}
-                  className={[
-                    "flex-1 rounded-md px-2 py-1.5 text-[11px] font-semibold capitalize transition-colors",
-                    mode === m
-                      ? "bg-[color:var(--severity-low)] text-white shadow-sm"
-                      : "text-slate-300 hover:text-white",
-                  ].join(" ")}
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>

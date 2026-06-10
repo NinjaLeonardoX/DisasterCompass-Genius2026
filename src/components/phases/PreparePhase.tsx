@@ -7,7 +7,6 @@ import {
   MapPin,
   Navigation,
   ShieldAlert,
-  Home,
   Building2,
 } from "lucide-react";
 import { HouseholdCard } from "../compass/HouseholdCard";
@@ -17,14 +16,11 @@ import {
   HAZARD_RISKS,
   PREPARE_GAPS,
   SEVERITY_META,
-  SCOPES,
   COMMUNITY_MEMBERS,
   TOWN_READINESS,
   getHazard,
-  getScope,
   readinessColor,
   type HazardRisk,
-  type ReadinessScope,
 } from "@/data/prepare";
 import { decideAction } from "@/lib/actions";
 import { getBestRoute, scoreRoute } from "@/lib/scoring";
@@ -38,22 +34,13 @@ export function PreparePhase() {
   // The sidebar Resident/Community toggle and these scope tabs are the same
   // axis (personal vs collective), so keep them in sync: Resident ↔ My Family,
   // Community ↔ My Community / My Town.
-  const { mode, setMode } = usePhase();
+  // One lens — the Resident/Community toggle (rendered in the page content)
+  // rolls the readiness view up from your household to the whole block + town.
+  const { mode } = usePhase();
+  const isCommunity = mode === "community";
   const [selectedId, setSelectedId] = useState<string>("flood");
-  const [scope, setScope] = useState<ReadinessScope>(mode === "community" ? "community" : "family");
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-
-  // Follow the global mode when it changes elsewhere (e.g. the sidebar toggle).
-  useEffect(() => {
-    setScope((prev) => (mode === "resident" ? "family" : prev === "family" ? "community" : prev));
-  }, [mode]);
-
-  // Selecting a tab also drives the shared mode so the sidebar never disagrees.
-  function selectScope(next: ReadinessScope) {
-    setScope(next);
-    setMode(next === "family" ? "resident" : "community");
-  }
 
   // Readiness gaps — seed pre-closed items so the demo opens at 60%.
   const [closed, setClosed] = useState<Set<string>>(
@@ -64,7 +51,6 @@ export function PreparePhase() {
   const readiness = useMemo(() => Math.round((closed.size / PREPARE_GAPS.length) * 100), [closed]);
 
   const selectedHazard = getHazard(selectedId);
-  const scopeMeta = getScope(scope);
 
   function closeGap(id: string) {
     setClosed((s) => new Set(s).add(id));
@@ -159,23 +145,25 @@ export function PreparePhase() {
       {/* 2 · ROUTE READINESS */}
       <RouteReadinessPanel hazard={selectedHazard} />
 
-      {/* 3 · READINESS — scoped (whose readiness?) */}
+      {/* 3 · READINESS — rolls up with the Resident/Community lens */}
       <section className="space-y-4">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-card-foreground">
-              Who&rsquo;s ready?
-            </h3>
-            <p className="mt-1 text-sm text-[color:var(--muted-foreground)]">
-              Readiness for{" "}
-              <span className="font-semibold text-card-foreground">{scopeMeta.owner}</span> —{" "}
-              {scopeMeta.blurb}
-            </p>
-          </div>
-          <ScopeTabs value={scope} onChange={selectScope} />
+        <div>
+          <h3 className="text-sm font-bold uppercase tracking-wider text-card-foreground">
+            Who&rsquo;s ready?
+          </h3>
+          <p className="mt-1 text-sm text-[color:var(--muted-foreground)]">
+            Readiness for{" "}
+            <span className="font-semibold text-card-foreground">
+              {isCommunity ? "North Creek" : "Rivera Family"}
+            </span>{" "}
+            —{" "}
+            {isCommunity
+              ? "your block and the wider town, rolled up."
+              : "your household profile and the gaps to close before the warning."}
+          </p>
         </div>
 
-        {scope === "family" && (
+        {!isCommunity && (
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="space-y-6 lg:col-span-2">
               <div className="dc-card p-6">
@@ -282,52 +270,13 @@ export function PreparePhase() {
           </div>
         )}
 
-        {scope === "community" && <CommunityReadinessPanel />}
-        {scope === "town" && <TownReadinessPanel />}
+        {isCommunity && (
+          <div className="space-y-6">
+            <CommunityReadinessPanel />
+            <TownReadinessPanel />
+          </div>
+        )}
       </section>
-    </div>
-  );
-}
-
-function ScopeTabs({
-  value,
-  onChange,
-}: {
-  value: ReadinessScope;
-  onChange: (s: ReadinessScope) => void;
-}) {
-  const ICONS: Record<ReadinessScope, typeof Home> = {
-    family: Home,
-    community: Users,
-    town: Building2,
-  };
-  return (
-    <div
-      role="tablist"
-      aria-label="Readiness scope"
-      className="inline-flex rounded-full border border-border bg-white p-1 shadow-sm"
-    >
-      {SCOPES.map((s) => {
-        const active = s.id === value;
-        const Icon = ICONS[s.id];
-        return (
-          <button
-            key={s.id}
-            role="tab"
-            aria-selected={active}
-            onClick={() => onChange(s.id)}
-            className={[
-              "inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors",
-              active
-                ? "bg-[color:var(--foreground)] text-white shadow-sm"
-                : "text-[color:var(--muted-foreground)] hover:text-[color:var(--foreground)]",
-            ].join(" ")}
-          >
-            <Icon className="h-4 w-4" aria-hidden="true" />
-            {s.tab}
-          </button>
-        );
-      })}
     </div>
   );
 }

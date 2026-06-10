@@ -1,12 +1,21 @@
-import { Radar, Compass as CompassIcon, LifeBuoy, ArrowUpRight, Camera } from "lucide-react";
+import {
+  Radar,
+  Compass as CompassIcon,
+  LifeBuoy,
+  ArrowUpRight,
+  Camera,
+  Home,
+  Users,
+} from "lucide-react";
 import { LifecycleCard } from "./LifecycleCard";
-import { usePhase } from "./PhaseContext";
+import { usePhase, type Mode } from "./PhaseContext";
 import {
   HAZARD_RISKS,
   SEVERITY_META,
   SNAPSHOT_OPEN_GAPS,
   SNAPSHOT_READINESS,
   SNAPSHOT_TOP_GAP,
+  COMMUNITY_MEMBERS,
   type Severity,
 } from "@/data/prepare";
 
@@ -27,6 +36,8 @@ export function LifecycleDashboard() {
           after impact.
         </p>
       </div>
+
+      <ModeToggle />
 
       <div className={activePhase ? "grid gap-5" : "grid gap-5 lg:grid-cols-3"}>
         {(!activePhase || activePhase === "prepare") && (
@@ -108,17 +119,70 @@ export function LifecycleDashboard() {
   );
 }
 
-/** Part A — Readiness Snapshot on the Prepare overview card. */
+/** The single Resident/Community lens, in the page content (not the nav). */
+function ModeToggle() {
+  const { mode, setMode } = usePhase();
+  const OPTIONS: { id: Mode; label: string; sub: string; Icon: typeof Home }[] = [
+    { id: "resident", label: "Resident", sub: "Just my household", Icon: Home },
+    { id: "community", label: "Community", sub: "My block + town", Icon: Users },
+  ];
+  return (
+    <div
+      role="tablist"
+      aria-label="Resident or community view"
+      className="inline-flex rounded-xl border border-border bg-white p-1 shadow-sm"
+    >
+      {OPTIONS.map((o) => {
+        const active = mode === o.id;
+        return (
+          <button
+            key={o.id}
+            role="tab"
+            aria-selected={active}
+            onClick={() => setMode(o.id)}
+            className={[
+              "flex items-center gap-2 rounded-lg px-3.5 py-2 transition-colors",
+              active
+                ? "bg-[color:var(--foreground)] text-white shadow-sm"
+                : "text-[color:var(--muted-foreground)] hover:text-[color:var(--foreground)]",
+            ].join(" ")}
+          >
+            <o.Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <span className="text-left leading-tight">
+              <span className="block text-sm font-semibold">{o.label}</span>
+              <span
+                className={`block text-[10px] ${active ? "text-white/75" : "text-card-foreground/50"}`}
+              >
+                {o.sub}
+              </span>
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Part A — Readiness Snapshot on the Prepare overview card (rolls up by mode). */
 function PrepareSnapshot() {
+  const { mode } = usePhase();
+  const community = mode === "community";
+  const readyCount = COMMUNITY_MEMBERS.filter((m) => m.readiness >= 80).length;
+  const communityAvg = Math.round(
+    COMMUNITY_MEMBERS.reduce((sum, m) => sum + m.readiness, 0) / COMMUNITY_MEMBERS.length,
+  );
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-3">
-        <MiniRing value={SNAPSHOT_READINESS} />
+        <MiniRing value={community ? communityAvg : SNAPSHOT_READINESS} />
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/75">
-            My Family · Rivera
+            {community ? "North Creek · Community" : "My Family · Rivera"}
           </p>
-          <p className="text-2xl font-bold leading-none text-white">{SNAPSHOT_READINESS}% ready</p>
+          <p className="text-2xl font-bold leading-none text-white">
+            {community ? `${readyCount} of 5 ready` : `${SNAPSHOT_READINESS}% ready`}
+          </p>
         </div>
       </div>
 
@@ -135,8 +199,9 @@ function PrepareSnapshot() {
       </div>
 
       <p className="rounded-lg bg-[color:var(--severity-moderate)] px-2.5 py-1.5 text-[11px] font-semibold text-white ring-1 ring-white/20">
-        ⚠ {SNAPSHOT_OPEN_GAPS} gaps before you&rsquo;re ready — top:{" "}
-        {SNAPSHOT_TOP_GAP.toLowerCase()}.
+        {community
+          ? `⚠ ${COMMUNITY_MEMBERS.length - readyCount} households need pre-disaster support — top: Rivera (no ride).`
+          : `⚠ ${SNAPSHOT_OPEN_GAPS} gaps before you're ready — top: ${SNAPSHOT_TOP_GAP.toLowerCase()}.`}
       </p>
     </div>
   );
