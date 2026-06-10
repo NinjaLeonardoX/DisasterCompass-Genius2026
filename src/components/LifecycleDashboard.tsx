@@ -32,8 +32,8 @@ export function LifecycleDashboard() {
           One family. Three moments. One clear plan.
         </h1>
         <p className="mt-2 text-base text-[color:var(--muted-foreground)]">
-          Set your location, check your risks, and build a plan your family can follow — before,
-          during, and after a disaster.
+          DisasterCompass uses the same household profile and neighbor network before, during, and
+          after impact.
         </p>
       </div>
 
@@ -45,12 +45,12 @@ export function LifecycleDashboard() {
             phase="prepare"
             when="BEFORE"
             title="Prepare"
-            subtitle="Build your plan"
+            subtitle="Readiness Radar"
             statusLabel="Needs Support Before Impact"
             statusTone="amber"
             Icon={Radar}
-            tooltip="Check your risks, fill your gaps, and rehearse your route so your family knows exactly what to do when the warning comes."
-            tagline="Know where to go, how to get there, and who's ready to help."
+            tooltip="Preparedness is not just a checklist. DisasterCompass finds who may struggle before the warning becomes urgent."
+            tagline="Preparedness = rehearsal before the siren."
             actions={[
               "Pre-match transport support",
               "Confirm pet-friendly accessible shelter",

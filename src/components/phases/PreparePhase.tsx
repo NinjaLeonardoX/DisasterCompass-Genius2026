@@ -84,20 +84,19 @@ export function PreparePhase() {
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[color:var(--severity-low)]">
           Phase 1 · Before impact
         </p>
-        <h2 className="mt-1 text-2xl font-bold tracking-tight">Build your plan before the warning</h2>
+        <h2 className="mt-1 text-2xl font-bold tracking-tight">Readiness Radar</h2>
         <p className="mt-1 text-sm text-[color:var(--muted-foreground)]">
-          Check the risks near your home, see your safest route, and close the gaps so your family
-          knows exactly what to do.
+          Orient on the risk map → pick a hazard → see your route → fix your gaps.
         </p>
       </div>
 
 
       <div className="dc-card flex flex-wrap items-center justify-between gap-3 p-4">
         <span className="inline-flex items-center gap-2 rounded-full bg-[color:var(--severity-low)]/10 px-3 py-1 text-xs font-semibold text-[color:var(--severity-low)] ring-1 ring-[color:var(--severity-low)]/25">
-          <Radar className="h-3.5 w-3.5" /> Practice mode — no active alert
+          <Radar className="h-3.5 w-3.5" /> Drill mode — no active alert
         </span>
         <p className="text-xs text-card-foreground/65">
-          This is a rehearsal. Same tools you'll use when a real warning comes.
+          A calm risk map, not an alert. Same disaster logic, rehearsed in advance.
         </p>
       </div>
 
@@ -278,15 +277,13 @@ export function PreparePhase() {
               <HouseholdCard />
               <div className="dc-card p-5">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-card-foreground/55">
-                  What this does
+                  Preparedness signature
                 </p>
                 <p className="mt-2 text-sm font-medium text-card-foreground">
-                  DisasterCompass turns your location into a clear action plan: where to go, how to
-                  get there, and who can help.
+                  Preparedness is rehearsal that solves the evacuation before the siren.
                 </p>
                 <p className="mt-3 text-xs text-card-foreground/65">
-                  {householdLabel} should have transport arranged and a shelter confirmed before the
-                  next flood warning.
+                  {householdLabel} should be pre-matched with transport before flood risk increases.
                 </p>
               </div>
             </div>
