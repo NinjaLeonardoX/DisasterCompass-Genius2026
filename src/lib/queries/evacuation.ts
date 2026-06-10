@@ -134,7 +134,7 @@ export function useEvacuationRoutes(
     return () => {
       cancelled = true;
     };
-  }, [lat, lng, disaster, enabled]);
+  }, [lat, lng, disaster, enabled, refreshKey]);
 
   return state;
 }
