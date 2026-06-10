@@ -17,18 +17,21 @@ const lngLat = z.tuple([z.number(), z.number()]); // [lng, lat]
 // the caller can fall back to a straight-line estimate.
 export const fetchDirection = createServerFn({ method: "POST" })
   .inputValidator(z.object({ start: lngLat, dest: lngLat }))
-  .handler(async ({ data }): Promise<OrsResponse> => {
+  .handler(async ({ data }): Promise<OrsResponse | null> => {
     const key = process.env.ORS_API_KEY;
     if (!key) {
       console.info("[routing] ORS_API_KEY absent — using straight-line estimate.");
-      throw new Error("ORS_API_KEY not configured");
+      return null;
     }
     const res = await fetch("https://api.openrouteservice.org/v2/directions/driving-car/geojson", {
       method: "POST",
       headers: { Authorization: key, "Content-Type": "application/json" },
       body: JSON.stringify({ coordinates: [data.start, data.dest] }),
     });
-    if (!res.ok) throw new Error(`ORS request failed: ${res.status}`);
+    if (!res.ok) {
+      console.info(`[routing] ORS ${res.status} — using straight-line estimate.`);
+      return null;
+    }
     return (await res.json()) as OrsResponse;
   });
 
@@ -41,11 +44,11 @@ export const fetchRoutes = createServerFn({ method: "POST" })
       avoidPolygon: z.array(z.array(lngLat)),
     }),
   )
-  .handler(async ({ data }): Promise<OrsResponse> => {
+  .handler(async ({ data }): Promise<OrsResponse | null> => {
     const key = process.env.ORS_API_KEY;
     if (!key) {
       console.info("[routing] ORS_API_KEY absent — falling back to seed routes.");
-      throw new Error("ORS_API_KEY not configured");
+      return null;
     }
 
     // NOTE: ORS rejects `alternative_routes` when combined with
@@ -71,7 +74,7 @@ export const fetchRoutes = createServerFn({ method: "POST" })
     if (!res.ok) {
       const body = await res.text().catch(() => "");
       console.info(`[routing] ORS ${res.status} — falling back to seed routes.`, body);
-      throw new Error(`ORS request failed: ${res.status}`);
+      return null;
     }
     return (await res.json()) as OrsResponse;
   });
