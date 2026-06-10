@@ -192,7 +192,60 @@ export const SNAPSHOT_READINESS = 60;
 export const SNAPSHOT_OPEN_GAPS = PREPARE_GAPS.filter((g) => !g.closedByDefault).length;
 export const SNAPSHOT_TOP_GAP = PREPARE_GAPS.find((g) => !g.closedByDefault)?.label ?? "";
 
-// ---- Community + town rollup (the Community lens) ----
+// ---- Rollup scale: Household → Community → Town → State → National ----
+
+export type ReadinessScope = "household" | "community" | "town" | "state" | "national";
+
+export interface ScopeMeta {
+  id: ReadinessScope;
+  label: string;
+  place: string;
+  blurb: string;
+  /** State + national are situational-awareness aggregates, not actionable. */
+  context: boolean;
+}
+
+export const SCOPE_META: ScopeMeta[] = [
+  {
+    id: "household",
+    label: "Household",
+    place: "Rivera family",
+    blurb: "your household profile and the gaps to close before the warning.",
+    context: false,
+  },
+  {
+    id: "community",
+    label: "Community",
+    place: "your block",
+    blurb: "your neighboring households and who still needs pre-disaster support.",
+    context: false,
+  },
+  {
+    id: "town",
+    label: "Town",
+    place: "North Creek",
+    blurb: "the whole town — households, shelters, and transport.",
+    context: false,
+  },
+  {
+    id: "state",
+    label: "State",
+    place: "Colorado",
+    blurb: "statewide readiness, aggregated for situational awareness.",
+    context: true,
+  },
+  {
+    id: "national",
+    label: "National",
+    place: "United States",
+    blurb: "the national picture, for situational awareness.",
+    context: true,
+  },
+];
+
+export function getScopeMeta(id: ReadinessScope): ScopeMeta {
+  return SCOPE_META.find((s) => s.id === id) ?? SCOPE_META[0];
+}
 
 /** Readiness color by percentage — shared by rings and bars. */
 export function readinessColor(value: number): string {
@@ -221,7 +274,13 @@ export interface TownStat {
   value: string;
 }
 
-export const TOWN_READINESS: { readiness: number; stats: TownStat[]; note: string } = {
+export interface RollupData {
+  readiness: number;
+  stats: TownStat[];
+  note: string;
+}
+
+export const TOWN_READINESS: RollupData = {
   readiness: 72,
   stats: [
     { label: "Households ready", value: "3 of 5" },
@@ -230,4 +289,27 @@ export const TOWN_READINESS: { readiness: number; stats: TownStat[]; note: strin
     { label: "Open support requests", value: "2" },
   ],
   note: "North Creek is mostly rehearsed. Two households still need pre-disaster support, and one shelter needs an accessibility upgrade, before the next warning.",
+};
+
+// State + national are seeded situational-awareness aggregates (not live data).
+export const STATE_READINESS: RollupData = {
+  readiness: 64,
+  stats: [
+    { label: "Counties prepared", value: "41 of 64" },
+    { label: "Shelters confirmed", value: "180+" },
+    { label: "Households reached", value: "1.2M" },
+    { label: "Open support requests", value: "230" },
+  ],
+  note: "Statewide readiness aggregates county programs across Colorado. Demo figures for situational awareness — not live data.",
+};
+
+export const NATIONAL_READINESS: RollupData = {
+  readiness: 58,
+  stats: [
+    { label: "States reporting", value: "44 of 50" },
+    { label: "Shelter network", value: "5,400+" },
+    { label: "Households reached", value: "18M" },
+    { label: "Programs active", value: "320" },
+  ],
+  note: "National rollup across participating states. Demo figures for situational awareness — not live data.",
 };

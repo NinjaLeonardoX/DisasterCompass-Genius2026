@@ -1,14 +1,6 @@
-import {
-  Radar,
-  Compass as CompassIcon,
-  LifeBuoy,
-  ArrowUpRight,
-  Camera,
-  Home,
-  Users,
-} from "lucide-react";
+import { Radar, Compass as CompassIcon, LifeBuoy, ArrowUpRight, Camera } from "lucide-react";
 import { LifecycleCard } from "./LifecycleCard";
-import { usePhase, type Mode } from "./PhaseContext";
+import { usePhase } from "./PhaseContext";
 import {
   HAZARD_RISKS,
   SEVERITY_META,
@@ -16,7 +8,14 @@ import {
   SNAPSHOT_READINESS,
   SNAPSHOT_TOP_GAP,
   COMMUNITY_MEMBERS,
+  TOWN_READINESS,
+  STATE_READINESS,
+  NATIONAL_READINESS,
+  SCOPE_META,
+  getScopeMeta,
+  readinessColor,
   type Severity,
+  type ReadinessScope,
 } from "@/data/prepare";
 
 export function LifecycleDashboard() {
@@ -37,7 +36,7 @@ export function LifecycleDashboard() {
         </p>
       </div>
 
-      <ModeToggle />
+      <ScopeSelector />
 
       <div className={activePhase ? "grid gap-5" : "grid gap-5 lg:grid-cols-3"}>
         {(!activePhase || activePhase === "prepare") && (
@@ -119,42 +118,35 @@ export function LifecycleDashboard() {
   );
 }
 
-/** The single Resident/Community lens, in the page content (not the nav). */
-function ModeToggle() {
-  const { mode, setMode } = usePhase();
-  const OPTIONS: { id: Mode; label: string; sub: string; Icon: typeof Home }[] = [
-    { id: "resident", label: "Resident", sub: "Just my household", Icon: Home },
-    { id: "community", label: "Community", sub: "My block + town", Icon: Users },
-  ];
+/** The rollup-scale lens (Household → National), in the page content (not the nav). */
+function ScopeSelector() {
+  const { scope, setScope } = usePhase();
   return (
     <div
       role="tablist"
-      aria-label="Resident or community view"
-      className="inline-flex rounded-xl border border-border bg-white p-1 shadow-sm"
+      aria-label="Readiness rollup level"
+      className="inline-flex flex-wrap gap-1 rounded-xl border border-border bg-white p-1 shadow-sm"
     >
-      {OPTIONS.map((o) => {
-        const active = mode === o.id;
+      {SCOPE_META.map((s) => {
+        const active = scope === s.id;
         return (
           <button
-            key={o.id}
+            key={s.id}
             role="tab"
             aria-selected={active}
-            onClick={() => setMode(o.id)}
+            onClick={() => setScope(s.id)}
             className={[
-              "flex items-center gap-2 rounded-lg px-3.5 py-2 transition-colors",
+              "rounded-lg px-3 py-1.5 text-left transition-colors",
               active
                 ? "bg-[color:var(--foreground)] text-white shadow-sm"
                 : "text-[color:var(--muted-foreground)] hover:text-[color:var(--foreground)]",
             ].join(" ")}
           >
-            <o.Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-            <span className="text-left leading-tight">
-              <span className="block text-sm font-semibold">{o.label}</span>
-              <span
-                className={`block text-[10px] ${active ? "text-white/75" : "text-card-foreground/50"}`}
-              >
-                {o.sub}
-              </span>
+            <span className="block text-sm font-semibold leading-tight">{s.label}</span>
+            <span
+              className={`block text-[10px] leading-tight ${active ? "text-white/75" : "text-card-foreground/50"}`}
+            >
+              {s.place}
             </span>
           </button>
         );
@@ -163,26 +155,65 @@ function ModeToggle() {
   );
 }
 
-/** Part A — Readiness Snapshot on the Prepare overview card (rolls up by mode). */
+interface SnapshotSummary {
+  ring: number;
+  headline: string;
+  callout: string;
+  warn: boolean;
+}
+
+/** Part A — Readiness Snapshot on the Prepare overview card (rolls up by scope). */
 function PrepareSnapshot() {
-  const { mode } = usePhase();
-  const community = mode === "community";
+  const { scope } = usePhase();
+  const meta = getScopeMeta(scope);
   const readyCount = COMMUNITY_MEMBERS.filter((m) => m.readiness >= 80).length;
   const communityAvg = Math.round(
     COMMUNITY_MEMBERS.reduce((sum, m) => sum + m.readiness, 0) / COMMUNITY_MEMBERS.length,
   );
 
+  const SUMMARY: Record<ReadinessScope, SnapshotSummary> = {
+    household: {
+      ring: SNAPSHOT_READINESS,
+      headline: `${SNAPSHOT_READINESS}% ready`,
+      callout: `⚠ ${SNAPSHOT_OPEN_GAPS} gaps before you're ready — top: ${SNAPSHOT_TOP_GAP.toLowerCase()}.`,
+      warn: true,
+    },
+    community: {
+      ring: communityAvg,
+      headline: `${readyCount} of 5 ready`,
+      callout: `⚠ ${COMMUNITY_MEMBERS.length - readyCount} households need support — top: Rivera (no ride).`,
+      warn: true,
+    },
+    town: {
+      ring: TOWN_READINESS.readiness,
+      headline: `${TOWN_READINESS.readiness}% ready`,
+      callout: "3 of 5 households rehearsed · 2 shelters confirmed.",
+      warn: false,
+    },
+    state: {
+      ring: STATE_READINESS.readiness,
+      headline: `${STATE_READINESS.readiness}% ready`,
+      callout: "41 of 64 counties prepared · situational awareness.",
+      warn: false,
+    },
+    national: {
+      ring: NATIONAL_READINESS.readiness,
+      headline: `${NATIONAL_READINESS.readiness}% ready`,
+      callout: "44 of 50 states reporting · situational awareness.",
+      warn: false,
+    },
+  };
+  const s = SUMMARY[scope];
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-3">
-        <MiniRing value={community ? communityAvg : SNAPSHOT_READINESS} />
+        <MiniRing value={s.ring} />
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/75">
-            {community ? "North Creek · Community" : "My Family · Rivera"}
+            {meta.label} · {meta.place}
           </p>
-          <p className="text-2xl font-bold leading-none text-white">
-            {community ? `${readyCount} of 5 ready` : `${SNAPSHOT_READINESS}% ready`}
-          </p>
+          <p className="text-2xl font-bold leading-none text-white">{s.headline}</p>
         </div>
       </div>
 
@@ -198,10 +229,15 @@ function PrepareSnapshot() {
         ))}
       </div>
 
-      <p className="rounded-lg bg-[color:var(--severity-moderate)] px-2.5 py-1.5 text-[11px] font-semibold text-white ring-1 ring-white/20">
-        {community
-          ? `⚠ ${COMMUNITY_MEMBERS.length - readyCount} households need pre-disaster support — top: Rivera (no ride).`
-          : `⚠ ${SNAPSHOT_OPEN_GAPS} gaps before you're ready — top: ${SNAPSHOT_TOP_GAP.toLowerCase()}.`}
+      <p
+        className={[
+          "rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-white ring-1",
+          s.warn
+            ? "bg-[color:var(--severity-moderate)] ring-white/20"
+            : "bg-slate-900/50 ring-white/15",
+        ].join(" ")}
+      >
+        {s.callout}
       </p>
     </div>
   );
@@ -245,7 +281,7 @@ function MiniRing({ value }: { value: number }) {
           cx="28"
           cy="28"
           r={r}
-          stroke="var(--severity-moderate)"
+          stroke={readinessColor(value)}
           strokeWidth="5"
           fill="none"
           strokeLinecap="round"

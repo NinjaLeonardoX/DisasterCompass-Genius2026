@@ -8,6 +8,9 @@ import {
   Navigation,
   ShieldAlert,
   Building2,
+  Landmark,
+  Globe,
+  type LucideIcon,
 } from "lucide-react";
 import { HouseholdCard } from "../compass/HouseholdCard";
 import { VolunteerMatchCard } from "../compass/VolunteerMatchCard";
@@ -18,9 +21,13 @@ import {
   SEVERITY_META,
   COMMUNITY_MEMBERS,
   TOWN_READINESS,
+  STATE_READINESS,
+  NATIONAL_READINESS,
   getHazard,
+  getScopeMeta,
   readinessColor,
   type HazardRisk,
+  type RollupData,
 } from "@/data/prepare";
 import { decideAction } from "@/lib/actions";
 import { getBestRoute, scoreRoute } from "@/lib/scoring";
@@ -31,13 +38,10 @@ import { ROUTES, RIVERA_HOUSEHOLD } from "@/data/seed";
 const PrepareRiskMap = lazy(() => import("../compass/PrepareRiskMap"));
 
 export function PreparePhase() {
-  // The sidebar Resident/Community toggle and these scope tabs are the same
-  // axis (personal vs collective), so keep them in sync: Resident ↔ My Family,
-  // Community ↔ My Community / My Town.
-  // One lens — the Resident/Community toggle (rendered in the page content)
-  // rolls the readiness view up from your household to the whole block + town.
-  const { mode } = usePhase();
-  const isCommunity = mode === "community";
+  // One lens — the rollup selector (rendered in the page content) zooms the
+  // readiness view from your household out to community, town, state, national.
+  const { scope } = usePhase();
+  const scopeMeta = getScopeMeta(scope);
   const [selectedId, setSelectedId] = useState<string>("flood");
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -145,7 +149,7 @@ export function PreparePhase() {
       {/* 2 · ROUTE READINESS */}
       <RouteReadinessPanel hazard={selectedHazard} />
 
-      {/* 3 · READINESS — rolls up with the Resident/Community lens */}
+      {/* 3 · READINESS — rolls up from household to national */}
       <section className="space-y-4">
         <div>
           <h3 className="text-sm font-bold uppercase tracking-wider text-card-foreground">
@@ -153,17 +157,12 @@ export function PreparePhase() {
           </h3>
           <p className="mt-1 text-sm text-[color:var(--muted-foreground)]">
             Readiness for{" "}
-            <span className="font-semibold text-card-foreground">
-              {isCommunity ? "North Creek" : "Rivera Family"}
-            </span>{" "}
-            —{" "}
-            {isCommunity
-              ? "your block and the wider town, rolled up."
-              : "your household profile and the gaps to close before the warning."}
+            <span className="font-semibold text-card-foreground">{scopeMeta.place}</span> —{" "}
+            {scopeMeta.blurb}
           </p>
         </div>
 
-        {!isCommunity && (
+        {scope === "household" && (
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="space-y-6 lg:col-span-2">
               <div className="dc-card p-6">
@@ -270,11 +269,35 @@ export function PreparePhase() {
           </div>
         )}
 
-        {isCommunity && (
-          <div className="space-y-6">
-            <CommunityReadinessPanel />
-            <TownReadinessPanel />
-          </div>
+        {scope === "community" && <CommunityReadinessPanel />}
+
+        {scope === "town" && (
+          <RollupStatsPanel
+            title="North Creek · town-wide"
+            Icon={Building2}
+            ringLabel="Town readiness"
+            data={TOWN_READINESS}
+          />
+        )}
+
+        {scope === "state" && (
+          <RollupStatsPanel
+            title="Colorado · statewide"
+            Icon={Landmark}
+            ringLabel="State readiness"
+            data={STATE_READINESS}
+            context
+          />
+        )}
+
+        {scope === "national" && (
+          <RollupStatsPanel
+            title="United States · national"
+            Icon={Globe}
+            ringLabel="National readiness"
+            data={NATIONAL_READINESS}
+            context
+          />
         )}
       </section>
     </div>
@@ -361,30 +384,49 @@ function CommunityReadinessPanel() {
   );
 }
 
-function TownReadinessPanel() {
+function RollupStatsPanel({
+  title,
+  Icon,
+  ringLabel,
+  data,
+  context = false,
+}: {
+  title: string;
+  Icon: LucideIcon;
+  ringLabel: string;
+  data: RollupData;
+  context?: boolean;
+}) {
   return (
     <div className="grid gap-6 lg:grid-cols-3">
       <div className="dc-card p-6 lg:col-span-2">
         <div className="flex items-center gap-2">
-          <Building2 className="h-4 w-4 text-[color:var(--severity-low)]" aria-hidden="true" />
-          <h3 className="text-sm font-bold uppercase tracking-wider">North Creek · town-wide</h3>
+          <Icon className="h-4 w-4 text-[color:var(--severity-low)]" aria-hidden="true" />
+          <h3 className="text-sm font-bold uppercase tracking-wider">{title}</h3>
+          {context && (
+            <span className="ml-auto rounded-full bg-card-foreground/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-card-foreground/55">
+              Situational awareness
+            </span>
+          )}
         </div>
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {TOWN_READINESS.stats.map((s) => (
+          {data.stats.map((s) => (
             <div key={s.label} className="rounded-xl bg-card-foreground/5 p-3">
               <p className="text-xl font-bold text-card-foreground">{s.value}</p>
               <p className="mt-1 text-[11px] text-card-foreground/70">{s.label}</p>
             </div>
           ))}
         </div>
-        <p className="mt-4 text-sm text-card-foreground/75">{TOWN_READINESS.note}</p>
+        <p className="mt-4 text-sm text-card-foreground/75">{data.note}</p>
       </div>
 
       <div className="dc-card flex flex-col items-center justify-center gap-2 p-6 text-center">
-        <ReadinessRing value={TOWN_READINESS.readiness} />
-        <p className="text-sm font-semibold text-card-foreground">Town readiness</p>
+        <ReadinessRing value={data.readiness} />
+        <p className="text-sm font-semibold text-card-foreground">{ringLabel}</p>
         <p className="text-xs text-card-foreground/60">
-          Aggregated across households, shelters, and transport coverage.
+          {context
+            ? "Seeded demo figures — not live data."
+            : "Aggregated across households, shelters, and transport coverage."}
         </p>
       </div>
     </div>
