@@ -130,7 +130,6 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function AppChrome() {
-  const { activeScenario, setActiveScenario } = useScenario();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isLanding = pathname === "/";
 
@@ -141,19 +140,10 @@ function AppChrome() {
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
-        <AppSidebar activeScenario={activeScenario} onSelectScenario={setActiveScenario} />
+        <AppSidebar />
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-slate-200 bg-white px-4 text-slate-900 shadow-[0_8px_30px_-12px_rgba(42,59,85,0.25)] sm:px-6">
             <SidebarTrigger className="text-slate-700 hover:bg-slate-100" />
-
-            <div className="ml-auto flex items-center gap-3">
-              {activeScenario && (
-                <span className="hidden rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700 ring-1 ring-slate-200 sm:inline-flex">
-                  Active scenario:{" "}
-                  <span className="ml-1 font-semibold text-emerald-600">{activeScenario}</span>
-                </span>
-              )}
-            </div>
           </header>
           <Outlet />
           <AppFooter />
