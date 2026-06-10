@@ -39,22 +39,24 @@ function CompassLayout() {
 
   const hasLocation = locationConfirmed;
   const isRespond = pathname.endsWith("/respond");
+  const isRecover = pathname.endsWith("/recover");
+  const hideChrome = isRespond || isRecover;
 
   return (
     <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 sm:py-10">
       <div className="space-y-10">
-        {/* Safety Location sits at the top — except during Respond, which is the simplest screen */}
-        {!isRespond && <SafetyLocationPanel />}
+        {/* Safety Location sits at the top — except during Respond/Recover, which use simpler screens */}
+        {!hideChrome && <SafetyLocationPanel />}
 
-        {hasLocation || isRespond ? (
+        {hasLocation || hideChrome ? (
           <>
-            {!isRespond && <LifecycleDashboard />}
+            {!hideChrome && <LifecycleDashboard />}
 
-            <div className={isRespond ? "" : "border-t border-border/60 pt-8"}>
+            <div className={hideChrome ? "" : "border-t border-border/60 pt-8"}>
               <Outlet />
             </div>
 
-            {!isRespond && (
+            {!hideChrome && (
               <footer className="rounded-2xl border border-border/60 bg-white p-5 text-center text-sm text-card-foreground/75 shadow-sm">
                 <p className="font-semibold text-card-foreground">Data → Rules → Action</p>
                 <p className="mt-1 text-xs">
@@ -88,3 +90,4 @@ function CompassLayout() {
     </main>
   );
 }
+
