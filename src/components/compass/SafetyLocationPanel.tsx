@@ -1218,7 +1218,7 @@ ${planBlocks}
               </button>
               <button
                 onClick={startManualFlow}
-                className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-xs font-semibold text-foreground hover:bg-surface hover:text-surface-foreground"
+                className="inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-background px-4 py-2 text-xs font-semibold text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary"
               >
                 <Pencil className="h-4 w-4" /> Enter Manually
               </button>
