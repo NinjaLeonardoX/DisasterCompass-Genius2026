@@ -133,7 +133,7 @@ function ActionPlanPage() {
                 />
                 <span>
                   <strong className="font-semibold">Approved.</strong> {match.bestVolunteer.name} is
-                  en route to the {RIVERA_HOUSEHOLD.name}. Their status is now{" "}
+                  en route to the {household.name}. Their status is now{" "}
                   <strong>En Route</strong> on the coordinator board.
                 </span>
               </div>

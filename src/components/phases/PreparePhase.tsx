@@ -31,7 +31,9 @@ import {
 } from "@/data/prepare";
 import { decideAction } from "@/lib/actions";
 import { getBestRoute, scoreRoute } from "@/lib/scoring";
-import { ROUTES, RIVERA_HOUSEHOLD } from "@/data/seed";
+import { ROUTES } from "@/data/seed";
+import { useHousehold } from "../LocationContext";
+import { LocationPermissionCard } from "../LocationPermissionCard";
 
 // Prepare leads with the calm risk map. Leaflet touches `window`, so the map is
 // lazy-loaded and only mounted client-side (mirrors src/routes/map.tsx).
