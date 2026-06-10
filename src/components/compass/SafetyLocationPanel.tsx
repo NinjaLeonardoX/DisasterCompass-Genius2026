@@ -723,7 +723,7 @@ export function SafetyLocationPanel() {
   }
 
   function printGuide() {
-    const title = `${selected.name} DisasterCompass Safety Guide`;
+    const title = `${selected.name} Disaster Compass Safety Guide`;
     const hazardRows = HAZARD_SECTION_IDS.map((d) => {
       const score = selected.hazardScores[d];
       const label = DISASTERS.find((x) => x.id === d)?.label ?? d;
@@ -771,7 +771,7 @@ ${planBlocks}
 <h2>Open Gaps</h2>
 <ul>${(selected.gaps.length ? selected.gaps : ["No open gaps recorded."]).map((g) => `<li>${g}</li>`).join("")}</ul>
 
-<div class="disclaimer">Follow official emergency instructions and call 911 for life-threatening emergencies. DisasterCompass provides pre-mapped preparedness guidance using preloaded safety data.</div>
+<div class="disclaimer">Follow official emergency instructions and call 911 for life-threatening emergencies. Disaster Compass provides pre-mapped preparedness guidance using preloaded safety data.</div>
 </body></html>`;
     const w = window.open("", "_blank");
     if (!w) return;
@@ -882,7 +882,7 @@ ${planBlocks}
           <div className="mb-4">
             <h3 className="text-xl font-bold tracking-tight">Set your location</h3>
             <p className="mt-1 text-sm text-card-foreground/75">
-              Choose how to add your address so DisasterCompass can build your Compass Plan.
+              Choose how to add your address so Disaster Compass can build your Compass Plan.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <button

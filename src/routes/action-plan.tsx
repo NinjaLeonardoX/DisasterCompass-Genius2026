@@ -20,7 +20,7 @@ import { useHousehold } from "../components/LocationContext";
 export const Route = createFileRoute("/action-plan")({
   head: () => ({
     meta: [
-      { title: "Recommended Response Plan — DisasterCompass" },
+      { title: "Recommended Response Plan — Disaster Compass" },
       { name: "description", content: "A prioritized action plan based on community signals." },
     ],
   }),

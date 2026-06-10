@@ -28,7 +28,7 @@ const sourceItems = [
   },
   {
     label: "Suggested",
-    desc: "Recommended by DisasterCompass based on community signals.",
+    desc: "Recommended by Disaster Compass based on community signals.",
   },
   {
     label: "Estimated",

@@ -102,15 +102,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:title", content: "Disaster Compass — Community disaster signal map" },
       {
         name: "description",
-        content: "DisasterCompass is a community disaster signal map and resilience dashboard.",
+        content: "Disaster Compass is a community disaster signal map and resilience dashboard.",
       },
       {
         property: "og:description",
-        content: "DisasterCompass is a community disaster signal map and resilience dashboard.",
+        content: "Disaster Compass is a community disaster signal map and resilience dashboard.",
       },
       {
         name: "twitter:description",
-        content: "DisasterCompass is a community disaster signal map and resilience dashboard.",
+        content: "Disaster Compass is a community disaster signal map and resilience dashboard.",
       },
       {
         property: "og:image",

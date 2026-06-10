@@ -5,7 +5,7 @@ import { getRecoveryChecklist } from "@/lib/recovery";
 import { getBestRoute } from "@/lib/scoring";
 import { ROUTES, SCENARIO_TO_DISASTER } from "@/data/seed";
 
-// Root-level DisasterCompass state. It lives above the routes (provided in
+// Root-level Disaster Compass state. It lives above the routes (provided in
 // __root.tsx) so the golden-path flow survives navigation between /, /map,
 // /report and /action-plan — approving a volunteer on one page is still
 // reflected on another.
