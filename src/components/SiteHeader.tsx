@@ -26,7 +26,7 @@ export function SiteHeader() {
   return (
     <header className="relative z-40 border-b border-slate-200 bg-white">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
-        <Link to="/" className="flex items-center">
+        <Link to="/compass/prepare" className="flex items-center">
           <img
             src={dcLogo.url}
             alt="Disaster Compass — Community Disaster Action Planner"
