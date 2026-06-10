@@ -163,7 +163,7 @@ const slides: Slide[] = [
         use: "Full-stack scaffolding, hosting & in-app AI gateway — Google Gemini 3 Flash",
       },
       { name: "Gamma", use: "Presentation design support" },
-      { name: "FlowScholar", use: "Task management and strategy" },
+      { name: "Flow Scholar", use: "Task management and strategy" },
     ],
     note: "AI accelerated the build, but the rules engine stays deterministic and human-reviewed — AI explains, rules decide, humans approve.",
   },
