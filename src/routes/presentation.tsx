@@ -131,6 +131,14 @@ const slides: Slide[] = [
       "DisasterCompass helps communities prepare earlier, respond faster, and recover clearer.",
     close: "We turn official information into local action.",
   },
+  // 6 — Closing
+  {
+    cover: true,
+    eyebrow: "",
+    kicker: "Thank you",
+    title: "We turn official information into local action.",
+    tagline: "DisasterCompass · Community Disaster Action Planner",
+  },
 ];
 
 const decisionStyles: Record<string, string> = {
