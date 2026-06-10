@@ -118,6 +118,9 @@ export function RespondQuickAction() {
           <p className="mt-1 text-sm font-medium text-foreground/85">
             Follow the safe route and avoid marked danger areas.
           </p>
+          <p className="mt-1 text-xs text-foreground/50">
+            Source: National Weather Service (NWS)
+          </p>
         </div>
 
       </div>
