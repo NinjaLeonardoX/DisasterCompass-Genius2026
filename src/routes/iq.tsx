@@ -844,12 +844,13 @@ function BroadcastsPanel({
 // SOS recipient configuration
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type SOSRecipient = { title: string; name: string; organization: string };
+export type SOSRecipient = { title: string; name: string; organization: string; phone: string };
 
 export const DEFAULT_SOS_RECIPIENT: SOSRecipient = {
   title: "Chief",
   name: "Milo",
   organization: "Firestation 80",
+  phone: "",
 };
 
 export function readSOSRecipient(): SOSRecipient {
@@ -861,6 +862,7 @@ export function readSOSRecipient(): SOSRecipient {
         title: parsed.title?.trim() || DEFAULT_SOS_RECIPIENT.title,
         name: parsed.name?.trim() || DEFAULT_SOS_RECIPIENT.name,
         organization: parsed.organization?.trim() || DEFAULT_SOS_RECIPIENT.organization,
+        phone: parsed.phone?.trim() ?? "",
       };
     }
   } catch {
@@ -871,6 +873,11 @@ export function readSOSRecipient(): SOSRecipient {
 
 export function formatSOSRecipient(r: SOSRecipient): string {
   return `${r.title} ${r.name} of ${r.organization}`.replace(/\s+/g, " ").trim();
+}
+
+export function formatSOSMessage(r: SOSRecipient): string {
+  const base = formatSOSRecipient(r);
+  return r.phone ? `${base} — ${r.phone}` : base;
 }
 
 function SOSRecipientPanel() {
