@@ -1,8 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, ShieldCheck, AlertCircle, LifeBuoy, Siren, MapPin, Loader2 } from "lucide-react";
 import { MapPanel } from "../compass/MapPanel";
+import { WeatherCard } from "../WeatherCard";
 import { useLocation } from "../LocationContext";
 import { useRoutes, resolveDestinationShelter } from "@/lib/queries/routing";
+import { SHELTERS } from "@/data/seed";
+import type { Shelter } from "@/types";
+
+// Haversine distance in km between two [lat, lng] points.
+function distanceKm(a: [number, number], b: [number, number]): number {
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const R = 6371;
+  const dLat = toRad(b[0] - a[0]);
+  const dLng = toRad(b[1] - a[1]);
+  const lat1 = toRad(a[0]);
+  const lat2 = toRad(b[0]);
+  const h =
+    Math.sin(dLat / 2) ** 2 + Math.sin(dLng / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
 
 type Status = "none" | "safe" | "stuck" | "needs_help" | "sos";
 
