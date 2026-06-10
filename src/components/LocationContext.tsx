@@ -126,9 +126,11 @@ export function LocationProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<LocationContextValue>(() => {
+    const base = { locationConfirmed, confirmLocation, resetLocation };
     // Priority: saved address > device geolocation > seed fallback.
     if (activeAddress) {
       return {
+        ...base,
         household: householdFromSaved(activeAddress),
         source: "saved",
         status,
@@ -157,6 +159,7 @@ export function LocationProvider({ children }: { children: ReactNode }) {
           : "Your current location",
       };
       return {
+        ...base,
         household,
         source: "device",
         status,
@@ -174,6 +177,7 @@ export function LocationProvider({ children }: { children: ReactNode }) {
       };
     }
     return {
+      ...base,
       household: RIVERA_HOUSEHOLD,
       source: "seed",
       status,
@@ -189,7 +193,7 @@ export function LocationProvider({ children }: { children: ReactNode }) {
       selectAddress,
       refreshAddresses,
     };
-  }, [activeAddress, coords, deviceResolved, status, error, request, clear, selectAddress, refreshAddresses]);
+  }, [activeAddress, coords, deviceResolved, status, error, request, clear, selectAddress, refreshAddresses, locationConfirmed, confirmLocation, resetLocation]);
 
   return <LocationContext.Provider value={value}>{children}</LocationContext.Provider>;
 }
@@ -205,6 +209,9 @@ export function useLocation(): LocationContextValue {
       accuracyMeters: null,
       activeAddress: null,
       resolved: null,
+      locationConfirmed: false,
+      confirmLocation: () => {},
+      resetLocation: () => {},
       requestLocation: () => {},
       useSeed: () => {},
       selectAddress: () => {},
