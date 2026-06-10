@@ -690,9 +690,13 @@ function VolunteersPanel({
   const [area, setArea] = useState("");
   const [vehicle, setVehicle] = useState<Volunteer["vehicle"]>("Car");
   const [editing, setEditing] = useState<string | null>(null);
+  const [hint, setHint] = useState<string | null>(null);
 
   function add() {
-    if (!name.trim()) return;
+    if (!name.trim()) {
+      setHint("Name is required.");
+      return;
+    }
     setVolunteers([
       {
         id: `v${Date.now()}`,
@@ -707,6 +711,7 @@ function VolunteersPanel({
     setName("");
     setSkills("");
     setArea("");
+    setHint(null);
   }
 
   function toggleAvailable(id: string) {
@@ -721,19 +726,20 @@ function VolunteersPanel({
       </div>
 
       <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_1fr_1fr_auto_auto]">
-        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" className="rounded-lg border border-border bg-white px-3 py-1.5 text-xs" />
-        <input value={skills} onChange={(e) => setSkills(e.target.value)} placeholder="Skills (water, ride…)" className="rounded-lg border border-border bg-white px-3 py-1.5 text-xs" />
-        <input value={area} onChange={(e) => setArea(e.target.value)} placeholder="Area" className="rounded-lg border border-border bg-white px-3 py-1.5 text-xs" />
+        <input value={name} onChange={(e) => { setName(e.target.value); if (hint) setHint(null); }} onKeyDown={(e) => e.key === "Enter" && add()} placeholder="Name (required)" className="rounded-lg border border-border bg-white px-3 py-1.5 text-xs" />
+        <input value={skills} onChange={(e) => setSkills(e.target.value)} onKeyDown={(e) => e.key === "Enter" && add()} placeholder="Skills (water, ride…)" className="rounded-lg border border-border bg-white px-3 py-1.5 text-xs" />
+        <input value={area} onChange={(e) => setArea(e.target.value)} onKeyDown={(e) => e.key === "Enter" && add()} placeholder="Area" className="rounded-lg border border-border bg-white px-3 py-1.5 text-xs" />
         <select value={vehicle} onChange={(e) => setVehicle(e.target.value as Volunteer["vehicle"])} className="rounded-lg border border-border bg-white px-2 py-1.5 text-xs">
           <option>Car</option>
           <option>Truck</option>
           <option>Van</option>
           <option>None</option>
         </select>
-        <button onClick={add} className="inline-flex items-center gap-1 rounded-lg bg-[color:var(--severity-low)] px-3 py-1.5 text-xs font-semibold text-white hover:brightness-110">
+        <button type="button" onClick={add} className="inline-flex items-center gap-1 rounded-lg bg-[color:var(--severity-low)] px-3 py-1.5 text-xs font-semibold text-white hover:brightness-110">
           <Plus className="h-3.5 w-3.5" /> Add
         </button>
       </div>
+      {hint && <p className="mt-2 text-[11px] font-medium text-[color:var(--severity-high)]">{hint}</p>}
 
       <ul className="mt-4 space-y-2">
         {volunteers.map((v) => {
