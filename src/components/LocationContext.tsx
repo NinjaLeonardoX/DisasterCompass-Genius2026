@@ -187,7 +187,7 @@ export function LocationProvider({ children }: { children: ReactNode }) {
     }
     return {
       ...base,
-      household: RIVERA_HOUSEHOLD,
+      household: { ...RIVERA_HOUSEHOLD, name: "Your household", locationName: "Set your location" },
       source: "seed",
       status,
       error,
