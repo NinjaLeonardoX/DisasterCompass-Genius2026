@@ -33,7 +33,7 @@ import { decideAction } from "@/lib/actions";
 import { getBestRoute, scoreRoute } from "@/lib/scoring";
 import { ROUTES } from "@/data/seed";
 import { useHousehold } from "../LocationContext";
-import { LocationPermissionCard } from "../LocationPermissionCard";
+import { RollupPanel } from "../RollupPanel";
 
 // Prepare leads with the calm risk map. Leaflet touches `window`, so the map is
 // lazy-loaded and only mounted client-side (mirrors src/routes/map.tsx).
@@ -74,7 +74,7 @@ export function PreparePhase() {
         </p>
       </div>
 
-      <LocationPermissionCard />
+      <RollupPanel />
 
       <div className="dc-card flex flex-wrap items-center justify-between gap-3 p-4">
         <span className="inline-flex items-center gap-2 rounded-full bg-[color:var(--severity-low)]/10 px-3 py-1 text-xs font-semibold text-[color:var(--severity-low)] ring-1 ring-[color:var(--severity-low)]/25">
