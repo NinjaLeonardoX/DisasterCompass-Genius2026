@@ -80,8 +80,6 @@ export function PreparePhase() {
 
   return (
     <div className="space-y-6">
-      <SafetyLocationPanel />
-
       <div>
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[color:var(--severity-low)]">
           Phase 1 · Before impact
@@ -91,6 +89,7 @@ export function PreparePhase() {
           Orient on the risk map → pick a hazard → see your route → fix your gaps.
         </p>
       </div>
+
 
       <div className="dc-card flex flex-wrap items-center justify-between gap-3 p-4">
         <span className="inline-flex items-center gap-2 rounded-full bg-[color:var(--severity-low)]/10 px-3 py-1 text-xs font-semibold text-[color:var(--severity-low)] ring-1 ring-[color:var(--severity-low)]/25">
