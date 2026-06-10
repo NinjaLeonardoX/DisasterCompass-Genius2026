@@ -97,6 +97,8 @@ export default function MapPanel({
 
   const [frame, setFrame] = useState(0);
   const [driving, setDriving] = useState(false);
+  const [legendOpen, setLegendOpen] = useState(false);
+
 
   // Reset the playhead whenever the simulated route changes.
   useEffect(() => {
