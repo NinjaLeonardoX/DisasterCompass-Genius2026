@@ -170,14 +170,32 @@ const STATUS_TONE: Record<Status, string> = {
   Completed: "var(--severity-low)",
 };
 
+const NEEDS_STORAGE_KEY = "recover:needs";
+
 export function RecoverPhase() {
   const { household, activeAddress, resolved } = useLocation();
-  const [needs, setNeeds] = useState<Need[]>(SEED_NEEDS);
+  const [needs, setNeeds] = useState<Need[]>(() => {
+    if (typeof window === "undefined") return SEED_NEEDS;
+    try {
+      const raw = window.localStorage.getItem(NEEDS_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as Need[];
+        if (Array.isArray(parsed) && parsed.length) return parsed;
+      }
+    } catch {/* ignore */}
+    return SEED_NEEDS;
+  });
   const [helpers, setHelpers] = useState<HelpPoint[]>(SEED_HELP);
   const [openForm, setOpenForm] = useState<null | "need" | "help" | "broadcast">(null);
   const [draftNeed, setDraftNeed] = useState<Omit<Need, "id" | "status"> | null>(null);
   const [sending, setSending] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(NEEDS_STORAGE_KEY, JSON.stringify(needs));
+    } catch {/* ignore */}
+  }, [needs]);
 
   const householdLabel = activeAddress?.name ?? "Your household";
   const scopeLabel = resolved?.city
