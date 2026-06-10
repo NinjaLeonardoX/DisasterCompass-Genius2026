@@ -41,7 +41,7 @@ export function RecoverPhase() {
   const done = idx >= STEPS.length;
 
   const householdLabel =
-    activeAddress?.name ?? (source === "device" ? "Your household" : "Rivera Family");
+    activeAddress?.name ?? "Your household";
   const scopeLabel = resolved?.city
     ? `${resolved.city}${resolved.state ? `, ${resolved.state}` : ""}`
     : household.locationName;
