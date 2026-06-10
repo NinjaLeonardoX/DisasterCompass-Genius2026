@@ -149,7 +149,7 @@ export function RespondQuickAction() {
 
       </div>
 
-      {/* Real-time location status */}
+      {/* Real-time location status (auto, no button) */}
       <div
         className={`flex items-center justify-between gap-3 rounded-xl border px-4 py-2.5 text-sm shadow-sm ${
           hasRealLocation
@@ -158,7 +158,7 @@ export function RespondQuickAction() {
         }`}
       >
         <div className="flex min-w-0 items-center gap-2">
-          {geoStatus === "prompting" ? (
+          {geoStatus === "prompting" || (!hasRealLocation && geoStatus === "idle") ? (
             <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" />
           ) : (
             <MapPin
@@ -169,23 +169,19 @@ export function RespondQuickAction() {
           <span className="truncate font-medium">
             {hasRealLocation
               ? `Live location · ±${Math.round(accuracyMeters ?? 0)} m`
-              : geoStatus === "prompting"
-                ? "Getting your location…"
-                : geoStatus === "denied"
-                  ? "Location permission denied"
-                  : geoStatus === "unsupported"
-                    ? "Geolocation not supported"
-                    : geoError ?? "Location not shared"}
+              : geoStatus === "denied"
+                ? "Location permission denied — enable it in your browser"
+                : geoStatus === "unsupported"
+                  ? "Geolocation not supported on this device"
+                  : geoStatus === "error"
+                    ? (geoError ?? "Couldn't get location — retrying…")
+                    : "Getting your location…"}
           </span>
         </div>
-        {!hasRealLocation && geoStatus !== "prompting" && (
-          <button
-            type="button"
-            onClick={requestLocation}
-            className="shrink-0 rounded-lg bg-foreground px-3 py-1.5 text-xs font-semibold text-background hover:opacity-90"
-          >
-            Use my location
-          </button>
+        {(hasRealLocation || cachedLoc) && (
+          <span className="shrink-0 text-xs text-foreground/60">
+            Updated {formatTime((hasRealLocation ? locationUpdatedAt : cachedLoc?.savedAt) ?? Date.now())}
+          </span>
         )}
       </div>
 
@@ -205,6 +201,74 @@ export function RespondQuickAction() {
             : undefined
         }
       />
+
+      {/* Safe Navigation — persistent route details (works offline) */}
+      <section
+        aria-label="Safe navigation"
+        className="rounded-2xl border border-border bg-white p-4 shadow-sm"
+      >
+        <header className="mb-3 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Navigation className="h-4 w-4 text-[color:var(--severity-low)]" aria-hidden="true" />
+            <h3 className="text-sm font-bold tracking-wide text-foreground">Safe Navigation</h3>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-foreground/60">
+            {isOffline && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-amber-100 px-1.5 py-0.5 font-semibold text-amber-800">
+                <WifiOff className="h-3 w-3" aria-hidden="true" /> Offline
+              </span>
+            )}
+            {(displayRoute || cachedRoute) && (
+              <span>Updated {formatTime((displayRoute ? Date.now() : cachedRoute!.savedAt))}</span>
+            )}
+          </div>
+        </header>
+
+        {displayRoute || cachedRoute ? (
+          <div className="space-y-2 text-sm">
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span className="text-base font-bold text-foreground">
+                {(displayRoute ?? cachedRoute!.route).name}
+              </span>
+              <span className="text-foreground/70">
+                → {displayDestName ?? cachedRoute?.destinationName ?? "Safe destination"}
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <Stat label="Distance" value={`${(displayRoute ?? cachedRoute!.route).distanceMiles.toFixed(1)} mi`} />
+              <Stat label="ETA" value={`${Math.round((displayRoute ?? cachedRoute!.route).estimatedMinutes)} min`} />
+              <Stat label="Elev. gain" value={`${Math.round((displayRoute ?? cachedRoute!.route).elevationGain)} ft`} />
+            </div>
+            {((displayRoute ?? cachedRoute!.route).streets?.length ?? 0) > 0 && (
+              <details className="rounded-lg bg-foreground/[0.03] px-3 py-2">
+                <summary className="cursor-pointer text-xs font-semibold text-foreground/80">
+                  Turn-by-turn streets ({(displayRoute ?? cachedRoute!.route).streets!.length})
+                </summary>
+                <ol className="mt-2 list-decimal space-y-0.5 pl-5 text-xs text-foreground/75">
+                  {(displayRoute ?? cachedRoute!.route).streets!.slice(0, 12).map((s, i) => (
+                    <li key={i}>{s}</li>
+                  ))}
+                </ol>
+              </details>
+            )}
+            {(displayRoute ?? cachedRoute!.route).notes && (
+              <p className="text-xs text-foreground/60">{(displayRoute ?? cachedRoute!.route).notes}</p>
+            )}
+            {!displayRoute && cachedRoute && (
+              <p className="text-xs text-amber-700">
+                Showing last known route from {formatTime(cachedRoute.savedAt)}. Reconnect for live updates.
+              </p>
+            )}
+          </div>
+        ) : (
+          <p className="text-sm text-foreground/60">
+            {hasRealLocation ? "Calculating safe route…" : "Waiting for your location to compute a safe route."}
+          </p>
+        )}
+      </section>
+
+
+
 
 
 
