@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { CheckCircle2, AlertTriangle, Radar, Users } from "lucide-react";
-import { DisasterPicker, type DisasterKind } from "./compass/DisasterPicker";
-import { HouseholdCard } from "./compass/HouseholdCard";
-import { usePhase } from "./PhaseContext";
+import { DisasterPicker, type DisasterKind } from "../compass/DisasterPicker";
+import { HouseholdCard } from "../compass/HouseholdCard";
+import { usePhase } from "../PhaseContext";
 
 interface Gap {
   id: string;
