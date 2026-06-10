@@ -47,7 +47,7 @@ function LandingPage() {
 
         {/* HERO */}
         <section className="mx-auto max-w-7xl px-6 pt-12 pb-4 lg:pt-20 lg:pb-6">
-          <div className="grid items-stretch gap-14 lg:grid-cols-12">
+          <div className="grid items-start gap-14 lg:grid-cols-12">
             <div className="lg:col-span-7">
 
               <h1 className="mt-6 text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
@@ -99,13 +99,13 @@ function LandingPage() {
 
             {/* Hero image */}
             <div className="lg:col-span-5">
-              <div className="relative h-full min-h-[420px] lg:min-h-[560px]">
+              <div className="relative">
                 <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-[#16A34A]/25 to-transparent blur-2xl" />
-                <div className="relative h-full overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-black/50 ring-1 ring-white/5">
+                <div className="relative overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-black/50 ring-1 ring-white/5">
                   <img
                     src={heroEvacuation.url}
                     alt="A family follows a glowing green evacuation route to safety as floodwaters rise at dusk"
-                    className="absolute inset-0 h-full w-full object-cover"
+                    className="w-full object-cover"
                     loading="eager"
                   />
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0f1a2e]/70 via-transparent to-transparent" />
