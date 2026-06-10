@@ -90,6 +90,8 @@ export function PreparePhase() {
         </p>
       </div>
 
+      <SafetyLocationPanel />
+
       <RollupPanel />
 
       <div className="dc-card flex flex-wrap items-center justify-between gap-3 p-4">
