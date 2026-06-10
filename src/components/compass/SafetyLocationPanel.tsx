@@ -1011,6 +1011,9 @@ ${planBlocks}
                     <p className="mt-1 text-xs text-card-foreground/65">
                       Tap a hazard zone on the map or pick one from the list to see the rehearsal route.
                     </p>
+                    <div className="mt-3">
+                      <RouteTrainingPanel selectedHazardId={riskHazardId} onSelectHazard={setRiskHazardId} />
+                    </div>
                     <div className="mt-3 grid gap-4 lg:grid-cols-[1.6fr_1fr]">
                       <div className="overflow-hidden rounded-2xl">
                         {mapMounted ? (
