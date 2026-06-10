@@ -22,9 +22,11 @@ const PHASES: { id: Phase; label: string; sub: string; Icon: typeof Radar }[] = 
 ];
 
 const REFS = [
+  { to: "/iq", label: "IQ Engine", Icon: Brain },
   { to: "/methodology", label: "Methodology", Icon: BookOpen },
   { to: "/ai-disclosure", label: "AI Disclosure", Icon: Info },
 ] as const;
+
 
 export function AppSidebar() {
   const { state } = useSidebar();
