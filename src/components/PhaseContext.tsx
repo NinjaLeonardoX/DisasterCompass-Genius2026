@@ -12,12 +12,8 @@ interface PhaseContextValue {
 
 const PhaseContext = createContext<PhaseContextValue | null>(null);
 
-const PHASE_KEY = "dc.activePhase";
 const MODE_KEY = "dc.mode";
 
-function isPhase(v: unknown): v is Phase {
-  return v === "prepare" || v === "respond" || v === "recover";
-}
 function isMode(v: unknown): v is Mode {
   return v === "resident" || v === "community";
 }
