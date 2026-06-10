@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Radar, Compass as CompassIcon, LifeBuoy, BookOpen, Info } from "lucide-react";
+import { Radar, Compass as CompassIcon, LifeBuoy, BookOpen, Info, Brain } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
